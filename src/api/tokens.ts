@@ -56,7 +56,7 @@ function aplicar(t: Tokens): void {
 }
 
 export function configurarTokens(opciones: { apiUrl: string; transporte: Transporte }): void {
-  urlRenovar = `${opciones.apiUrl}/auth/sesion/renovar`
+  urlRenovar = `${opciones.apiUrl}/api/v1/auth/sesion/renovar`
   transporte = opciones.transporte
 }
 

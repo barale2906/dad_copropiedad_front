@@ -21,5 +21,16 @@ export default defineConfig({
   },
   test: {
     environment: 'jsdom',
+    include: ['src/**/*.test.ts'],
+    setupFiles: ['src/__tests__/setup.ts'],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text-summary', 'html'],
+      // La lógica (API, sesión, permisos, navegación) exige cobertura; las vistas y el motor 3D
+      // se cubren con las pruebas E2E (Playwright).
+      include: ['src/api/**/*.ts', 'src/stores/**/*.ts', 'src/escena/mapa-modulos.ts', 'src/pantallas/navegacion.ts'],
+      exclude: ['src/api/esquema.d.ts', 'src/api/tipos.ts'],
+      thresholds: { lines: 80, functions: 80, branches: 70, statements: 80 },
+    },
   },
 })

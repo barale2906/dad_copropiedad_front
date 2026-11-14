@@ -1,0 +1,13 @@
+---
+description: Reglas del motor 3D y del presupuesto de rendimiento
+globs: ["src/escena/**"]
+alwaysApply: false
+---
+
+Complementa `AGENTS.md` (§2 y §7); prevalece en caso de conflicto.
+
+- `three` solo en `src/escena/`; `EscenaCanvas` se importa con `defineAsyncComponent`.
+- Render bajo demanda (`solicitar()`); sin bucles continuos, sombras ni postprocesado.
+- Reutilizar geometrías y materiales del `Kit`; estados visuales nuevos = rol o paleta nueva, no materiales por malla.
+- Zonas: datos en `plantillas/zonas.ts` (sin three.js) y geometría en `conjunto.ts`/`oficina.ts` con el mismo id.
+- El build falla si se excede el presupuesto (inicial ≤ 120 KB, motor ≤ 220 KB gzip). Revisar con `make e2e` en escritorio y móvil.

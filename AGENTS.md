@@ -1,35 +1,351 @@
-# Convenciones del frontend (obligatorias)
+# AGENTS.md — dad_copropiedad_front
 
-Las leen todas las herramientas (Claude Code vía `CLAUDE.md`, Cursor, Copilot…).
+**Fuente única de verdad** de las pautas de desarrollo de este repositorio, sin importar quién o qué
+genere el código: personas, Claude Code, Cursor, VS Code (Copilot), opencode, Codex o la terminal.
+Los demás archivos de reglas (`CLAUDE.md`, `.cursor/rules/*.mdc`, `.github/copilot-instructions.md`,
+`.claude/skills/*`) solo **remiten a este documento**; no duplican reglas.
 
-## Entorno
-- **No se instala nada en el equipo.** Todo comando de Node corre en Docker: `make …` o
-  `make sh`. Dependencias nuevas: `npm install <paquete> --save-exact` dentro del contenedor,
-  con una versión que tenga al menos 2 semanas de publicada.
-- Antes de terminar una tarea: `make verificar` (typecheck + lint + pruebas). Si toca la maqueta
-  o el diseño, revise también `make preview` en escritorio y en móvil.
+Frontend web de **DAD Copropiedad** (DAD AI & SYSTEMS): administración de propiedad horizontal y
+de empresas, multi-entidad. Consume el backend `dad_copropiedad_back` (Rust) por su contrato
+OpenAPI. La navegación es una **maqueta 3D genérica** (conjunto para PH, oficina para empresas)
+con estética de menú de videojuego futurista; los módulos de trabajo diario son vistas planas.
 
-## Código
-- Idioma: **español** en nombres, comentarios y textos (igual que el backend). Usted en los textos
-  para el usuario.
-- Vue 3 con `<script setup lang="ts">`, Pinia y TypeScript estricto. Alias `@/` → `src/`.
-- `src/api/esquema.d.ts` es generado (`make tipos-api`): no se edita a mano. Use los alias de
-  `src/api/tipos.ts` y llame a la API con `exigir(api().GET(...))`.
-- Decida por `error.codigo`, nunca por el texto del mensaje. Montos y coeficientes son texto
-  decimal: nunca `Number()` para calcular.
-- Permisos y módulos se consultan en el store `entidad` (`tieneModulo`, `tienePermiso`); el
-  frontend solo oculta, el backend decide.
+> ### Premisa de mantenimiento (obligatoria)
+> Este documento se actualiza **en el mismo commit** cada vez que se incorpore o retire una
+> tecnología, dependencia relevante, herramienta, patrón o convención. Como mínimo: §4
+> Tecnologías, §14 Comandos y las convenciones afectadas. Un cambio que introduce tecnología sin
+> actualizar este archivo **no está terminado**. Si una regla entra en conflicto con lo que pide
+> una tarea, se señala el conflicto en lugar de ignorar la regla.
 
-## Maqueta 3D
-- El 3D es solo navegación. **Toda función debe poder alcanzarse sin la maqueta** (menú alterno).
-- `mapa-modulos.ts` es el único lugar donde se relacionan secciones, acciones, módulos y permisos.
-- Nada fuera de `src/escena/` importa `three`; los componentes 3D se cargan con
-  `defineAsyncComponent` para que three.js quede en su propio chunk.
-- Reutilice las geometrías y materiales del `Kit`; no cree materiales por malla. Sin sombras ni
-  postprocesado. El render es bajo demanda: no agregue bucles continuos.
+---
 
-## Estilo
-- Colores, tipografías y tiempos solo desde los tokens (`src/hud/estilos/tokens.css`).
-- Componentes base `Hud*` antes que estilos sueltos. Responsive desde 360 px; objetivos táctiles
-  de al menos 40 px.
-- Respete `prefers-reduced-motion` y el foco visible.
+## 1. Principios de calidad
+
+Todo código debe ser **profesional, limpio, reutilizable y escalable**.
+
+| Principio | Qué significa aquí |
+|---|---|
+| Profesional | Tipado estricto de punta a punta (contrato → store → vista), errores manejados y mostrados al usuario, estados de carga, vacío y error en cada pantalla, accesible y responsive desde el primer commit. |
+| Limpio | Nombres expresivos en español, funciones y componentes con **una responsabilidad**, sin código muerto ni comentarios obsoletos, sin `any`, ESLint y Prettier sin advertencias. Un componente que pasa de ~250 líneas de `<script>` o mezcla responsabilidades se divide. |
+| Reutilizable | **Buscar lo existente antes de escribir** (§3). Lo visual va en `src/hud/`, la lógica sin estado en funciones puras, la lógica con estado en composables (`useX`) o stores. Nada se copia entre vistas: se extrae. |
+| Escalable | Capas con dependencias en un solo sentido (§2); módulos aislados en `src/modulos/<seccion>/` y cargados en diferido; un solo mapa de navegación (`mapa-modulos.ts`); datos por contrato tipado; sin estado global fuera de Pinia. |
+| Liviano | Presupuesto de peso verificado en cada build (§7). Toda dependencia nueva se justifica por su costo en KB. |
+| Reproducible | Todo en Docker, versiones exactas, `package-lock.json` versionado, configuración por `config.json` en tiempo de ejecución. |
+| Simple | La solución más simple que cumpla (YAGNI). Sin abstracciones, librerías ni capas "por si acaso". |
+
+Principios de diseño:
+- **SOLID adaptado a Vue:** componentes pequeños con una responsabilidad; props de entrada y
+  eventos de salida (sin mutar props); depender de composables o stores, no de detalles.
+- **DRY con la regla de tres:** a la segunda repetición se anota, a la tercera se extrae. No
+  abstraer antes.
+- **Composición antes que herencia o configuración gigante:** slots y composables en lugar de
+  componentes con decenas de props booleanas.
+- **Estados inválidos imposibles:** uniones discriminadas (`'cargando' | 'listo' | 'error'`) en
+  lugar de varios booleanos sueltos; tipos del contrato en lugar de `string`.
+- **Funciones puras para la lógica** (fáciles de probar) y componentes delgados que solo la usan.
+
+## 2. Arquitectura
+
+SPA con Vue 3. Capas y quién puede importar a quién (la flecha indica "puede usar"):
+
+```
+pantallas/ ─┐
+modulos/  ──┼──► stores/ ──► api/ ──► (backend)
+            ├──► hud/  (componentes visuales, sin lógica de negocio)
+            └──► escena/ (solo vía defineAsyncComponent o datos sin three.js)
+app/ (arranque y router) ──► todo lo anterior
+```
+
+| Carpeta | Responsabilidad | No puede |
+|---|---|---|
+| `src/app/` | Arranque, router, guardas, `config.json` | Tener lógica de pantallas |
+| `src/api/` | Cliente HTTP tipado, tokens, errores, tipos del contrato | Importar Vue, stores o vistas |
+| `src/stores/` | Estado compartido (sesión, entidad activa, preferencias) | Importar componentes |
+| `src/hud/` | Sistema visual: tokens, estilos base, componentes `Hud*` | Llamar a la API o leer stores de negocio |
+| `src/escena/` | Motor 3D, piezas, plantillas, calidad, `mapa-modulos.ts` | Importar stores, router o vistas (recibe todo por props/opciones) |
+| `src/pantallas/` | Pantallas transversales y su navegación | Contener lógica de un módulo funcional |
+| `src/modulos/<seccion>/` | Un módulo funcional (vistas, componentes, store y API propios) | Importar de otro módulo (lo compartido sube a `hud/`, `stores/` o `api/`) |
+| `src/mocks/` | Backend simulado del modo demo y de las pruebas | Usarse fuera del modo demo o de las pruebas |
+
+Reglas:
+- **Nada fuera de `src/escena/` importa `three`.** Los componentes 3D se cargan con
+  `defineAsyncComponent` para que three.js quede en su propio chunk. Los datos de zonas que
+  necesitan las vistas viven en `escena/plantillas/zonas.ts`, sin three.js.
+- **El 3D es solo navegación:** toda función debe poder alcanzarse sin la maqueta (menú alterno).
+- Las rutas de los módulos se cargan en diferido (`component: () => import(...)`).
+
+## 3. Flujo obligatorio para nueva funcionalidad
+
+1. **Entender** el requisito: qué pantalla, qué endpoint del contrato, qué permisos y módulo.
+   Si hay ambigüedad de negocio, preguntar.
+2. **Buscar qué reutilizar antes de escribir código nuevo** (obligatorio). Revisar al menos el
+   [inventario](#inventario-de-piezas-reutilizables) y buscar:
+   `grep -rn "<concepto>" src` (y en `src/api/esquema.d.ts` el esquema o la ruta del backend).
+   - Si existe algo que cumple: **usarlo**.
+   - Si existe algo parecido: **extenderlo** sin romper a sus usuarios actuales (prop opcional,
+     slot, variante, parámetro con valor por defecto) y ajustar sus pruebas.
+   - Si se crea algo nuevo: ubicarlo en la capa correcta (§2) para que otros lo reutilicen.
+   - En el resumen del cambio, **decir qué se reutilizó o extendió** y justificar lo nuevo.
+3. **Diseñar**: tipos desde el contrato → función pura o composable → store si el estado se
+   comparte → componentes → vista y ruta → entrada en `mapa-modulos.ts` si es navegable.
+4. **Escribir las pruebas junto con el código** (§10).
+5. **Documentar** (§12).
+6. **Verificar**: `make verificar` y, si cambió una pantalla o un flujo, `make e2e`.
+7. Cumplir la [definición de terminado](#13-definición-de-terminado).
+
+### Inventario de piezas reutilizables
+
+Se mantiene al día: quien crea una pieza reutilizable la agrega aquí.
+
+| Necesito… | Usar | Dónde |
+|---|---|---|
+| Llamar a la API | `exigir(api().GET/POST(...))` (tipado, lanza `ErrorApi`) | `src/api/cliente.ts` |
+| Reintentar un POST sin duplicar | `idempotencia()` → cabecera `Idempotency-Key` | `src/api/cliente.ts` |
+| Tipos del backend | `Modulo`, `Permiso`, `EntidadDeLaCuenta`, `Capacidades`… | `src/api/tipos.ts` (alias de `esquema.d.ts`) |
+| Mostrar un error | `mensajeDeError(e)` | `src/api/errores.ts` |
+| Generar UUID (también en HTTP) | `uuid()` | `src/api/uuid.ts` |
+| Sesión, login, 2FA, cierre | `useSesion()` | `src/stores/sesion.ts` |
+| Entidad activa, ¿es PH?, permisos, módulos | `useEntidad()`: `esPH`, `tieneModulo`, `tienePermiso`, `refrescar` | `src/stores/entidad.ts` |
+| Preferencias del navegador | `usePreferencias()` (vista, calidad 3D) | `src/stores/preferencias.ts` |
+| Secciones, acciones y su estado | `SECCIONES`, `estadoSeccion`, `accionesVisibles`, `TEXTO_ESTADO` | `src/escena/mapa-modulos.ts` |
+| Zonas de la maqueta y rutas | `useNavegacion()`: `zonas`, `estadosZonas`, `secciones`, `rutaAccion`, `rutaMaqueta` | `src/pantallas/navegacion.ts` |
+| Icono de una sección | `ICONOS[slug]`; iconos sueltos: `~icons/tabler/<nombre>` | `src/pantallas/iconos.ts` |
+| Panel de vidrio HUD | `<HudPanel etiqueta resaltado>` | `src/hud/componentes/HudPanel.vue` |
+| Botón | `<HudBoton variante tipo cargando bloque>` | `src/hud/componentes/HudBoton.vue` |
+| Campo de formulario | `<HudCampo v-model etiqueta error ayuda>` (slots `antes`/`despues`) | `src/hud/componentes/HudCampo.vue` |
+| Barra superior de la entidad | `<BarraSuperior>` (slot para acciones) | `src/pantallas/componentes/BarraSuperior.vue` |
+| Marco de módulo (menú lateral, migas, volver) | `ModuloView.vue` (base del marco de módulos) | `src/pantallas/ModuloView.vue` |
+| Lienzo 3D | `<EscenaCanvas plantilla perfil estados enfocada holgura>` (siempre asíncrono) | `src/escena/EscenaCanvas.vue` |
+| Nivel de calidad 3D / movimiento reducido | `perfil()`, `soportaWebGL()`, `movimientoReducido()` | `src/escena/calidad.ts` |
+| Piezas 3D | `Kit` (`caja`, `losa`, `cilindro_`, `cono_`) y `torre`, `edificio`, `arbol`, `carro`, `escritorio` | `src/escena/piezas.ts` |
+| Fondo ambiental HUD | clase `.fondo-hud`; rótulos: `.rotulo`; texto oculto accesible: `.solo-lector` | `src/hud/estilos/base.css` |
+| Transición entre vistas | `<Transition name="vista">` | `src/hud/estilos/base.css` |
+| Datos de prueba / demo | `fetchDemo` (usuarios `uno`, `empresa`, `2fa`) | `src/mocks/demo.ts` |
+| Preparar pruebas | `prepararConDemo()`, `conCapacidades()`, `ENTIDAD_PH` | `src/__tests__/ayudantes.ts` |
+| Pasos E2E | `entrar()`, `esperarMaqueta()`, `elegirZona()` | `e2e/utilidades.ts` |
+
+## 4. Tecnologías
+
+| Pieza | Tecnología (versión exacta en `package.json`) | Notas |
+|---|---|---|
+| Lenguaje | TypeScript 5.9 estricto (+ `noUncheckedIndexedAccess`) | TS 7 aún no es compatible con openapi-typescript |
+| Framework | Vue 3.5, `<script setup lang="ts">`, Composition API | Sin Options API |
+| Build | Vite 8 | `vue-tsc --build` antes de compilar |
+| Enrutamiento | Vue Router 5, modo *history* | Rutas de módulos en diferido |
+| Estado | Pinia 4 (stores de configuración: `defineStore('x', () => …)`) | |
+| API | `openapi-fetch` + tipos de `openapi-typescript` | `src/api/esquema.d.ts` es **generado** |
+| 3D | three.js 0.186 directo (sin TresJS) | Solo en `src/escena/` |
+| Iconos | `unplugin-icons` + `@iconify-json/tabler` | Solo se empaqueta lo importado |
+| Fuentes | `@fontsource-variable/inter`, `@fontsource/rajdhani` (latin) | Alojadas en el propio build |
+| Decimales | `decimal.js-light` | Montos y coeficientes (texto decimal del backend) |
+| Pruebas unitarias y de componentes | Vitest 5 + `@vue/test-utils` + jsdom, cobertura v8 | |
+| Pruebas E2E | Playwright 1.56 (imagen Docker de la misma versión) | Chromium con SwiftShader para WebGL |
+| Accesibilidad | `@axe-core/playwright` (WCAG 2.1 AA) | `playwright-core` fijado por `overrides` |
+| Calidad | ESLint (vue + typescript-eslint), Prettier | |
+| Contenedores | Docker: `node:24-alpine` (dev/build), `nginx:alpine` (preview), Playwright (e2e) | |
+| UI de formularios complejos | PrimeVue *unstyled* (prevista para la fase 3) | Se agrega con su sección aquí |
+
+Reglas de dependencias:
+- Versiones **exactas** (`--save-exact`) con **al menos 2 semanas** de publicadas
+  (`npm install --before=<fecha>`). Nunca rangos `^`/`~`.
+- Antes de agregar una librería: ¿lo resuelve la plataforma, Vue o algo ya instalado? ¿Cuántos KB
+  suma al bundle inicial? Se prefiere lo que permite importar solo lo usado.
+- Si la imagen de Playwright cambia de versión, `@playwright/test` y el `overrides` cambian igual.
+
+## 5. Convenciones de código
+
+### Generales
+- **Español** en nombres de archivos, variables, funciones, tipos, comentarios y textos (igual que
+  el backend y su contrato). Términos técnicos sin traducción forzada (`store`, `props`, `slot`).
+- Textos para el usuario: claros, en **usted**, sin jerga técnica; los errores dicen qué hacer.
+- Archivos: componentes y vistas en `PascalCase.vue` (vistas con sufijo `View`), composables
+  `useAlgo` en `camelCase.ts`, resto en `kebab-case.ts` o `camelCase.ts` según la carpeta.
+- Alias `@/` → `src/`. Imports ordenados: librerías, `@/…`, relativos.
+- Sin `any`, sin `// @ts-ignore`, sin `!` salvo que el invariante sea evidente y cercano.
+  Prohibido desactivar reglas de lint para "hacer pasar".
+- Exportaciones nombradas (salvo componentes `.vue`). Sin barriles `index.ts` que oculten
+  dependencias.
+- Fechas: el backend envía UTC; se muestran en la `zona_horaria` de la copropiedad, nunca la del
+  navegador. Montos y coeficientes: texto decimal → `decimal.js-light`; **nunca `Number()` para
+  calcular**.
+
+### Componentes Vue
+- `<script setup lang="ts">` siempre. Orden del bloque: imports → props/emits/model → stores y
+  composables → estado → computados → funciones → ciclo de vida.
+- Props tipadas con `defineProps<{…}>()` y `withDefaults`; eventos con
+  `defineEmits<{ nombre: [args] }>()`; doble enlace con `defineModel`. **Nunca mutar props.**
+- `computed` para derivar; `watch` solo para efectos (llamar a la API, sincronizar algo externo).
+- Plantillas sin lógica: lo que no sea trivial va a un `computed` o una función.
+- Todo listener o temporizador que se crea en `onMounted` se libera en `onBeforeUnmount`.
+- Prohibido `v-html` con datos que no sean constantes del código.
+- Cada pantalla que carga datos maneja **cargando, vacío y error** (con `mensajeDeError`).
+- Estilos `scoped`; para estilizar hijos, `:deep()` acotado.
+
+### Estado y datos
+- Estado compartido entre pantallas → Pinia. Estado local → `ref` en el componente. Estado de un
+  módulo → store dentro de `src/modulos/<seccion>/`.
+- Llamadas al backend solo con `exigir(api()…)`; decidir por `error.codigo`, nunca por el texto.
+- Tras un 403 `sin_permiso` o `modulo_no_habilitado`: `useEntidad().refrescar()`.
+- POST que crean algo: una `idempotencia()` **por acción del usuario**, reutilizada al reintentar.
+- Listados: paginación por cursor (`limite`, `despues`, `siguiente`), sin números de página.
+- Permisos y módulos solo con `tieneModulo` / `tienePermiso` y el mapa de secciones; nunca deducir
+  permisos de los nombres de los roles. El frontend **oculta**; el backend **decide**.
+
+## 6. Navegación y módulos
+
+- `src/escena/mapa-modulos.ts` es el **único** lugar que relaciona secciones, acciones, módulos
+  contratables y permisos. La maqueta, el menú alterno y el menú lateral salen de ahí.
+- Una zona sin módulo contratado se muestra **apagada** (no se oculta); sin permisos, "sin acceso".
+- Ruta de un módulo: `/e/:entidadId/:seccion/:accion?`. Se conservan `?zona=` (bien común
+  preseleccionado) y `?origen=` (zona a la que vuelve "Volver a la maqueta").
+- Pasos para un módulo nuevo: skill `.claude/skills/nuevo-modulo` y `docs/plan-frontend.md`.
+
+## 7. Maqueta 3D y rendimiento
+
+Presupuesto (verificado por `scripts/presupuesto.mjs` en cada `npm run build`; el build falla si
+se excede):
+
+| Medida | Límite |
+|---|---|
+| JS inicial (login) | ≤ 120 KB gzip, sin three.js |
+| Chunk del motor 3D (`EscenaCanvas`) | ≤ 220 KB gzip |
+
+Reglas del motor:
+- Render **bajo demanda**: no agregar bucles continuos; pedir cuadros con `solicitar()` solo
+  mientras algo cambia. El holograma del login es la única animación continua (≤ 30 fps).
+- Reutilizar geometrías y materiales del `Kit`; **no crear materiales por malla**. Para un estado
+  visual nuevo se agrega un rol o una paleta, no materiales sueltos.
+- Sin sombras en tiempo real, sin postprocesado, sin texturas pesadas (las del kit se generan en
+  un canvas pequeño). Modelos `.glb` solo en la fase opcional y con presupuesto propio.
+- Selección por cajas (`Box3`) por zona, no por malla.
+- Todo lo que se crea se libera en `destruir()` / `Kit.liberar()`.
+- Respetar los niveles de `calidad.ts` (`baja` sin detalle) y `prefers-reduced-motion`.
+- Tras cambiar la escena: `make e2e` y revisar en escritorio (1440×900) y en móvil (Pixel 7).
+
+## 8. Estilos, sistema HUD y responsive
+
+- Colores, tipografías, radios y tiempos **solo desde los tokens** (`src/hud/estilos/tokens.css`).
+  Nada de colores sueltos en componentes. La identidad DAD se aplicará cambiando los tokens.
+- Antes de crear un estilo, usar o extender un componente `Hud*` o una clase base.
+- **Mobile first** y fluido: funciona desde **360 px** hasta pantallas grandes; `clamp()`, grid
+  con `auto-fill/minmax`, `dvh` para alto completo. Sin desbordes horizontales.
+- Objetivos táctiles de al menos 40×40 px; `font-size` ≥ 16 px en campos (evita el zoom de iOS).
+- Puntos de corte de referencia: 720 px (barra compacta), 760 px (panel → hoja inferior),
+  900 px (menú lateral → cajón).
+- Animaciones solo con `transform`/`opacity` y con las variables de tiempo (que valen 0 con
+  movimiento reducido).
+
+## 9. Accesibilidad (WCAG 2.1 AA)
+
+- HTML semántico (`button` para acciones, `a`/`RouterLink` para navegar, encabezados en orden,
+  listas con `ul/li`, landmarks `main`/`nav`/`aside`).
+- Todo control con nombre accesible que **contenga su texto visible**; iconos decorativos con
+  `aria-hidden="true"`; botones solo de icono con texto `.solo-lector`.
+- Contraste ≥ 4.5:1 en texto (los tokens de texto ya lo cumplen; no aclarar fondos sin verificar).
+- Foco visible siempre; `Escape` cierra paneles; lo que está oculto fuera de pantalla no recibe
+  foco (`visibility: hidden`).
+- El lienzo 3D es `aria-hidden`: su equivalente accesible son las etiquetas HTML y el menú alterno.
+- `e2e/accesibilidad.spec.ts` (axe) debe pasar sin violaciones graves; una pantalla nueva se
+  agrega a esa prueba.
+
+## 10. Pruebas
+
+Toda funcionalidad nueva o modificada lleva pruebas, incluidos los casos de error.
+
+| Nivel | Herramienta | Qué cubre | Dónde |
+|---|---|---|---|
+| Unitarias | Vitest | Funciones puras, stores, composables, cliente HTTP, mapa de módulos | `src/__tests__/*.test.ts` |
+| Componentes | Vitest + Vue Test Utils | Renderizado según props y permisos, eventos, accesibilidad básica | `src/__tests__/<Componente>.test.ts` |
+| E2E | Playwright | Flujos completos contra el build de producción (modo demo), escritorio y móvil | `e2e/*.spec.ts` |
+| Accesibilidad | axe-core en Playwright | WCAG 2.1 AA en cada pantalla | `e2e/accesibilidad.spec.ts` |
+| Peso | `scripts/presupuesto.mjs` | Presupuesto del §7 | En cada build |
+
+Qué exige cada cambio:
+- **Lógica nueva** (función, store, composable, regla de permisos): pruebas unitarias con éxito,
+  error y bordes.
+- **Componente nuevo o extendido**: prueba de componente (qué muestra según props/permisos, qué
+  emite).
+- **Pantalla o flujo nuevo**: escenario E2E y revisión de accesibilidad.
+- **Bug corregido**: primero una prueba que lo reproduce, luego la corrección.
+
+Cobertura mínima (falla `make verificar` si baja), sobre `src/api`, `src/stores`,
+`mapa-modulos.ts` y `navegacion.ts`: líneas y sentencias 80 %, funciones 80 %, ramas 70 %. Al
+crear un módulo, su lógica se agrega al `include` de cobertura en `vite.config.ts`.
+
+Buenas prácticas:
+- Nombres de prueba en español que describen el comportamiento («sin el módulo contratado no
+  ofrece acciones»).
+- Probar comportamiento visible, no detalles internos. En E2E, localizar por **rol y nombre
+  accesible** (`getByRole`, `getByLabel`), nunca por clases CSS.
+- Datos de prueba con el backend simulado (`fetchDemo` / `prepararConDemo`) o un transporte
+  falso; nunca contra servidores reales. Cada prueba deja el estado limpio (`localStorage`,
+  Pinia nueva).
+- Sin esperas fijas (`waitForTimeout`) en E2E: esperar condiciones (`expect(...).toBeVisible()`).
+- Una prueba inestable se arregla o se elimina; nunca se reintenta hasta que pase. Para detectar
+  inestabilidad: `make e2e ARGS="--repeat-each=3"`.
+
+## 11. Seguridad
+
+- Token de acceso solo en memoria; el de renovación en `localStorage`. La renovación pasa por
+  `renovar()` (una sola a la vez entre pestañas); no se llama al endpoint de renovación desde otro
+  lugar.
+- El cierre de sesión limpia primero en el navegador y luego revoca en el servidor.
+- Nada secreto en `config.json` ni en el código: es público. Sin credenciales en commits.
+- Prohibido `v-html` con datos externos; no construir URLs con datos sin validar (ej.: `volver`
+  solo acepta rutas internas).
+- No registrar en consola datos personales ni tokens.
+- Enlaces de descarga firmados: pedirlos justo antes de abrirlos; no guardarlos.
+
+## 12. Documentación
+
+- TSDoc (`/** … */`) en todo lo exportado que no sea obvio: qué hace y por qué, no cómo.
+- Comentarios solo para explicar decisiones no evidentes; sin código comentado.
+- `README.md` si cambian comandos, despliegue o estructura; `docs/plan-frontend.md` si cambia una
+  decisión o se completa una fase; el inventario del §3 si se crea una pieza reutilizable.
+
+## 13. Definición de terminado
+
+- [ ] Se revisó qué reutilizar (§3) y se respetan las capas (§2); el resumen dice qué se
+      reutilizó o extendió.
+- [ ] `make verificar` pasa (tipos, lint y pruebas con cobertura).
+- [ ] Hay pruebas para lo nuevo o modificado (§10), incluidos casos de error.
+- [ ] Si cambió una pantalla o un flujo: `make e2e` pasa (flujos y accesibilidad) en escritorio
+      y en móvil.
+- [ ] `make build` pasa (incluye el presupuesto de peso).
+- [ ] Funciona desde 360 px, con teclado y sin WebGL (menú alterno).
+- [ ] Documentación e inventario actualizados (§12); `AGENTS.md` si cambió tecnología o convención.
+
+## 14. Comandos
+
+| Acción | Comando |
+|---|---|
+| Ver todos | `make` |
+| Primera vez | `make instalar` |
+| Desarrollo (`:5173`) | `make dev` |
+| Shell en el contenedor | `make sh` |
+| Tipos del contrato | `make tipos-api` (lee `$(BACK_DIR)/apps/api/openapi.json`) |
+| Verificación completa | `make verificar` |
+| Pruebas unitarias / con cobertura | `make test` · `make cov` (informe en `coverage/`) |
+| E2E + accesibilidad | `make e2e` · `make e2e ARGS="e2e/flujos.spec.ts --project movil"` |
+| Build / paquete | `make build` · `make paquete VERSION=x.y.z` |
+| Build final con Nginx (`:8088`) | `make preview` |
+| Dependencia nueva | `make sh` → `npm install <pkg> --save-exact --before=<fecha>` |
+
+## 15. Git
+
+- Rama principal `main`; trabajo en `feature/<tema>`, `fix/<tema>`, `docs/<tema>`.
+- Commits en español, en imperativo y con un solo propósito (`Agregar módulo de reservas`).
+- Identidad del proyecto: `barale2906 <alexanderbarajas@gmail.com>` (configurada en el repo).
+- No subir `node_modules/`, `dist/`, paquetes `.tar.gz`, `coverage/` ni informes de pruebas.
+
+## 16. No hacer
+
+- No instalar nada en el equipo: todo corre en Docker.
+- No escribir código nuevo sin buscar antes qué reutilizar (§3).
+- No duplicar código: extender o extraer.
+- No importar `three` fuera de `src/escena/` ni cargar la escena de forma síncrona.
+- No editar `src/api/esquema.d.ts` a mano.
+- No usar `any`, `v-html` con datos externos ni `Number()` para montos.
+- No usar colores o tamaños sueltos fuera de los tokens.
+- No desactivar lints ni pruebas, ni bajar umbrales de cobertura o del presupuesto para que pase.
+- No incorporar tecnología sin actualizar este documento.

@@ -27,6 +27,7 @@ y de las decisiones de arranque.
 | 8 | UI de módulos | PrimeVue en modo *unstyled* + tokens HUD; se incorpora en la fase 3 (zonas comunes) |
 | 9 | Configuración | `config.json` en tiempo de ejecución: un solo build para todos los ambientes |
 | 10 | Versiones | Exactas en `package.json` (sin `^`) y con al menos 2 semanas de publicadas |
+| 11 | Calidad | Pautas en `AGENTS.md`; pruebas unitarias/componentes (Vitest, cobertura mínima), E2E y accesibilidad WCAG 2.1 AA (Playwright + axe) y presupuesto de peso en cada build |
 
 ## Cómo se mantiene liviano
 

@@ -8,7 +8,7 @@ export BACK_DIR
 
 RUN := docker compose run --rm --no-deps dev
 
-.PHONY: ayuda imagen instalar dev sh tipos-api typecheck lint formato test verificar build paquete preview limpiar
+.PHONY: ayuda imagen instalar dev sh tipos-api typecheck lint formato test cov e2e verificar build paquete preview limpiar
 
 ayuda: ## Lista los comandos
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  \033[36m%-11s\033[0m %s\n", $$1, $$2}'
@@ -40,8 +40,16 @@ formato: ## Prettier sobre src/
 test: ## Pruebas unitarias (Vitest)
 	$(RUN) npm test
 
-verificar: ## typecheck + lint + test, antes de terminar una tarea
-	$(RUN) sh -c 'npm run typecheck && npm run lint && npm test'
+cov: ## Pruebas unitarias con cobertura (umbrales en vite.config.ts; informe en coverage/)
+	$(RUN) npm run cov
+
+e2e: ## Pruebas E2E + accesibilidad (Playwright) contra el build de producción
+	docker compose --profile e2e up -d --build --wait preview
+	docker compose --profile e2e run --rm e2e npx playwright test $(ARGS); \
+		estado=$$?; docker compose --profile e2e stop preview >/dev/null; exit $$estado
+
+verificar: ## typecheck + lint + pruebas con cobertura, antes de terminar una tarea
+	$(RUN) sh -c 'npm run typecheck && npm run lint && npm run cov'
 
 build: ## Genera ./dist (solo archivos estáticos)
 	rm -rf dist
@@ -54,8 +62,7 @@ paquete: build ## dist → dad-front-<versión>.tar.gz + .sha256 para los servid
 	@echo "Listo: dad-front-$(VERSION).tar.gz (recuerde ajustar config.json en cada servidor)"
 
 preview: ## Sirve el build de producción con Nginx en http://localhost:8088
-	docker build -f docker/Dockerfile --target preview --build-arg VERSION=$(VERSION) -t dad-front-preview .
-	docker run --rm -p 8088:80 dad-front-preview
+	docker compose --profile e2e up --build preview
 
-limpiar: ## Borra dist y paquetes
-	rm -rf dist dad-front-*.tar.gz dad-front-*.sha256
+limpiar: ## Borra dist, paquetes e informes de pruebas
+	rm -rf dist dad-front-*.tar.gz dad-front-*.sha256 coverage test-results playwright-report

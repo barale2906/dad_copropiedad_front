@@ -22,7 +22,7 @@ async function salir() {
     <RouterLink
       :to="{ name: 'maqueta', params: { entidadId: entidad.activa?.entidad_id } }"
       class="inicio"
-      aria-label="Ir a la maqueta"
+      title="Ir a la maqueta"
     >
       <MarcaDad compacta />
     </RouterLink>
@@ -130,8 +130,14 @@ async function salir() {
 }
 
 @media (max-width: 720px) {
+  /* Solo el icono, pero el texto sigue siendo el nombre accesible del botón. */
   .acciones :deep(.texto) {
-    display: none;
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
   }
 
   .entidad {

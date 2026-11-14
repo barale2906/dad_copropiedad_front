@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { api, exigir } from '@/api/cliente'
-import { guardarTokens, haySesion, limpiar, renovar } from '@/api/tokens'
+import { guardarTokens, haySesion, limpiar, renovar, tokenAcceso } from '@/api/tokens'
 import type { EntidadDeLaCuenta } from '@/api/tipos'
 
 export type EstadoSesion = 'desconocido' | 'anonimo' | 'autenticado'
@@ -73,14 +73,22 @@ export const useSesion = defineStore('sesion', () => {
     await exigir(api().POST('/api/v1/auth/contrasena/recuperar', { body: { correo } }))
   }
 
+  /**
+   * Cierra la sesión **primero en este navegador** (aunque se recargue o se cierre la pestaña
+   * enseguida, ya no queda abierta) y luego la revoca en el servidor sin esperar respuesta.
+   */
   async function cerrar(): Promise<void> {
-    try {
-      await api().DELETE('/api/v1/auth/sesion')
-    } catch {
-      // Se cierra localmente aunque falle la red.
-    }
+    if (!tokenAcceso() && haySesion()) await renovar().catch(() => false)
+    const token = tokenAcceso()
     limpiar()
     alTerminar()
+    if (token) {
+      api()
+        .DELETE('/api/v1/auth/sesion', { headers: { Authorization: `Bearer ${token}` } })
+        .catch(() => {
+          // Sin red: el token vence solo; localmente ya se cerró.
+        })
+    }
   }
 
   /** Limpia el estado local (también cuando la sesión vence o se cierra en otra pestaña). */

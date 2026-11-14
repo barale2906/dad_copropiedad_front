@@ -1,0 +1,14 @@
+---
+description: Convenciones de Vue y TypeScript del frontend
+globs: ["src/**/*.vue", "src/**/*.ts"]
+alwaysApply: false
+---
+
+Complementa `AGENTS.md` (§5); prevalece en caso de conflicto.
+
+- `<script setup lang="ts">`; props con `defineProps<…>()`, eventos con `defineEmits<…>()`, `defineModel` para v-model; nunca mutar props.
+- Sin `any` ni `@ts-ignore`; tipos del backend desde `@/api/tipos`; API con `exigir(api().GET(...))` y errores por `codigo`.
+- Permisos con `useEntidad().tienePermiso/tieneModulo`; navegación desde `mapa-modulos.ts` y `useNavegacion()`.
+- Componentes visuales `Hud*` y tokens CSS; nada de colores sueltos; `scoped` siempre.
+- Montos como texto decimal con `decimal.js-light`; fechas en la zona horaria de la copropiedad.
+- Liberar en `onBeforeUnmount` todo listener o temporizador creado en `onMounted`.

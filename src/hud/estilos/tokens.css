@@ -17,7 +17,7 @@
   /* Texto */
   --texto: #e6f1ff;
   --texto-2: #9fb3cc;
-  --texto-3: #6b7f99;
+  --texto-3: #8a9db6; /* ≥ 4.5:1 (WCAG AA) incluso sobre --superficie-alta */
 
   /* Acentos */
   --cian: #38e8ff;

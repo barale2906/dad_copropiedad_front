@@ -5,13 +5,16 @@
  * cada servidor tiene su propio `config.json` y no hay que recompilar por ambiente.
  */
 export interface ConfigApp {
-  /** Base de la API, p. ej. `https://api.dominio.co/api/v1`. */
+  /**
+   * Origen del backend, **sin** `/api/v1` (las rutas del contrato ya lo incluyen), p. ej.
+   * `https://api.dominio.co`. Vacío = mismo dominio que la web.
+   */
   apiUrl: string
   /** Sin backend: datos simulados con el formato del contrato. Nunca en producción. */
   modoDemo: boolean
 }
 
-const PREDETERMINADA: ConfigApp = { apiUrl: '/api/v1', modoDemo: false }
+const PREDETERMINADA: ConfigApp = { apiUrl: '', modoDemo: false }
 
 let actual: ConfigApp = PREDETERMINADA
 
@@ -22,7 +25,8 @@ export async function cargarConfig(): Promise<ConfigApp> {
   } catch {
     // Sin config.json se usa la predeterminada (API en el mismo dominio).
   }
-  actual.apiUrl = actual.apiUrl.replace(/\/+$/, '')
+  // Tolera que alguien escriba la URL con `/api/v1` o con `/` al final.
+  actual.apiUrl = actual.apiUrl.replace(/\/+$/, '').replace(/\/api\/v1$/, '')
   return actual
 }
 

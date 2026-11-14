@@ -103,6 +103,12 @@ watch(() => route.fullPath, () => (menuAbierto.value = false))
       </nav>
 
       <main class="contenido">
+        <RouterLink
+          :to="nav.rutaMaqueta(origen)"
+          class="volver solo-movil"
+        >
+          <IVolver aria-hidden="true" /> Volver a la maqueta
+        </RouterLink>
         <nav
           class="migas"
           aria-label="Ruta"
@@ -429,8 +435,20 @@ h1 {
     box-shadow: var(--sombra);
   }
 
+  /* Cerrado: fuera de la pantalla y fuera del orden de tabulación. */
+  .lateral:not(.abierto) {
+    visibility: hidden;
+    transition:
+      transform var(--medio) var(--curva),
+      visibility 0s var(--medio);
+  }
+
   .lateral.abierto {
     transform: none;
+  }
+
+  .lateral .volver {
+    display: none;
   }
 }
 </style>

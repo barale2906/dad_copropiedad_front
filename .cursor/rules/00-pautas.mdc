@@ -1,0 +1,13 @@
+---
+description: Pautas obligatorias del proyecto (fuente única: AGENTS.md)
+alwaysApply: true
+---
+
+Lee y cumple `AGENTS.md` en la raíz del repositorio antes de generar o modificar código; es la fuente
+única de verdad y prevalece sobre cualquier otra regla. En especial:
+
+- §1 Código profesional, limpio, reutilizable y escalable.
+- §3 Flujo obligatorio: buscar qué reutilizar o extender (inventario) antes de escribir código nuevo.
+- §10 Pruebas para todo lo nuevo o modificado, incluidos casos de error.
+- §13 Definición de terminado: `make verificar` (y `make e2e` si cambió una pantalla).
+- Premisa: si incorporas una tecnología o convención, actualiza `AGENTS.md` en el mismo cambio.

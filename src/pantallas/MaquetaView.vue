@@ -146,36 +146,35 @@ onDeactivated(() => (activa.value = false))
         @fallo="fallo = true"
       />
 
-      <div
+      <ul
         class="etiquetas"
-        role="list"
         aria-label="Zonas de la maqueta"
       >
-        <button
+        <li
           v-for="e in etiquetasVisibles"
           :key="e.id"
-          role="listitem"
-          class="etiqueta"
-          :class="[
-            nav.estadosZonas.value[e.id],
-            { sobre: sobre === e.id, elegida: elegida === e.id },
-          ]"
+          class="punto"
           :style="{ transform: `translate3d(${limitarX(e.x)}px, ${Math.max(e.y, 36)}px, 0) translate(-50%, -100%)` }"
-          :aria-pressed="elegida === e.id"
-          @click="elegir(elegida === e.id ? null : e.id)"
         >
-          <ICandado
-            v-if="nav.estadosZonas.value[e.id] !== 'activa'"
-            class="candado"
-            aria-hidden="true"
-          />
-          <i
-            v-else
-            aria-hidden="true"
-          />
-          {{ nombre(e.id) }}
-        </button>
-      </div>
+          <button
+            class="etiqueta"
+            :class="[nav.estadosZonas.value[e.id], { sobre: sobre === e.id, elegida: elegida === e.id }]"
+            :aria-pressed="elegida === e.id"
+            @click="elegir(elegida === e.id ? null : e.id)"
+          >
+            <ICandado
+              v-if="nav.estadosZonas.value[e.id] !== 'activa'"
+              class="candado"
+              aria-hidden="true"
+            />
+            <i
+              v-else
+              aria-hidden="true"
+            />
+            {{ nombre(e.id) }}
+          </button>
+        </li>
+      </ul>
 
       <p
         v-if="lista3D && !zonaElegida"
@@ -235,13 +234,21 @@ onDeactivated(() => (activa.value = false))
 .etiquetas {
   position: absolute;
   inset: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
   pointer-events: none;
 }
 
-.etiqueta {
+.punto {
   position: absolute;
   top: 0;
   left: 0;
+  will-change: transform;
+}
+
+.etiqueta {
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -257,7 +264,6 @@ onDeactivated(() => (activa.value = false))
   white-space: nowrap;
   cursor: pointer;
   pointer-events: auto;
-  will-change: transform;
   clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
 }
 

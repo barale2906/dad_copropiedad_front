@@ -1,0 +1,13 @@
+---
+description: Reglas para escribir pruebas (Vitest y Playwright)
+globs: ["src/**/*.test.ts", "e2e/**"]
+alwaysApply: false
+---
+
+Complementa `AGENTS.md` (§10); prevalece en caso de conflicto.
+
+- Unitarias y de componentes en `src/__tests__/`, con `prepararConDemo()` / `conCapacidades()` de `ayudantes.ts`.
+- Nombres en español que describen el comportamiento; casos de éxito, error y bordes.
+- E2E en `e2e/`: localizar por rol y nombre accesible, pasos de `e2e/utilidades.ts`, sin `waitForTimeout`.
+- Pantalla nueva → agregarla a `e2e/accesibilidad.spec.ts`.
+- Bug → primero la prueba que lo reproduce. Nunca bajar umbrales de cobertura.

@@ -47,6 +47,7 @@ const autenticacion: Middleware = {
   },
 }
 
+/** `apiUrl`: origen del backend sin `/api/v1` (las rutas del contrato ya lo traen). */
 export function iniciarCliente(apiUrl: string, fetchPropio?: Transporte): void {
   transporte = fetchPropio ?? ((r) => fetch(r))
   configurarTokens({ apiUrl, transporte })

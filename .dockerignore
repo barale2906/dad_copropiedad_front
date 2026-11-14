@@ -3,3 +3,6 @@ dist
 .git
 *.tar.gz
 *.sha256
+coverage
+test-results
+playwright-report

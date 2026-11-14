@@ -18,8 +18,9 @@ Solo **Docker** con Compose y BuildKit. No se instala Node ni nada más en el eq
 make            # lista los comandos
 make instalar   # una vez: imagen de desarrollo + npm ci (en un volumen de Docker)
 make dev        # http://localhost:5173 con recarga en caliente
-make verificar  # typecheck + lint + pruebas, antes de terminar una tarea
-make build      # ./dist: solo archivos estáticos
+make verificar  # tipos + lint + pruebas unitarias con cobertura, antes de terminar una tarea
+make e2e        # pruebas E2E + accesibilidad (Playwright) en escritorio y móvil
+make build      # ./dist: solo archivos estáticos (falla si se excede el presupuesto de peso)
 make paquete    # dad-front-<versión>.tar.gz + .sha256 para los servidores
 make preview    # sirve el build final con Nginx en http://localhost:8088
 make tipos-api  # regenera src/api/esquema.d.ts desde el openapi.json del backend
@@ -47,9 +48,10 @@ empresa solo tiene `contabilidad`: así se ven las zonas apagadas.
 
 1. `make paquete VERSION=x.y.z`.
 2. Copiar y descomprimir el `.tar.gz` en el directorio público del dominio.
-3. **Editar `config.json` en cada servidor** (no se recompila por ambiente):
+3. **Editar `config.json` en cada servidor** (no se recompila por ambiente). `apiUrl` es el
+   origen del backend **sin** `/api/v1`; vacío si la API está en el mismo dominio:
    ```json
-   { "apiUrl": "https://api.dominio.co/api/v1", "modoDemo": false }
+   { "apiUrl": "https://api.dominio.co", "modoDemo": false }
    ```
 4. Nginx (HestiaCP): copiar las directivas de [`docker/nginx.conf`](docker/nginx.conf). Hacen
    falta el *fallback* a `index.html` (el router usa URLs limpias), la caché larga en
@@ -68,7 +70,17 @@ empresa solo tiene `contabilidad`: así se ven las zonas apagadas.
 | `src/pantallas/` | login, selector de entidad, maqueta, marco de módulos, menú alterno |
 | `src/modulos/` | módulos funcionales (a partir de la fase 3) |
 | `src/mocks/` | backend simulado del modo demo |
+| `src/__tests__/` | pruebas unitarias y de componentes (Vitest) |
+| `e2e/` | pruebas E2E y de accesibilidad (Playwright + axe) |
+| `scripts/` | presupuesto de peso del build |
 | `docker/` | Dockerfile multi-etapa y Nginx de referencia |
 | `docs/` | plan y decisiones del frontend |
 
-Ver [`docs/plan-frontend.md`](docs/plan-frontend.md) y las convenciones en [`AGENTS.md`](AGENTS.md).
+## Pautas de desarrollo
+
+[`AGENTS.md`](AGENTS.md) es la fuente única de las pautas (calidad, reutilización, pruebas,
+rendimiento, accesibilidad, definición de terminado). `CLAUDE.md`, `.cursor/rules/` y
+`.github/copilot-instructions.md` remiten a él, y `.claude/skills/` trae los procedimientos
+`nueva-funcionalidad`, `nuevo-modulo` y `revisar-calidad`.
+
+Plan y decisiones: [`docs/plan-frontend.md`](docs/plan-frontend.md).

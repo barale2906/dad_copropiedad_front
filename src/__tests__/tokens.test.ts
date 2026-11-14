@@ -19,7 +19,7 @@ describe('renovación de tokens', () => {
     const m = await import('@/api/tokens')
     let llamadas = 0
     m.configurarTokens({
-      apiUrl: 'http://api/api/v1',
+      apiUrl: 'http://api',
       transporte: async () => {
         llamadas++
         await new Promise((r) => setTimeout(r, 10))
@@ -39,7 +39,7 @@ describe('renovación de tokens', () => {
     const cerrada = vi.fn()
     m.alCerrarSesion(cerrada)
     m.configurarTokens({
-      apiUrl: 'http://api/api/v1',
+      apiUrl: 'http://api',
       transporte: async () => new Response('{}', { status: 401 }),
     })
     expect(await m.renovar()).toBe(false)
@@ -53,7 +53,7 @@ describe('renovación de tokens', () => {
     const m = await import('@/api/tokens')
     let cuerpo: unknown = null
     m.configurarTokens({
-      apiUrl: 'http://api/api/v1',
+      apiUrl: 'http://api',
       transporte: async (req) => {
         cuerpo = await req.json()
         return new Response(JSON.stringify(tokens(8)), { status: 200 })

@@ -20,6 +20,31 @@ services:
       # Contrato del backend, solo lectura, para `make tipos-api`.
       - ${BACK_DIR:-../../Back/dad_copropiedad_back}/apps/api:/contrato:ro
 
+  # Build de producción servido por Nginx: `make preview` / base de `make e2e`.
+  preview:
+    profiles: [e2e]
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      target: preview
+    image: dad-front-preview
+    ports:
+      - "8088:80"
+
+  # Pruebas E2E (Playwright). La versión de la imagen debe coincidir con @playwright/test.
+  e2e:
+    profiles: [e2e]
+    image: mcr.microsoft.com/playwright:v1.56.1-noble
+    working_dir: /app
+    network_mode: host
+    user: "${UID:-1000}:${GID:-1000}"
+    environment:
+      HOME: /tmp
+      E2E_URL: http://localhost:8088
+    volumes:
+      - .:/app
+      - node_modules:/app/node_modules
+
 volumes:
   node_modules:
   npm_cache:
