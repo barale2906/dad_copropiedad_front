@@ -1,0 +1,67 @@
+/*
+ * Tokens del sistema visual HUD. La identidad de DAD aún no está definida: cuando exista,
+ * se cambian estos valores y toda la app la toma (incluida la paleta de la maqueta en piezas.ts).
+ */
+:root {
+  color-scheme: dark;
+
+  /* Superficies */
+  --fondo: #050912;
+  --fondo-2: #0a1224;
+  --superficie: rgb(14 24 44 / 72%);
+  --superficie-solida: #0e182c;
+  --superficie-alta: rgb(22 36 62 / 85%);
+  --linea: rgb(120 200 255 / 18%);
+  --linea-fuerte: rgb(120 220 255 / 42%);
+
+  /* Texto */
+  --texto: #e6f1ff;
+  --texto-2: #9fb3cc;
+  --texto-3: #6b7f99;
+
+  /* Acentos */
+  --cian: #38e8ff;
+  --cian-2: #00b8d4;
+  --cian-tenue: rgb(56 232 255 / 14%);
+  --ambar: #ffb347;
+  --magenta: #ff4d8d;
+  --verde: #3ddc97;
+  --gris-apagado: #6b7484;
+
+  --brillo: 0 0 0.5px var(--cian), 0 0 14px rgb(56 232 255 / 35%);
+  --sombra: 0 18px 48px rgb(0 0 0 / 45%);
+
+  /* Tipografía */
+  --fuente-display: 'Rajdhani', 'Segoe UI', system-ui, sans-serif;
+  --fuente: 'Inter Variable', 'Inter', 'Segoe UI', system-ui, sans-serif;
+  --fuente-mono: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+
+  /* Geometría */
+  --corte: 14px; /* esquina recortada de los paneles */
+  --radio: 6px;
+  --gutter: clamp(16px, 3vw, 32px);
+  --barra-alto: 56px;
+
+  /* Movimiento */
+  --rapido: 140ms;
+  --medio: 260ms;
+  --curva: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* Modo de alto contraste (preferencia del sistema). */
+@media (prefers-contrast: more) {
+  :root {
+    --superficie: #0b1426;
+    --superficie-alta: #13213b;
+    --linea: rgb(160 220 255 / 45%);
+    --texto-2: #cfe0f5;
+    --texto-3: #a9bbd3;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --rapido: 0ms;
+    --medio: 0ms;
+  }
+}

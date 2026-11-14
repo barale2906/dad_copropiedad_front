@@ -1,0 +1,25 @@
+# Desarrollo: `make dev` → http://localhost:5173
+services:
+  dev:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      target: dev
+    image: dad-front-dev
+    working_dir: /app
+    ports:
+      - "5173:5173"
+    environment:
+      # /mnt puede no propagar eventos del sistema de archivos al contenedor.
+      CHOKIDAR_USEPOLLING: "true"
+      VITE_POLLING: "true"
+    volumes:
+      - .:/app
+      - node_modules:/app/node_modules
+      - npm_cache:/home/node/.npm
+      # Contrato del backend, solo lectura, para `make tipos-api`.
+      - ${BACK_DIR:-../../Back/dad_copropiedad_back}/apps/api:/contrato:ro
+
+volumes:
+  node_modules:
+  npm_cache:
