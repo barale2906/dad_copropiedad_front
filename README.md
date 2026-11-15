@@ -74,7 +74,7 @@ empresa solo tiene `contabilidad`: así se ven las zonas apagadas.
 | `e2e/` | pruebas E2E y de accesibilidad (Playwright + axe) |
 | `scripts/` | presupuesto de peso del build |
 | `docker/` | Dockerfile multi-etapa y Nginx de referencia |
-| `docs/` | plan y decisiones del frontend |
+| `docs/` | **local, fuera de Git**: plan, guías del backend, planes por módulo y solicitudes al backend |
 
 ## Pautas de desarrollo
 
@@ -83,4 +83,4 @@ rendimiento, accesibilidad, definición de terminado). `CLAUDE.md`, `.cursor/rul
 `.github/copilot-instructions.md` remiten a él, y `.claude/skills/` trae los procedimientos
 `nueva-funcionalidad`, `nuevo-modulo` y `revisar-calidad`.
 
-Plan y decisiones: [`docs/plan-frontend.md`](docs/plan-frontend.md).
+Plan y decisiones: `docs/plan-frontend.md` y `docs/planes/` (carpeta local, no versionada).

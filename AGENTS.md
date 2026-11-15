@@ -198,7 +198,8 @@ Reglas de dependencias:
 - Una zona sin módulo contratado se muestra **apagada** (no se oculta); sin permisos, "sin acceso".
 - Ruta de un módulo: `/e/:entidadId/:seccion/:accion?`. Se conservan `?zona=` (bien común
   preseleccionado) y `?origen=` (zona a la que vuelve "Volver a la maqueta").
-- Pasos para un módulo nuevo: skill `.claude/skills/nuevo-modulo` y `docs/plan-frontend.md`.
+- Pasos para un módulo nuevo: skill `.claude/skills/nuevo-modulo`, `docs/plan-frontend.md` y el
+  plan del módulo en `docs/planes/`.
 
 ## 7. Maqueta 3D y rendimiento
 
@@ -300,8 +301,11 @@ Buenas prácticas:
 
 - TSDoc (`/** … */`) en todo lo exportado que no sea obvio: qué hace y por qué, no cómo.
 - Comentarios solo para explicar decisiones no evidentes; sin código comentado.
-- `README.md` si cambian comandos, despliegue o estructura; `docs/plan-frontend.md` si cambia una
-  decisión o se completa una fase; el inventario del §3 si se crea una pieza reutilizable.
+- `README.md` si cambian comandos, despliegue o estructura; `docs/plan-frontend.md` y
+  `docs/planes/` si cambia una decisión o se completa una fase; el inventario del §3 si se crea
+  una pieza reutilizable.
+- `docs/` es **local y no se versiona** (está en `.gitignore`): guías del backend, planes y
+  solicitudes al backend. Lo que deba quedar en el repositorio va en `README.md` o `AGENTS.md`.
 
 ## 13. Definición de terminado
 
