@@ -22,7 +22,8 @@ const TODOS: Permiso[] = [
   'contabilidad.exportar', 'tesoreria.recibos.registrar', 'tesoreria.egresos.registrar',
   'tesoreria.conciliar', 'cartera.ver', 'cartera.liquidar', 'cartera.certificados.emitir',
   'presupuesto.gestionar', 'tributario.preparar', 'terceros.gestionar', 'facturacion.ver',
-  'facturacion.facturas.gestionar', 'facturacion.emitir', 'directorio.ver',
+  'facturacion.facturas.gestionar', 'facturacion.emitir', 'directorio.ver', 'directorio.compartir',
+  'roles.asignar', 'proteccion_datos.gestionar', 'tributario.configurar',
 ]
 
 const ENTIDADES: (EntidadDeLaCuenta & { capacidades: Capacidades })[] = [
@@ -36,9 +37,11 @@ const ENTIDADES: (EntidadDeLaCuenta & { capacidades: Capacidades })[] = [
     capacidades: {
       tipo: 'propiedad_horizontal',
       permisos: TODOS,
-      // Sin `publicidad` ni `facturacion_electronica`: esas zonas se ven apagadas.
-      modulos: ['bienes_comunes', 'control_acceso', 'asambleas', 'gestion_administrativa',
+      // Sin `control_acceso` (la portería se ve apagada) ni `facturacion_electronica` (sus
+      // acciones propias no se ofrecen).
+      modulos: ['bienes_comunes', 'asambleas', 'gestion_administrativa',
         'contabilidad', 'contabilidad_ph'],
+      modo_soporte: false,
     },
   },
   {
@@ -48,7 +51,7 @@ const ENTIDADES: (EntidadDeLaCuenta & { capacidades: Capacidades })[] = [
     tipo: 'propiedad_horizontal',
     estado: 'en_configuracion',
     roles: ['consejero'],
-    capacidades: { tipo: 'propiedad_horizontal', permisos: ['asambleas.ver', 'censo.ver'], modulos: ['asambleas'] },
+    capacidades: { tipo: 'propiedad_horizontal', permisos: ['asambleas.ver', 'censo.ver'], modulos: ['asambleas'], modo_soporte: false },
   },
   {
     entidad_id: '01930000-0000-7000-8000-000000000003',
@@ -57,7 +60,7 @@ const ENTIDADES: (EntidadDeLaCuenta & { capacidades: Capacidades })[] = [
     tipo: 'empresa',
     estado: 'activa',
     roles: ['contador'],
-    capacidades: { tipo: 'empresa', permisos: TODOS, modulos: ['contabilidad'] },
+    capacidades: { tipo: 'empresa', permisos: TODOS, modulos: ['contabilidad'], modo_soporte: false },
   },
 ]
 

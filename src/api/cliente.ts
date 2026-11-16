@@ -16,7 +16,7 @@ let cliente: Client<paths> | null = null
 let transporte: Transporte = (r) => fetch(r)
 const copias = new Map<string, Request>()
 
-const SIN_SESION = ['/auth/sesion', '/auth/contrasena/', '/auth/registro']
+const SIN_SESION = ['/auth/sesion', '/auth/contrasena/']
 
 function esRutaSinSesion(url: string): boolean {
   const ruta = new URL(url, location.origin).pathname

@@ -67,14 +67,21 @@ test.describe('maqueta del conjunto (PH)', () => {
   })
 
   test('las zonas sin módulo contratado se ven apagadas', async ({ page }) => {
-    await elegirZona(page, 'Pantalla del lobby')
-    const panel = page.getByRole('complementary', { name: 'Zona Pantalla del lobby' })
+    await elegirZona(page, 'Portería')
+    const panel = page.getByRole('complementary', { name: 'Zona Portería' })
     await expect(panel).toContainText('Módulo no contratado')
     await expect(panel.getByRole('link')).toHaveCount(0)
   })
 
+  test('el lobby abre el directorio, incluido con la entidad', async ({ page }) => {
+    await elegirZona(page, 'Pantalla del lobby')
+    const panel = page.getByRole('complementary', { name: 'Zona Pantalla del lobby' })
+    await expect(panel.getByRole('link', { name: /Directorio/ }).first()).toBeVisible()
+    await expect(panel.getByRole('link', { name: /Enlace para los grupos/ })).toBeVisible()
+  })
+
   test('Escape cierra el panel', async ({ page }) => {
-    await elegirZona(page, 'Portería')
+    await elegirZona(page, 'Torres')
     await expect(page.getByRole('complementary')).toBeVisible()
     await page.keyboard.press('Escape')
     await expect(page.getByRole('complementary')).toHaveCount(0)
@@ -92,15 +99,15 @@ test.describe('maqueta del conjunto (PH)', () => {
   test('la vista de lista ofrece las mismas funciones y se recuerda', async ({ page }) => {
     await page.getByRole('button', { name: /Lista/ }).click()
     await expect(page.getByRole('heading', { name: '¿Qué necesita hacer?' })).toBeVisible()
-    await page.getByPlaceholder(/Buscar/).fill('visitas')
-    await expect(page.getByRole('link', { name: 'Visitas' })).toBeVisible()
+    await page.getByPlaceholder(/Buscar/).fill('censo')
+    await expect(page.getByRole('link', { name: 'Censo', exact: true })).toBeVisible()
     await page.reload()
     await expect(page.getByRole('heading', { name: '¿Qué necesita hacer?' })).toBeVisible()
   })
 })
 
 test.describe('maqueta de oficina (empresa)', () => {
-  test('muestra la oficina con lo no contratado apagado', async ({ page }) => {
+  test('muestra la oficina y oculta lo que exige facturación electrónica', async ({ page }) => {
     await entrar(page, 'empresa')
     await esperarMaqueta(page)
     await expect(page.getByRole('listitem').filter({ hasText: 'Recepción' })).toBeVisible()
@@ -108,7 +115,10 @@ test.describe('maqueta de oficina (empresa)', () => {
     await expect(page.getByRole('link', { name: /Comprobantes/ })).toBeVisible()
     await page.keyboard.press('Escape')
     await elegirZona(page, 'Facturación')
-    await expect(page.getByRole('complementary')).toContainText('Módulo no contratado')
+    // Con solo `contabilidad` se factura, pero sin las acciones ante la DIAN.
+    const panel = page.getByRole('complementary', { name: 'Zona Facturación' })
+    await expect(panel.getByRole('link', { name: /Facturas de venta/ })).toBeVisible()
+    await expect(panel.getByRole('link', { name: /Emitir ante la DIAN/ })).toHaveCount(0)
   })
 })
 

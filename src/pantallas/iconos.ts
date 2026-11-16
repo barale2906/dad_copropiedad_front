@@ -6,6 +6,7 @@ import ICalculadora from '~icons/tabler/calculator'
 import IEdificio from '~icons/tabler/building-skyscraper'
 import IEscudo from '~icons/tabler/shield-lock'
 import IFactura from '~icons/tabler/file-invoice'
+import IGrafica from '~icons/tabler/chart-bar'
 import IFicha from '~icons/tabler/id-badge-2'
 import IGrupo from '~icons/tabler/users-group'
 import IImpuesto from '~icons/tabler/receipt-tax'
@@ -26,7 +27,8 @@ export const ICONOS: Record<string, Component> = {
   tesoreria: IBanco,
   tributario: IImpuesto,
   facturacion: IFactura,
-  publicidad: ITv,
+  reportes: IGrafica,
+  directorio: ITv,
   entidad: IFicha,
   archivo: IArchivo,
   nomina: IUsuarios,

@@ -38,12 +38,14 @@ const lista = computed(() => {
 const TIPO: Record<EntidadDeLaCuenta['tipo'], string> = {
   propiedad_horizontal: 'Propiedad horizontal',
   empresa: 'Empresa',
+  plataforma: 'Plataforma',
 }
 
 const ESTADO: Record<string, string> = {
   en_configuracion: 'En configuración',
   activa: 'Activa',
   suspendida: 'Suspendida',
+  retirada: 'Retirada',
 }
 
 const roles = (r: string[]) => r.map((x) => x.replace(/_/g, ' ')).join(' · ')

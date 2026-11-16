@@ -105,9 +105,9 @@ Se mantiene al día: quien crea una pieza reutilizable la agrega aquí.
 | Mostrar un error | `mensajeDeError(e)` | `src/api/errores.ts` |
 | Generar UUID (también en HTTP) | `uuid()` | `src/api/uuid.ts` |
 | Sesión, login, 2FA, cierre | `useSesion()` | `src/stores/sesion.ts` |
-| Entidad activa, ¿es PH?, permisos, módulos | `useEntidad()`: `esPH`, `tieneModulo`, `tienePermiso`, `refrescar` | `src/stores/entidad.ts` |
+| Entidad activa, ¿es PH?, permisos, módulos, modo soporte | `useEntidad()`: `esPH`, `modoSoporte`, `tieneModulo`, `tienePermiso`, `refrescar` | `src/stores/entidad.ts` |
 | Preferencias del navegador | `usePreferencias()` (vista, calidad 3D) | `src/stores/preferencias.ts` |
-| Secciones, acciones y su estado | `SECCIONES`, `estadoSeccion`, `accionesVisibles`, `TEXTO_ESTADO` | `src/escena/mapa-modulos.ts` |
+| Secciones, acciones y su estado (módulos «alguno de» / `requiereTodos`, módulo por acción, `soloPH`) | `SECCIONES`, `estadoSeccion`, `seccionContratada`, `accionesVisibles`, `TEXTO_ESTADO` | `src/escena/mapa-modulos.ts` |
 | Zonas de la maqueta y rutas | `useNavegacion()`: `zonas`, `estadosZonas`, `secciones`, `rutaAccion`, `rutaMaqueta` | `src/pantallas/navegacion.ts` |
 | Icono de una sección | `ICONOS[slug]`; iconos sueltos: `~icons/tabler/<nombre>` | `src/pantallas/iconos.ts` |
 | Panel de vidrio HUD | `<HudPanel etiqueta resaltado>` | `src/hud/componentes/HudPanel.vue` |
@@ -121,7 +121,7 @@ Se mantiene al día: quien crea una pieza reutilizable la agrega aquí.
 | Fondo ambiental HUD | clase `.fondo-hud`; rótulos: `.rotulo`; texto oculto accesible: `.solo-lector` | `src/hud/estilos/base.css` |
 | Transición entre vistas | `<Transition name="vista">` | `src/hud/estilos/base.css` |
 | Datos de prueba / demo | `fetchDemo` (usuarios `uno`, `empresa`, `2fa`) | `src/mocks/demo.ts` |
-| Preparar pruebas | `prepararConDemo()`, `conCapacidades()`, `ENTIDAD_PH` | `src/__tests__/ayudantes.ts` |
+| Preparar pruebas | `prepararConDemo()`, `conCapacidades()` (`modo_soporte` opcional), `ENTIDAD_PH` | `src/__tests__/ayudantes.ts` |
 | Pasos E2E | `entrar()`, `esperarMaqueta()`, `elegirZona()` | `e2e/utilidades.ts` |
 
 ## 4. Tecnologías
@@ -283,7 +283,8 @@ Buenas prácticas:
   Pinia nueva).
 - Sin esperas fijas (`waitForTimeout`) en E2E: esperar condiciones (`expect(...).toBeVisible()`).
 - Una prueba inestable se arregla o se elimina; nunca se reintenta hasta que pase. Para detectar
-  inestabilidad: `make e2e ARGS="--repeat-each=3"`.
+  inestabilidad: `make e2e ARGS="--repeat-each=3"`. Playwright corre con 2 workers: la maqueta
+  se dibuja por software y más navegadores en paralelo saturan la CPU.
 
 ## 11. Seguridad
 

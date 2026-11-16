@@ -22,7 +22,16 @@ export const ZONAS: Record<IdPlantilla, ZonaInfo[]> = {
     {
       id: 'administracion',
       nombre: 'Administración',
-      secciones: ['administracion', 'cartera', 'contabilidad', 'tesoreria', 'facturacion', 'entidad'],
+      secciones: [
+        'administracion',
+        'cartera',
+        'contabilidad',
+        'tesoreria',
+        'tributario',
+        'facturacion',
+        'entidad',
+        'archivo',
+      ],
     },
     { id: 'salon-social', nombre: 'Salón social', secciones: ['zonas-comunes', 'asambleas'], zona: 'salon-social' },
     { id: 'piscina', nombre: 'Piscina', secciones: ['zonas-comunes'], zona: 'piscina' },
@@ -30,20 +39,21 @@ export const ZONAS: Record<IdPlantilla, ZonaInfo[]> = {
     { id: 'gimnasio', nombre: 'Gimnasio', secciones: ['zonas-comunes'], zona: 'gimnasio' },
     { id: 'parqueadero', nombre: 'Parqueaderos', secciones: ['zonas-comunes'], zona: 'parqueaderos' },
     { id: 'porteria', nombre: 'Portería', secciones: ['porteria'] },
-    { id: 'pantalla', nombre: 'Pantalla del lobby', secciones: ['publicidad'] },
+    { id: 'pantalla', nombre: 'Pantalla del lobby', secciones: ['directorio'] },
   ],
   oficina: [
-    { id: 'recepcion', nombre: 'Recepción', secciones: ['entidad'] },
+    { id: 'recepcion', nombre: 'Recepción', secciones: ['entidad', 'directorio'] },
     { id: 'contabilidad', nombre: 'Contabilidad', secciones: ['contabilidad'] },
     { id: 'tesoreria', nombre: 'Tesorería', secciones: ['tesoreria'] },
     { id: 'facturacion', nombre: 'Facturación', secciones: ['facturacion'] },
     { id: 'tributario', nombre: 'Tributario', secciones: ['tributario'] },
     { id: 'archivo', nombre: 'Archivo', secciones: ['archivo'] },
-    { id: 'sala-juntas', nombre: 'Sala de juntas', secciones: ['contabilidad', 'entidad'] },
+    { id: 'sala-juntas', nombre: 'Sala de juntas', secciones: ['reportes'] },
     { id: 'nomina', nombre: 'Nómina', secciones: ['nomina'] },
   ],
 }
 
+/** La PH usa el conjunto; la empresa y la plataforma, la oficina. */
 export function plantillaDe(tipo: TipoEntidad): IdPlantilla {
   return tipo === 'propiedad_horizontal' ? 'conjunto' : 'oficina'
 }

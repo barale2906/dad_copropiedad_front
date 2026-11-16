@@ -42,6 +42,26 @@ describe('useNavegacion', () => {
     })
   })
 
+  it('la plataforma usa la maqueta de oficina', () => {
+    conCapacidades({ tipo: 'plataforma', modulos: [], permisos: [] }, { ...ENTIDAD_PH, tipo: 'plataforma' })
+    expect(useNavegacion().plantilla.value).toBe('oficina')
+  })
+
+  it('en la empresa el directorio no ofrece las acciones propias de la PH', () => {
+    const permisos = ['directorio.ver', 'directorio.compartir'] as const
+    conCapacidades({ tipo: 'empresa', modulos: [], permisos: [...permisos] }, { ...ENTIDAD_PH, tipo: 'empresa' })
+    expect(useNavegacion().vistaSeccion('directorio')!.acciones.map((a) => a.id)).toEqual(['inicio', 'ofertas'])
+    expect(useNavegacion().estadosZonas.value.recepcion).toBe('activa')
+
+    conCapacidades({ tipo: 'propiedad_horizontal', modulos: [], permisos: [...permisos] })
+    expect(useNavegacion().vistaSeccion('directorio')!.acciones.map((a) => a.id)).toContain('enlace')
+  })
+
+  it('una sección desconocida no tiene vista', () => {
+    conCapacidades({ tipo: 'propiedad_horizontal', modulos: [], permisos: [] })
+    expect(useNavegacion().vistaSeccion('no-existe')).toBeNull()
+  })
+
   it('lista las secciones de la plantilla sin repetir', () => {
     conCapacidades({ tipo: 'propiedad_horizontal', modulos: [], permisos: [] })
     const slugs = useNavegacion().secciones.value.map((s) => s.seccion.slug)

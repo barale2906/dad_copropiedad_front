@@ -28,7 +28,8 @@ describe('PanelZona', () => {
     expect(enlaces.map((e) => e.text())).toEqual([
       expect.stringContaining('Reservar'),
       expect.stringContaining('Disponibilidad'),
-      expect.stringContaining('Reglas y tarifas'),
+      expect.stringContaining('Recursos y reglas'),
+      expect.stringContaining('Sorteos'),
     ])
     expect(enlaces[0]!.props('to')).toMatchObject({
       name: 'modulo',

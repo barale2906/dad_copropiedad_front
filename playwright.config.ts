@@ -7,6 +7,9 @@ import { defineConfig, devices } from '@playwright/test'
 export default defineConfig({
   testDir: './e2e',
   fullyParallel: true,
+  // La maqueta se dibuja por software (SwiftShader): con más navegadores en paralelo la CPU se
+  // satura y el primer cuadro tarda más que la espera de `esperarMaqueta`.
+  workers: 2,
   retries: process.env.CI ? 1 : 0,
   reporter: [['list'], ['html', { open: 'never' }]],
   use: {

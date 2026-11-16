@@ -16,6 +16,8 @@ export const useEntidad = defineStore('entidad', () => {
   const esPH = computed(
     () => (capacidades.value?.tipo ?? activa.value?.tipo) === 'propiedad_horizontal',
   )
+  /** Acceso de soporte de la plataforma: la entidad se ve en solo lectura (plan 15). */
+  const modoSoporte = computed(() => capacidades.value?.modo_soporte ?? false)
 
   function tieneModulo(m: Modulo): boolean {
     return modulos.value.has(m)
@@ -68,6 +70,7 @@ export const useEntidad = defineStore('entidad', () => {
     activa,
     capacidades,
     esPH,
+    modoSoporte,
     tieneModulo,
     tienePermiso,
     entrar,

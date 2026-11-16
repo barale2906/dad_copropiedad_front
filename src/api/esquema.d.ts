@@ -65,7 +65,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Activa, suspende, reactiva o retira una copropiedad. */
+        /**
+         * Activa, suspende, reactiva o retira una copropiedad (alias de
+         *     `POST /plataforma/entidades/{entidad_id}/estado`).
+         */
         post: operations["cambiar_estado_copropiedad"];
         delete?: never;
         options?: never;
@@ -190,6 +193,190 @@ export interface paths {
         put?: never;
         /** Bloquea una cuenta y cierra sus sesiones. */
         post: operations["bloquear_cuenta"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plataforma/cuentas": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Busca una cuenta por usuario o correo exactos: estado, contraseña pendiente y segundo factor. */
+        get: operations["consultar_cuenta"];
+        put?: never;
+        /**
+         * Crea un usuario de la plataforma (o reconoce la cuenta de ese correo) y, si se pide, le
+         *     asigna un rol de plataforma. Recibe por correo el código para definir su contraseña.
+         */
+        post: operations["crear_usuario_plataforma"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plataforma/cuentas/{cuenta_id}/desbloquear": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Desbloquea una cuenta bloqueada por la plataforma (y su bloqueo temporal por intentos). */
+        post: operations["desbloquear_cuenta"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plataforma/entidades": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** PH, empresas y la plataforma en una sola tabla, con tipo, estado y módulos. */
+        get: operations["listar_entidades"];
+        put?: never;
+        /**
+         * Da de alta una entidad sin vertical (cualquier empresa de la contabilidad base); sus módulos
+         *     se habilitan después, uno a uno.
+         */
+        post: operations["crear_entidad"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plataforma/entidades/{entidad_id}/estado": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Activa, suspende, reactiva o retira una entidad (PH o empresa). */
+        post: operations["cambiar_estado"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plataforma/entidades/{entidad_id}/soporte": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Abre un acceso de soporte de solo lectura a la entidad por 2 horas. Después la cuenta entra
+         *     por las rutas normales de la entidad: ve lo que se lee (nunca datos sensibles, votos
+         *     reservados ni convivencia) y toda escritura responde 403.
+         */
+        post: operations["abrir_soporte"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plataforma/entidades/{entidad_id}/roles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Roles de la entidad (plantillas y propios). */
+        get: operations["roles"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plataforma/entidades/{entidad_id}/asignaciones": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Historial de asignaciones de la entidad. */
+        get: operations["asignaciones"];
+        put?: never;
+        /** Asigna un rol de la entidad a una cuenta existente. */
+        post: operations["asignar"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plataforma/entidades/{entidad_id}/asignaciones/{asignacion_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Termina una asignación (la entidad no se queda sin administrador). */
+        delete: operations["revocar"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plataforma/entidades/{entidad_id}/usuarios": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Usuarios de la entidad con sus roles. */
+        get: operations["usuarios"];
+        put?: never;
+        /** Crea un usuario en la entidad con su rol (o asigna el rol a la cuenta de ese correo). */
+        post: operations["crear_usuario"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plataforma/entidades/{entidad_id}/usuarios/{cuenta_id}/codigo-contrasena": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reenvía el código para definir la contraseña a un usuario de la entidad. */
+        post: operations["reenviar_codigo"];
         delete?: never;
         options?: never;
         head?: never;
@@ -421,6 +608,187 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/plataforma/publicidad/anunciantes/{anunciante_id}/campanas": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Campañas del anunciante. */
+        get: operations["listar_campanas"];
+        put?: never;
+        /** Crea una campaña en borrador. */
+        post: operations["crear_campana"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plataforma/publicidad/anunciantes/{anunciante_id}/campanas/{campana_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Campaña con sus creativos. */
+        get: operations["ver_campana"];
+        /** Edita la campaña (una aprobada o pausada vuelve a borrador y a moderación). */
+        put: operations["editar_campana"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plataforma/publicidad/anunciantes/{anunciante_id}/campanas/{campana_id}/estado": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Envía a revisión, activa, pausa o finaliza la campaña. */
+        post: operations["cambiar_estado_campana"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plataforma/publicidad/anunciantes/{anunciante_id}/campanas/{campana_id}/creativos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Agrega un creativo (queda pendiente de moderación). */
+        post: operations["crear_creativo"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plataforma/publicidad/anunciantes/{anunciante_id}/campanas/{campana_id}/creativos/{creativo_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Edita un creativo (si cambia, vuelve a moderación). */
+        put: operations["editar_creativo"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plataforma/publicidad/anunciantes/{anunciante_id}/campanas/{campana_id}/metricas": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Métricas agregadas de la campaña. */
+        get: operations["metricas"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plataforma/publicidad/anunciantes/{anunciante_id}/leads": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Contactos que los residentes autorizaron compartirle al comercio (nombre y celular, para esa
+         *     solicitud).
+         */
+        get: operations["leads"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plataforma/publicidad/anunciantes/{anunciante_id}/enlace-cupones": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** El enlace de redención del comercio, sin cambiarlo. */
+        get: operations["ver_enlace_comercio"];
+        put?: never;
+        /** Genera (o reemplaza, el anterior deja de servir) el enlace con que el comercio redime cupones. */
+        post: operations["generar_enlace_comercio"];
+        /** Revoca el enlace del comercio. */
+        delete: operations["revocar_enlace_comercio"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plataforma/publicidad/exclusiones": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Entidades excluidas de la publicidad (no reciben piezas ni destacadas). */
+        get: operations["exclusiones"];
+        put?: never;
+        /**
+         * Excluye una entidad de la publicidad. Solo la plataforma lo decide: la entidad no
+         *     controla la publicidad. Su directorio sigue funcionando.
+         */
+        post: operations["excluir"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plataforma/publicidad/exclusiones/{entidad_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Vuelve a incluir una entidad en la publicidad. */
+        delete: operations["incluir"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/plataforma/publicidad/moderacion/creativos": {
         parameters: {
             query?: never;
@@ -600,7 +968,8 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** El token vigente de la pantalla del lobby, sin cambiarlo. */
+        get: operations["ver_pantalla"];
         put?: never;
         /** Genera el token de la pantalla del lobby de una copropiedad (reemplaza el anterior). */
         post: operations["generar_pantalla"];
@@ -610,7 +979,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/plataforma/entidades": {
+    "/api/v1/plataforma/entidad-plataforma": {
         parameters: {
             query?: never;
             header?: never;
@@ -618,12 +987,33 @@ export interface paths {
             cookie?: never;
         };
         get?: never;
-        put?: never;
         /**
-         * Da de alta una entidad sin vertical (cualquier empresa de la contabilidad base); sus módulos
-         *     se habilitan después, uno a uno.
+         * Designa la entidad que opera la plataforma (la empresa de GISLA SAS). Quien tiene roles de
+         *     plataforma la recibe como `plataforma` al iniciar sesión. Solo hay una: designar otra le quita
+         *     la marca a la anterior.
          */
-        post: operations["crear_entidad"];
+        put: operations["designar_entidad_plataforma"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plataforma/facturacion/consumo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Documentos electrónicos transmitidos (validados, enviados o en contingencia) por entidad y
+         *     tipo en el periodo: la base para cobrar el módulo de facturación (plan 19). Solo conteos.
+         */
+        get: operations["consumo_documentos"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -1117,7 +1507,11 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Crea una cuenta. Si trae correo, envía un código para verificarlo. */
+        /**
+         * Crea una cuenta. Si trae correo, envía un código para verificarlo. Solo con
+         *     `REGISTRO_ABIERTO=true` (desarrollo): en producción los usuarios los crean la plataforma
+         *     (`POST /plataforma/cuentas`) o la entidad (`POST /entidades/{entidad_id}/usuarios`).
+         */
         post: operations["registrar"];
         delete?: never;
         options?: never;
@@ -1302,42 +1696,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/anunciantes": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Anunciantes de la cuenta. */
-        get: operations["mis_anunciantes"];
-        put?: never;
-        /** Registra la cuenta como anunciante (queda `pendiente` hasta que la moderación lo verifique). */
-        post: operations["registrarse"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/anunciantes/{anunciante_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** El anunciante con su ficha. */
-        get: operations["mi_anunciante"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/anunciantes/{anunciante_id}/ficha": {
+    "/api/v1/publicidad/cupones/redimir": {
         parameters: {
             query?: never;
             header?: never;
@@ -1345,152 +1704,11 @@ export interface paths {
             cookie?: never;
         };
         get?: never;
+        put?: never;
         /**
-         * El anunciante edita su ficha del directorio (la fecha de destacada la gestiona la
-         *     plataforma y se ignora).
+         * Redime un cupón en el mostrador del comercio, con el token de **su enlace** en `X-Comercio`
+         *     (sin sesión: los comercios no tienen cuenta en la plataforma).
          */
-        put: operations["editar_ficha"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/anunciantes/{anunciante_id}/campanas": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Campañas del anunciante. */
-        get: operations["listar_campanas"];
-        put?: never;
-        /** Crea una campaña en borrador. */
-        post: operations["crear_campana"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/anunciantes/{anunciante_id}/campanas/{campana_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Campaña con sus creativos. */
-        get: operations["ver_campana"];
-        /** Edita la campaña (una aprobada o pausada vuelve a borrador y a moderación). */
-        put: operations["editar_campana"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/anunciantes/{anunciante_id}/campanas/{campana_id}/estado": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Envía a revisión, activa, pausa o finaliza la campaña. */
-        post: operations["cambiar_estado_campana"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/anunciantes/{anunciante_id}/campanas/{campana_id}/creativos": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Agrega un creativo (queda pendiente de moderación). */
-        post: operations["crear_creativo"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/anunciantes/{anunciante_id}/campanas/{campana_id}/creativos/{creativo_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /** Edita un creativo (si cambia, vuelve a moderación). */
-        put: operations["editar_creativo"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/anunciantes/{anunciante_id}/campanas/{campana_id}/metricas": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Métricas agregadas de la campaña. */
-        get: operations["metricas"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/anunciantes/{anunciante_id}/leads": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Contactos que los residentes autorizaron compartirle (nombre y celular, para esa
-         *     solicitud). El operario no los ve.
-         */
-        get: operations["leads"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/anunciantes/{anunciante_id}/cupones/redimir": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Redime un cupón en el mostrador (también el operario). */
         post: operations["redimir"];
         delete?: never;
         options?: never;
@@ -3409,6 +3627,47 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/copropiedades/{copropiedad_id}/recursos/{recurso_id}/cobro": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Cómo se cobran las reservas del recurso. */
+        get: operations["ver_cobro"];
+        /**
+         * El contador decide cómo se cobra el valor de las reservas del recurso (rige para las que se
+         *     aprueben desde ahora).
+         */
+        put: operations["configurar_cobro"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/copropiedades/{copropiedad_id}/reservas/{reserva_id}/factura": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Factura en borrador por el valor de una reserva de un recurso que se cobra con factura
+         *     (luego se emite y se cobra como cualquier factura de venta).
+         */
+        post: operations["facturar"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/copropiedades/{copropiedad_id}/restricciones-reserva": {
         parameters: {
             query?: never;
@@ -4289,77 +4548,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/copropiedades/{copropiedad_id}/directorio": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Directorio de comercios y servicios que alcanzan a la copropiedad, paginado. */
-        get: operations["consultar"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/copropiedades/{copropiedad_id}/directorio/destacadas": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Fichas destacadas vigentes (hasta 10). Vacío si la copropiedad no tiene el módulo
-         *     `publicidad`.
-         */
-        get: operations["destacadas"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/copropiedades/{copropiedad_id}/directorio/categorias": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Categorías para filtrar el directorio (activas y no restringidas). */
-        get: operations["categorias"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/copropiedades/{copropiedad_id}/directorio/anunciantes/{anunciante_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Ficha de un anunciante que alcanza a la copropiedad. */
-        get: operations["ficha"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/v1/copropiedades/{copropiedad_id}/directorio/anunciantes/{anunciante_id}/resenas": {
         parameters: {
             query?: never;
@@ -4462,7 +4650,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Estado del enlace público del directorio y el enlace `wa.me` para los grupos. */
+        /**
+         * El enlace público vigente del directorio (con su token, sin cambiarlo) y el enlace `wa.me`
+         *     para los grupos.
+         */
         get: operations["estado_enlace"];
         put?: never;
         /**
@@ -4492,96 +4683,6 @@ export interface paths {
         get: operations["publico"];
         put?: never;
         post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/copropiedades/{copropiedad_id}/publicidad/autorizacion": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** ¿La cuenta autorizó recibir publicidad de la plataforma? Con la política vigente. */
-        get: operations["estado_autorizacion"];
-        put?: never;
-        /** El titular autoriza recibir publicidad de la plataforma (solo él; la PH no puede). */
-        post: operations["autorizar"];
-        /** Retira la autorización de publicidad. */
-        delete: operations["revocar"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/copropiedades/{copropiedad_id}/publicidad/piezas": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Piezas para el residente (vacío si no autorizó la publicidad o la PH no tiene el módulo). */
-        get: operations["piezas"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/copropiedades/{copropiedad_id}/publicidad/eventos": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Registra impresiones y clics de las piezas (solo de quien autorizó; hasta 100 por
-         *     contador).
-         */
-        post: operations["eventos"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/copropiedades/{copropiedad_id}/publicidad/creativos/{creativo_id}/cupon": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** El residente obtiene el código de una oferta para presentarlo en el comercio. */
-        post: operations["cupon"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/copropiedades/{copropiedad_id}/publicidad/creativos/{creativo_id}/reporte": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Reporta un anuncio para la moderación de la plataforma. */
-        post: operations["reportar"];
         delete?: never;
         options?: never;
         head?: never;
@@ -6211,23 +6312,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/copropiedades/{copropiedad_id}/auditoria": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Eventos de la auditoría, más recientes primero. */
-        get: operations["consultar"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/v1/copropiedades/{copropiedad_id}/importaciones/bienes-privados": {
         parameters: {
             query?: never;
@@ -6296,93 +6380,6 @@ export interface paths {
          *     propietarios (con su rol si tienen cuenta) y un cuadro **borrador** con los coeficientes.
          */
         post: operations["confirmar"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/copropiedades/{copropiedad_id}/roles": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Roles de la copropiedad: plantillas del sistema y propios. */
-        get: operations["listar_roles"];
-        put?: never;
-        /** Crea un rol propio. Nunca con permisos que quien lo crea no tiene. */
-        post: operations["crear_rol"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/copropiedades/{copropiedad_id}/roles/{rol_id}/permisos": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /** Reemplaza los permisos de un rol propio (las plantillas no se editan). */
-        put: operations["editar_permisos"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/copropiedades/{copropiedad_id}/asignaciones": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Historial de asignaciones (quién tuvo qué rol y cuándo), más recientes primero. */
-        get: operations["listar_asignaciones"];
-        put?: never;
-        /** Asigna un rol a una cuenta. Nunca un rol con permisos que quien asigna no tiene. */
-        post: operations["asignar"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/copropiedades/{copropiedad_id}/asignaciones/{asignacion_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /** Termina una asignación desde ahora. La copropiedad no se queda sin administrador. */
-        delete: operations["revocar"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/copropiedades/{copropiedad_id}/cuentas": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Busca una cuenta por usuario o correo exactos para asignarle un rol (nunca listados). */
-        get: operations["buscar_cuenta"];
-        put?: never;
-        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -6459,7 +6456,386 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/copropiedades/{copropiedad_id}/archivos": {
+    "/api/v1/entidades/{entidad_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Ficha de la entidad: nombre, NIT, ubicación, contacto y zona horaria (cualquier entidad). */
+        get: operations["ver_ficha"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Actualiza los datos generales de la entidad (en una PH, lo mismo que su ficha completa). */
+        patch: operations["actualizar_ficha"];
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/capacidades": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Permisos de la cuenta en la entidad y módulos habilitados (para cualquier entidad). */
+        get: operations["capacidades_entidad"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/roles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Roles de la copropiedad: plantillas del sistema y propios. */
+        get: operations["listar_roles"];
+        put?: never;
+        /** Crea un rol propio. Nunca con permisos que quien lo crea no tiene. */
+        post: operations["crear_rol"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/roles/{rol_id}/permisos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Reemplaza los permisos de un rol propio (las plantillas no se editan). */
+        put: operations["editar_permisos"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/asignaciones": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Historial de asignaciones (quién tuvo qué rol y cuándo), más recientes primero. */
+        get: operations["listar_asignaciones"];
+        put?: never;
+        /** Asigna un rol a una cuenta. Nunca un rol con permisos que quien asigna no tiene. */
+        post: operations["asignar"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/asignaciones/{asignacion_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Termina una asignación desde ahora. La copropiedad no se queda sin administrador. */
+        delete: operations["revocar"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/cuentas": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Busca una cuenta por usuario o correo exactos para asignarle un rol (nunca listados). */
+        get: operations["buscar_cuenta"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/usuarios/importaciones": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Sube y valida una planilla de usuarios (CSV o XLSX): columnas `nombre`, `correo` y `rol`
+         *     (código), y opcionales `usuario`, `telefono` y `documento`. No crea nada: devuelve la vista
+         *     previa con los errores por fila; se aplica con `…/usuarios/importaciones/{id}/confirmar`.
+         */
+        post: operations["importar"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/usuarios": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Usuarios de la entidad con sus roles y si la contraseña está pendiente. */
+        get: operations["listar"];
+        put?: never;
+        /**
+         * Crea un usuario de la entidad con su rol (o asigna el rol a la cuenta que ya tiene ese
+         *     correo) y le envía el código para definir su contraseña (o un aviso del acceso nuevo).
+         */
+        post: operations["crear"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/usuarios/{cuenta_id}/codigo-contrasena": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reenvía el código para definir la contraseña a un usuario que aún no la define. */
+        post: operations["reenviar_codigo"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/usuarios/importaciones/plantilla": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Plantilla CSV de usuarios con ejemplos. */
+        get: operations["plantilla"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/usuarios/importaciones/{importacion_id}/confirmar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Crea los usuarios de una importación validada en una sola transacción (si una fila choca con
+         *     otra cuenta, no se crea ninguno y el mensaje dice la fila).
+         */
+        post: operations["confirmar_importacion"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/directorio": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Directorio de comercios y servicios que alcanzan a la copropiedad, paginado. */
+        get: operations["consultar"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/directorio/destacadas": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Fichas destacadas vigentes (hasta 10). Vacío si la copropiedad no tiene el módulo
+         *     `publicidad`.
+         */
+        get: operations["destacadas"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/directorio/categorias": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Categorías para filtrar el directorio (activas y no restringidas). */
+        get: operations["categorias"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/directorio/anunciantes/{anunciante_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Ficha de un anunciante que alcanza a la copropiedad. */
+        get: operations["ficha"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/publicidad/autorizacion": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** ¿La cuenta autorizó recibir publicidad de la plataforma? Con la política vigente. */
+        get: operations["estado_autorizacion"];
+        put?: never;
+        /** El titular autoriza recibir publicidad de la plataforma (solo él; la PH no puede). */
+        post: operations["autorizar"];
+        /** Retira la autorización de publicidad. */
+        delete: operations["revocar"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/publicidad/piezas": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Piezas para el residente (vacío si no autorizó la publicidad o la PH no tiene el módulo). */
+        get: operations["piezas"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/publicidad/eventos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Registra impresiones y clics de las piezas (solo de quien autorizó; hasta 100 por
+         *     contador).
+         */
+        post: operations["eventos"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/publicidad/creativos/{creativo_id}/cupon": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** El residente obtiene el código de una oferta para presentarlo en el comercio. */
+        post: operations["cupon"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/publicidad/creativos/{creativo_id}/reporte": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reporta un anuncio para la moderación de la plataforma. */
+        post: operations["reportar"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/archivos": {
         parameters: {
             query?: never;
             header?: never;
@@ -6476,7 +6852,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/copropiedades/{copropiedad_id}/archivos/{archivo_id}/enlace": {
+    "/api/v1/entidades/{entidad_id}/archivos/{archivo_id}/enlace": {
         parameters: {
             query?: never;
             header?: never;
@@ -6496,16 +6872,141 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/entidades/{entidad_id}/capacidades": {
+    "/api/v1/entidades/{entidad_id}/auditoria": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** Permisos de la cuenta en la entidad y módulos habilitados (para cualquier entidad). */
-        get: operations["capacidades_entidad"];
+        /** Eventos de la auditoría, más recientes primero. */
+        get: operations["consultar"];
         put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/terceros": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Terceros de la entidad (sus personas) con datos fiscales. */
+        get: operations["listar_terceros"];
+        put?: never;
+        /** Crea un tercero (reutiliza la persona si el documento ya existe). */
+        post: operations["crear_tercero"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/terceros/{persona_id}/datos-fiscales": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Reemplaza los datos fiscales de una persona de la entidad. */
+        put: operations["guardar_datos_fiscales"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/tributario/catalogo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Catálogo tributario de la plataforma (tarifas de IVA e ICA y formatos de exógena). */
+        get: operations["catalogo"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/tributario/perfiles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Versiones del perfil tributario (la más reciente primero). */
+        get: operations["listar_perfiles"];
+        put?: never;
+        /** Crea una versión del perfil en borrador (no aplica nada hasta que el contador la confirme). */
+        post: operations["crear_perfil"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/tributario/perfiles/{perfil_id}/confirmacion": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Confirma una versión del perfil: desde su vigencia aplican IVA, retenciones y facturación.
+         *     Una versión confirmada no se modifica.
+         */
+        post: operations["confirmar_perfil"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/tributario/resoluciones": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Resoluciones de numeración (sin la clave técnica). */
+        get: operations["listar_resoluciones"];
+        put?: never;
+        /** Registra una resolución de numeración de la DIAN. */
+        post: operations["crear_resolucion"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/tributario/resoluciones/{resolucion_id}/activa": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Activa o desactiva una resolución (solo una activa y vigente numera). */
+        put: operations["activar_resolucion"];
         post?: never;
         delete?: never;
         options?: never;
@@ -6701,41 +7202,6 @@ export interface paths {
         put?: never;
         /** Guarda una versión nueva de una nota. */
         post: operations["guardar_nota"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/entidades/{entidad_id}/contabilidad/terceros": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Terceros de la entidad (sus personas) con datos fiscales. */
-        get: operations["listar_terceros"];
-        put?: never;
-        /** Crea un tercero (reutiliza la persona si el documento ya existe). */
-        post: operations["crear_tercero"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/entidades/{entidad_id}/contabilidad/terceros/{persona_id}/datos-fiscales": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /** Reemplaza los datos fiscales de una persona de la entidad. */
-        put: operations["guardar_datos_fiscales"];
-        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -7429,77 +7895,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/entidades/{entidad_id}/contabilidad/ventas/facturas": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Facturas de venta por vencimiento (a lo sumo 500, sin líneas). */
-        get: operations["listar_facturas"];
-        put?: never;
-        /** Crea una factura de venta en borrador (el IVA de cada línea lo elige quien factura). */
-        post: operations["crear_factura"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/entidades/{entidad_id}/contabilidad/ventas/facturas/{factura_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Factura de venta con sus líneas. */
-        get: operations["ver_factura"];
-        put?: never;
-        post?: never;
-        /** Borra una factura en borrador. */
-        delete: operations["eliminar_factura"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/entidades/{entidad_id}/contabilidad/ventas/facturas/{factura_id}/emision": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Emite la factura: la contabiliza y le asigna el número de su comprobante `FV`. */
-        post: operations["emitir_factura"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/entidades/{entidad_id}/contabilidad/ventas/facturas/{factura_id}/anulacion": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Anula una factura emitida sin recaudos (revierte su comprobante). */
-        post: operations["anular_factura"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/entidades/{entidad_id}/contabilidad/ventas/cartera": {
+    "/api/v1/entidades/{entidad_id}/contabilidad/cuentas-por-cobrar/edades": {
         parameters: {
             query?: never;
             header?: never;
@@ -7530,6 +7926,27 @@ export interface paths {
         put?: never;
         /** Lee el extracto y muestra lo que se importaría, con los problemas por fila (no guarda nada). */
         post: operations["previsualizar_extracto"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/contabilidad/tesoreria/cuentas/{cuenta_id}/mapeo-extracto": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Último mapeo de columnas de la cuenta (se guarda solo al importar un extracto en planilla):
+         *     prellene con él el formulario de carga.
+         */
+        get: operations["ver_mapeo"];
+        /** Guarda el mapeo de columnas de la cuenta (el del banco de esa cuenta). */
+        put: operations["guardar_mapeo"];
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -7697,96 +8114,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/entidades/{entidad_id}/contabilidad/tributario/catalogo": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Catálogo tributario de la plataforma (tarifas de IVA e ICA y formatos de exógena). */
-        get: operations["catalogo"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/entidades/{entidad_id}/contabilidad/tributario/perfiles": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Versiones del perfil tributario (la más reciente primero). */
-        get: operations["listar_perfiles"];
-        put?: never;
-        /** Crea una versión del perfil en borrador (no aplica nada hasta que el contador la confirme). */
-        post: operations["crear_perfil"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/entidades/{entidad_id}/contabilidad/tributario/perfiles/{perfil_id}/confirmacion": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Confirma una versión del perfil: desde su vigencia aplican IVA, retenciones y facturación.
-         *     Una versión confirmada no se modifica.
-         */
-        post: operations["confirmar_perfil"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/entidades/{entidad_id}/contabilidad/tributario/resoluciones": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Resoluciones de numeración (sin la clave técnica). */
-        get: operations["listar_resoluciones"];
-        put?: never;
-        /** Registra una resolución de numeración de la DIAN. */
-        post: operations["crear_resolucion"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/entidades/{entidad_id}/contabilidad/tributario/resoluciones/{resolucion_id}/activa": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /** Activa o desactiva una resolución (solo una activa y vigente numera). */
-        put: operations["activar_resolucion"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/v1/entidades/{entidad_id}/contabilidad/tributario/retencion": {
         parameters: {
             query?: never;
@@ -7897,7 +8224,164 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/entidades/{entidad_id}/contabilidad/ventas/facturas/{factura_id}/factura-electronica": {
+    "/api/v1/entidades/{entidad_id}/facturacion/items": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Catálogo por descripción (a lo sumo 500). */
+        get: operations["listar_items"];
+        put?: never;
+        /** Crea un producto o servicio. */
+        post: operations["crear_item"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/facturacion/items/{item_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Producto o servicio por id. */
+        get: operations["ver_item"];
+        /**
+         * Reemplaza los datos de un ítem (el código no cambia). Desactivarlo lo saca de las facturas
+         *     nuevas.
+         */
+        put: operations["actualizar_item"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/facturacion/facturas": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Facturas de venta por vencimiento (a lo sumo 500, sin líneas). */
+        get: operations["listar_facturas"];
+        put?: never;
+        /** Crea una factura de venta en borrador (el IVA de cada línea lo elige quien factura). */
+        post: operations["crear_factura"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/facturacion/facturas/{factura_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Factura de venta con sus líneas. */
+        get: operations["ver_factura"];
+        put?: never;
+        post?: never;
+        /** Borra una factura en borrador. */
+        delete: operations["eliminar_factura"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/facturacion/facturas/{factura_id}/emision": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Emite la factura: le asigna su número interno del año y, si la entidad lleva contabilidad, la
+         *     contabiliza.
+         */
+        post: operations["emitir_factura"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/facturacion/facturas/{factura_id}/anulacion": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Anula una factura emitida sin pagos (revierte su comprobante si se contabilizó). Con factura
+         *     electrónica validada se anula con nota crédito.
+         */
+        post: operations["anular_factura"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/facturacion/facturas/{factura_id}/pago": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Marca pagada una factura emitida de una entidad **sin contabilidad**. Con contabilidad el pago
+         *     se registra con un recibo de caja de la tesorería.
+         */
+        post: operations["marcar_pagada"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/facturacion/facturas/{factura_id}/nota-debito": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Emite la nota débito de una factura con factura electrónica validada: un documento por
+         *     cobrar más del mismo cliente (entra a la cartera, se abona con recibos de caja o se marca
+         *     pagada a mano y, con contabilidad, se contabiliza) que se transmite a la DIAN referido a la
+         *     factura electrónica original.
+         */
+        post: operations["emitir_nota_debito"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/facturacion/facturas/{factura_id}/factura-electronica": {
         parameters: {
             query?: never;
             header?: never;
@@ -7917,7 +8401,28 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/entidades/{entidad_id}/contabilidad/ventas/facturas/{factura_id}/nota-credito": {
+    "/api/v1/entidades/{entidad_id}/facturacion/facturas/{factura_id}/factura-contingencia": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Transcribe como factura electrónica **tipo 03** una factura de venta que se expidió en papel
+         *     con el talonario de contingencia del facturador mientras no pudo facturar electrónicamente.
+         *     La DIAN exige transcribirla dentro de las 48 horas siguientes a superar el inconveniente.
+         */
+        post: operations["transcribir_factura_contingencia"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/facturacion/facturas/{factura_id}/nota-credito": {
         parameters: {
             query?: never;
             header?: never;
@@ -7937,7 +8442,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/entidades/{entidad_id}/contabilidad/cuentas-por-pagar/facturas/{factura_id}/documento-soporte": {
+    "/api/v1/entidades/{entidad_id}/facturacion/compras/{factura_id}/documento-soporte": {
         parameters: {
             query?: never;
             header?: never;
@@ -7954,7 +8459,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/entidades/{entidad_id}/contabilidad/facturacion/documentos": {
+    "/api/v1/entidades/{entidad_id}/facturacion/compras/{factura_id}/nota-ajuste": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Emite la nota de ajuste que anula el documento soporte validado de una compra (anula
+         *     también la compra y, con contabilidad, revierte su comprobante).
+         */
+        post: operations["emitir_nota_ajuste_soporte"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/facturacion/documentos": {
         parameters: {
             query?: never;
             header?: never;
@@ -7971,7 +8496,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/entidades/{entidad_id}/contabilidad/facturacion/documentos/{documento_id}": {
+    "/api/v1/entidades/{entidad_id}/facturacion/documentos/{documento_id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -7988,7 +8513,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/entidades/{entidad_id}/contabilidad/facturacion/documentos/{documento_id}/reintento": {
+    "/api/v1/entidades/{entidad_id}/facturacion/documentos/{documento_id}/reintento": {
         parameters: {
             query?: never;
             header?: never;
@@ -8005,7 +8530,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/entidades/{entidad_id}/contabilidad/facturacion/documentos/{documento_id}/pdf": {
+    "/api/v1/entidades/{entidad_id}/facturacion/documentos/{documento_id}/pdf": {
         parameters: {
             query?: never;
             header?: never;
@@ -8022,7 +8547,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/entidades/{entidad_id}/contabilidad/facturacion/recibidas": {
+    "/api/v1/entidades/{entidad_id}/facturacion/documentos/{documento_id}/paquete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * ZIP del documento tal como lo recibe el adquirente: el `AttachedDocument` (el documento y la
+         *     respuesta de la DIAN) y la representación gráfica en PDF.
+         */
+        get: operations["paquete_adquirente"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/facturacion/recibidas": {
         parameters: {
             query?: never;
             header?: never;
@@ -8043,7 +8588,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/entidades/{entidad_id}/contabilidad/facturacion/recibidas/{recibida_id}": {
+    "/api/v1/entidades/{entidad_id}/facturacion/recibidas/{recibida_id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -8060,7 +8605,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/entidades/{entidad_id}/contabilidad/facturacion/recibidas/{recibida_id}/vinculo": {
+    "/api/v1/entidades/{entidad_id}/facturacion/recibidas/{recibida_id}/vinculo": {
         parameters: {
             query?: never;
             header?: never;
@@ -8077,7 +8622,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/entidades/{entidad_id}/contabilidad/facturacion/recibidas/{recibida_id}/rechazo": {
+    "/api/v1/entidades/{entidad_id}/facturacion/recibidas/{recibida_id}/rechazo": {
         parameters: {
             query?: never;
             header?: never;
@@ -8097,7 +8642,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/entidades/{entidad_id}/contabilidad/facturacion/recibidas/{recibida_id}/eventos": {
+    "/api/v1/entidades/{entidad_id}/facturacion/recibidas/{recibida_id}/eventos": {
         parameters: {
             query?: never;
             header?: never;
@@ -8107,10 +8652,275 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Registra un evento RADIAN (acuse, recibo del bien, aceptación o reclamo) por medio del
+         * Registra un evento RADIAN (acuse, recibo del bien, aceptación expresa o reclamo) sobre una
+         *     factura recibida. Con el canal `propio` se firma y se envía a la DIAN; si no, lo registra el
          *     proveedor. Cada evento exige sus previos y no se repite.
          */
         post: operations["evento_radian"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/facturacion/documentos/{documento_id}/aceptacion-tacita": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Registra la aceptación tácita (evento 034) de una factura electrónica propia, validada y a
+         *     crédito, cuando el adquirente no la aceptó ni la reclamó en los tres días hábiles siguientes
+         *     al recibo del bien. La DIAN verifica el plazo y los eventos del adquirente.
+         */
+        post: operations["aceptacion_tacita"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/facturacion/documentos/{documento_id}/eventos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Eventos RADIAN que la entidad registró sobre su propia factura electrónica. */
+        get: operations["eventos_documento"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/facturacion/libro-ventas": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Libro de ventas del periodo en CSV (número interno, número y CUFE de la DIAN, cliente y
+         *     valores). Queda en la auditoría con su huella (cabecera `X-Contenido-Sha256`).
+         */
+        get: operations["libro_ventas"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/facturacion/libro-compras": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Libro de compras del periodo en CSV (facturas electrónicas recibidas). */
+        get: operations["libro_compras"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/facturacion/paquete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** ZIP con el XML y el PDF de cada documento electrónico transmitido en el periodo. */
+        get: operations["paquete"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/facturacion/contabilizacion": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Contabiliza las facturas emitidas antes de tener contabilidad (exige el módulo de
+         *     contabilidad). Cada una va en su transacción; repetir no duplica nada.
+         */
+        post: operations["contabilizar"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/facturacion/habilitacion": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Estado de la habilitación: software, certificado y set de pruebas. */
+        get: operations["ver_habilitacion"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/facturacion/habilitacion/software": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Registra (o cambia) el software de la entidad; cambiarlo vuelve la habilitación a
+         *     `registrado`.
+         */
+        put: operations["registrar_software"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/facturacion/habilitacion/certificado": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Carga el certificado de firma de la entidad (lo valida, lo cifra y lo deja activo). */
+        post: operations["cargar_certificado"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/facturacion/habilitacion/set-pruebas": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Envía al ambiente de habilitación las facturas de prueba y las notas crédito y débito que
+         *     pida la DIAN, con el TestSetId.
+         */
+        post: operations["enviar_set_pruebas"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/facturacion/habilitacion/set-pruebas/consulta": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Consulta en la DIAN los envíos del set; si todos fueron aceptados, la entidad queda
+         *     `habilitado`.
+         */
+        post: operations["consultar_set_pruebas"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/facturacion/habilitacion/produccion": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Pasa la entidad a producción con el motor propio (exige `habilitado`). */
+        post: operations["pasar_a_produccion"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/facturacion/habilitacion/rangos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Trae de la DIAN los rangos autorizados al software y registra los que falten como
+         *     resoluciones de factura (con su clave técnica). Devuelve los nuevos.
+         */
+        post: operations["sincronizar_rangos"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/facturacion/compras": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Registra una compra a un proveedor para emitir su documento soporte. Sin contabilidad va sin
+         *     cuentas, centros de costo ni retenciones; con contabilidad es la misma factura de proveedor
+         *     de las cuentas por pagar.
+         */
+        post: operations["registrar_compra"];
         delete?: never;
         options?: never;
         head?: never;
@@ -8273,6 +9083,22 @@ export interface components {
             mensaje_id?: string | null;
             interno: boolean;
         };
+        /** @description Administrador nuevo de una entidad que se da de alta (puede no tener cuenta todavía). */
+        AdministradorNuevoPeticion: {
+            /** @example Ana Pérez */
+            nombre: string;
+            /**
+             * @description Obligatorio: por él llega el código para definir la contraseña. Si ya tiene cuenta, se
+             *     usa esa.
+             * @example ana@correo.co
+             */
+            correo: string;
+            /**
+             * @description Opcional (3 a 30 caracteres `a-z 0-9 . _ -`).
+             * @example ana.perez
+             */
+            usuario?: string | null;
+        };
         /**
          * @description Advertencia legal que se muestra en la ficha de la copropiedad.
          * @enum {string}
@@ -8357,6 +9183,11 @@ export interface components {
             garantias: components["schemas"]["ActivoRespuesta"][];
             ordenes_vencidas: components["schemas"]["OrdenRespuesta"][];
         };
+        /**
+         * @description Ambiente del servicio web de la DIAN.
+         * @enum {string}
+         */
+        AmbienteDian: "habilitacion" | "produccion";
         /**
          * @description Ámbito de un permiso o de un rol.
          * @enum {string}
@@ -9019,6 +9850,35 @@ export interface components {
              */
             plantilla_codigo?: string | null;
         };
+        /**
+         * @description Cambios a la ficha de la entidad. Los campos omitidos no cambian; un texto vacío (`""`) lo
+         *     borra.
+         */
+        CambiosEntidadPeticion: {
+            nombre?: string | null;
+            razon_social?: string | null;
+            /**
+             * @description Con o sin dígito de verificación; se valida con el algoritmo de la DIAN.
+             * @example 900123456-8
+             */
+            nit?: string | null;
+            direccion?: string | null;
+            /** @example 11001 */
+            municipio_dane?: string | null;
+            departamento?: string | null;
+            barrio?: string | null;
+            /** @example 4.711 */
+            latitud?: string | null;
+            /** @example -74.0721 */
+            longitud?: string | null;
+            /** @example 576015551234 */
+            telefono?: string | null;
+            /** @example contacto@empresa.co */
+            correo?: string | null;
+            sitio_web?: string | null;
+            /** @example America/Bogota */
+            zona_horaria?: string | null;
+        };
         /** @description Cambios a la ficha global (lo que no venga no cambia). */
         CambiosFichaPeticion: {
             razon_social?: string | null;
@@ -9212,12 +10072,20 @@ export interface components {
          *     vuelve a exigir el permiso y el módulo en cada operación.
          */
         CapacidadesRespuesta: {
-            /** @description `propiedad_horizontal` (menús de la PH y lo común) o `empresa` (solo lo común). */
+            /**
+             * @description `propiedad_horizontal` (menús de la PH y lo común), `empresa` (solo lo común) o
+             *     `plataforma` (consola de operación y lo común de su propia empresa).
+             */
             tipo: components["schemas"]["TipoEntidad"];
             /** @description Permisos efectivos de la cuenta (unión de sus roles vigentes en la entidad). */
             permisos: components["schemas"]["Permiso"][];
             /** @description Módulos contratados y vigentes hoy; los demás responden `modulo_no_habilitado`. */
             modulos: components["schemas"]["Modulo"][];
+            /**
+             * @description La cuenta entra como **soporte** de la plataforma: solo lectura (toda escritura responde
+             *     403). Muestre un aviso permanente.
+             */
+            modo_soporte: boolean;
         };
         /**
          * @description Cara de una línea de regla contable.
@@ -9400,6 +10268,13 @@ export interface components {
             /** @description El PDF en Base64. */
             pdf_base64: string;
         };
+        /** @description Certificado de firma (`.p12`) en Base64 con su contraseña. */
+        CertificadoPeticion: {
+            /** @description El `.p12` o `.pfx` en Base64 (hasta 64 KB). */
+            archivo_base64: string;
+            /** @description Contraseña del `.p12`: se guarda cifrada y no vuelve. */
+            contrasena: string;
+        };
         /** @description Certificado emitido. */
         CertificadoRespuesta: {
             /** Format: uuid */
@@ -9473,6 +10348,19 @@ export interface components {
             valor: string;
             /** Format: uuid */
             deudor_persona_id?: string | null;
+        };
+        /** @description Cómo se cobra el valor de las reservas de un recurso. */
+        CobroRecursoDto: {
+            /**
+             * @description `manual` (se registra en `…/pago`), `cartera` (al aprobarse queda como cargo pendiente
+             *     del bien y sale en su cuenta de cobro) o `factura` (se factura con `…/factura`).
+             */
+            destino: components["schemas"]["DestinoCobro"];
+            /**
+             * Format: uuid
+             * @description Ítem de facturación: obligatorio con `factura` y solo con `factura`.
+             */
+            item_facturacion_id?: string | null;
         };
         /**
          * @description Catálogo de códigos de error de la API. **Contrato**: no renombrar ni reutilizar un código
@@ -9653,6 +10541,16 @@ export interface components {
             /** Format: date-time */
             creado_en: string;
         };
+        /**
+         * @description Concepto de corrección de una nota débito (lista de la DIAN).
+         * @enum {string}
+         */
+        ConceptoNotaDebito: "intereses" | "gastos_por_cobrar" | "cambio_del_valor" | "otro";
+        /**
+         * @description Concepto del reclamo de una factura (lista de la DIAN).
+         * @enum {string}
+         */
+        ConceptoReclamo: "inconsistencias" | "no_entregada_total" | "no_entregada_parcial" | "servicio_no_prestado";
         /** @description Versión de un concepto de retención. */
         ConceptoRetencionRespuesta: {
             /** Format: uuid */
@@ -9873,6 +10771,15 @@ export interface components {
             acuse?: string | null;
             /** Format: date-time */
             enviado_en?: string | null;
+        };
+        /** @description Documentos electrónicos de una entidad y un tipo en el periodo. */
+        ConsumoDocumentosRespuesta: {
+            /** Format: uuid */
+            entidad_id: string;
+            nombre: string;
+            tipo: components["schemas"]["TipoDocumentoElectronico"];
+            /** Format: int64 */
+            cantidad: number;
         };
         /** @description Contacto compartido. */
         ContactoAutorizadoRespuesta: {
@@ -10264,6 +11171,24 @@ export interface components {
             id: string;
             nombre: string;
         };
+        /** @description Cuenta vista por la plataforma. */
+        CuentaPlataformaRespuesta: {
+            /** Format: uuid */
+            id: string;
+            nombre: string;
+            usuario?: string | null;
+            correo?: string | null;
+            correo_verificado: boolean;
+            /** @description `bloqueada` = no puede iniciar sesión hasta que se desbloquee. */
+            estado: components["schemas"]["EstadoCuenta"];
+            contrasena_pendiente: boolean;
+            segundo_factor_activo: boolean;
+            /**
+             * Format: date-time
+             * @description Bloqueo temporal por contraseñas fallidas (se levanta solo o al desbloquear).
+             */
+            bloqueo_temporal_hasta?: string | null;
+        };
         /** @description Cuenta del catálogo PUC. */
         CuentaPucDto: {
             /** @example 1105 */
@@ -10433,6 +11358,30 @@ export interface components {
             municipio_fiscal_dane?: string | null;
             correo_facturacion?: string | null;
         };
+        /** @description Datos editables de un producto o servicio. */
+        DatosItemPeticion: {
+            /** @example Asesoría por hora */
+            descripcion: string;
+            /**
+             * @description Código de unidad de la DIAN (`94` = unidad, `HUR` = hora); `94` si no viene.
+             * @example HUR
+             */
+            unidad?: string | null;
+            /**
+             * @description Precio sugerido.
+             * @example 80000
+             */
+            precio?: string | null;
+            /**
+             * @description Porcentaje de IVA (0 si no aplica); solo `venta` o `alquiler_servicio` llevan IVA.
+             * @example 0
+             */
+            tarifa_iva?: string;
+            clasificacion: components["schemas"]["ClasificacionTributaria"];
+            /** @description Código de la cuenta de ingreso, solo si la entidad lleva contabilidad. */
+            cuenta?: string | null;
+            activo?: boolean;
+        };
         /** @description Datos de pago de un bien privado. */
         DatosPagoPeticion: {
             /**
@@ -10472,6 +11421,11 @@ export interface components {
             decidida_ahora: boolean;
             visita: components["schemas"]["VisitaRespuesta"];
         };
+        /**
+         * @description Cómo se cobra el valor de las reservas de un recurso: `manual`, `cartera` o `factura`.
+         * @enum {string}
+         */
+        DestinoCobro: "manual" | "cartera" | "factura";
         /** @description Causación con su detalle. */
         DetalleCausacionRespuesta: {
             causacion: components["schemas"]["CausacionRespuesta"];
@@ -10539,6 +11493,11 @@ export interface components {
             mensajes: components["schemas"]["MensajeRespuesta"][];
             adjuntos: components["schemas"]["AdjuntoRespuesta"][];
             eventos: components["schemas"]["EventoRespuesta"][];
+            /**
+             * @description Estados a los que **quien consulta** puede llevar el ticket ahora (cada uno se acepta en
+             *     `POST …/transiciones`; la asignación va aparte). Muestre solo estos botones.
+             */
+            transiciones_permitidas: components["schemas"]["EstadoTicket"][];
         };
         /** @description Reunión con su orden del día y anexos. */
         DetalleReunionRespuesta: {
@@ -10805,7 +11764,7 @@ export interface components {
         };
         /** @description Enlace recién generado. */
         EnlaceGeneradoRespuesta: {
-            /** @description Token del enlace: se entrega **una sola vez** (el front arma la página pública con él). */
+            /** @description Token del enlace (el front arma la página pública con él; `GET` lo vuelve a entregar). */
             token: string;
             /** Format: date-time */
             creado_en: string;
@@ -10817,7 +11776,15 @@ export interface components {
             /** @description URL firmada; vence en 5 minutos. */
             url: string;
         };
-        /** @description Entidad (propiedad horizontal o empresa) donde la cuenta tiene roles vigentes. */
+        /** @description Token de un enlace (el frontend arma la URL; ver la guía del frontend). */
+        EnlaceTokenRespuesta: {
+            /** @description `null` = no hay enlace vigente (o es anterior a que se guardaran cifrados: genere otro). */
+            token?: string | null;
+        };
+        /**
+         * @description Entidad donde la cuenta puede trabajar: una propiedad horizontal, una empresa cliente o la
+         *     plataforma.
+         */
         EntidadDeLaCuenta: {
             /**
              * Format: uuid
@@ -10829,12 +11796,37 @@ export interface components {
             nombre: string;
             /** @example 900123456-7 */
             nit?: string | null;
-            /** @description `propiedad_horizontal` muestra los menús de la PH; `empresa`, solo lo común. */
+            /**
+             * @description `propiedad_horizontal` muestra los menús de la PH y lo común; `empresa`, solo lo común;
+             *     `plataforma`, la consola de operación (`/plataforma/…`) y lo común de su propia empresa.
+             */
             tipo: components["schemas"]["TipoEntidad"];
             /** @description `en_configuracion`, `activa` o `suspendida` (las retiradas no se listan). */
             estado: components["schemas"]["EstadoCopropiedad"];
-            /** @description Códigos de los roles vigentes (p. ej. `administrador`, `propietario`, `contador`). */
+            /**
+             * @description Códigos de los roles vigentes (p. ej. `administrador`, `propietario`, `contador`); en la
+             *     plataforma se suman los de plataforma (`superusuario`, `soporte`…).
+             */
             roles: string[];
+        };
+        /** @description Entidad que opera la plataforma. */
+        EntidadPlataformaPeticion: {
+            /**
+             * Format: uuid
+             * @description Empresa ya dada de alta (no una copropiedad).
+             */
+            entidad_id: string;
+        };
+        /** @description Entidad vista desde la consola. */
+        EntidadPlataformaRespuesta: {
+            /** Format: uuid */
+            id: string;
+            nombre: string;
+            nit?: string | null;
+            tipo: components["schemas"]["TipoEntidad"];
+            estado: components["schemas"]["EstadoCopropiedad"];
+            /** @description Módulos vigentes. */
+            modulos: components["schemas"]["Modulo"][];
         };
         /** @description Entidad creada. */
         EntidadRespuesta: {
@@ -10904,6 +11896,22 @@ export interface components {
             enviadas: number;
             /** @description Pagadores sin correo. */
             sin_correo: number;
+        };
+        /** @description Documento del set de pruebas enviado a la DIAN. */
+        EnvioSetRespuesta: {
+            /** Format: uuid */
+            id: string;
+            tipo: components["schemas"]["TipoDocumentoElectronico"];
+            numero: string;
+            /** @description CUFE del documento. */
+            codigo: string;
+            estado: components["schemas"]["EstadoEnvioSet"];
+            /** @description Respuesta de la DIAN (reglas incumplidas, si las hay). */
+            respuesta?: string | null;
+            /** Format: date-time */
+            enviado_en: string;
+            /** Format: date-time */
+            consultado_en?: string | null;
         };
         /** @description Error de una fila. */
         ErrorFilaRespuesta: {
@@ -11027,6 +12035,11 @@ export interface components {
          * @enum {string}
          */
         EstadoCuadro: "borrador" | "vigente" | "historico";
+        /**
+         * @description Estado de una cuenta: `activa`, `bloqueada` por la plataforma (no inicia sesión) o `eliminada` a pedido del titular.
+         * @enum {string}
+         */
+        EstadoCuenta: "activa" | "bloqueada" | "eliminada";
         /** @description Estado de cuenta de un bien. */
         EstadoCuentaRespuesta: {
             bien: components["schemas"]["BienCarteraRespuesta"];
@@ -11061,11 +12074,21 @@ export interface components {
             /** Format: date-time */
             creado_en?: string | null;
             /**
+             * @description Token del enlace vigente: el mismo mientras no se regenere ni se revoque. `null` si no
+             *     hay enlace o es anterior a que se guardaran cifrados (genere otro).
+             */
+            token?: string | null;
+            /**
              * @description Enlace que abre el chat de la PH con «Busco …» escrito.
              * @example https://wa.me/573000000000?text=Busco%20
              */
             whatsapp_url?: string | null;
         };
+        /**
+         * @description Resultado de un documento del set de pruebas.
+         * @enum {string}
+         */
+        EstadoEnvioSet: "enviado" | "aceptado" | "rechazado" | "sin_respuesta";
         /**
          * @description Estado de una factura de proveedor.
          * @enum {string}
@@ -11095,6 +12118,11 @@ export interface components {
             porcentaje_politica: string;
             suspendido: boolean;
         };
+        /**
+         * @description Estado de la habilitación de la entidad con el motor propio.
+         * @enum {string}
+         */
+        EstadoHabilitacion: "registrado" | "en_pruebas" | "habilitado" | "produccion";
         /**
          * @description Estado de una importación.
          * @enum {string}
@@ -11388,15 +12416,21 @@ export interface components {
             placa?: string | null;
         };
         /**
-         * @description Evento RADIAN sobre una factura recibida (cada uno exige sus previos).
+         * @description Evento RADIAN: acuse, recibo del bien, aceptación o reclamo sobre una factura recibida (cada uno exige sus previos), o aceptación tácita de una factura propia.
          * @enum {string}
          */
-        EventoRadian: "acuse" | "recibo_bien" | "aceptacion" | "reclamo";
+        EventoRadian: "acuse" | "recibo_bien" | "aceptacion" | "reclamo" | "aceptacion_tacita";
         /** @description Evento RADIAN a registrar. */
         EventoRadianPeticion: {
+            /**
+             * @description `acuse`, `recibo_bien`, `aceptacion` o `reclamo` (la aceptación tácita es de las facturas
+             *     propias: `POST …/documentos/{id}/aceptacion-tacita`).
+             */
             tipo: components["schemas"]["EventoRadian"];
-            /** @description Obligatorio en un reclamo. */
+            /** @description Observaciones; en un reclamo, el detalle de lo reclamado. */
             motivo?: string | null;
+            concepto_reclamo?: components["schemas"]["ConceptoReclamo"] | null;
+            quien_recibe?: components["schemas"]["PersonaRecibePeticion"] | null;
         };
         /** @description Evento RADIAN registrado. */
         EventoRadianRespuesta: {
@@ -11405,6 +12439,16 @@ export interface components {
             tipo: components["schemas"]["EventoRadian"];
             /** @description `enviado` o `rechazado`. */
             estado: string;
+            /** @description Número del evento (con el motor propio). */
+            numero?: string | null;
+            /** @description CUDE del evento (o el identificador del proveedor). */
+            cude?: string | null;
+            concepto_reclamo?: components["schemas"]["ConceptoReclamo"] | null;
+            /**
+             * Format: uuid
+             * @description `ApplicationResponse` firmado (descárguelo con un enlace de `/archivos`).
+             */
+            xml_archivo_id?: string | null;
             motivo?: string | null;
             respuesta?: string | null;
             /** Format: date-time */
@@ -11486,6 +12530,21 @@ export interface components {
             fin?: string | null;
             motivo?: string | null;
         };
+        /** @description Exclusión de una entidad. */
+        ExclusionPeticion: {
+            /** Format: uuid */
+            entidad_id: string;
+            /** @example El contrato con la PH no permite publicidad */
+            motivo: string;
+        };
+        /** @description Entidad excluida de la publicidad. */
+        ExclusionRespuesta: {
+            /** Format: uuid */
+            entidad_id: string;
+            motivo: string;
+            /** Format: date-time */
+            creada_en: string;
+        };
         /** @description Exógena generada con su archivo y los terceros con datos por corregir. */
         ExogenaGeneradaRespuesta: {
             generacion: components["schemas"]["GeneracionExogenaRespuesta"];
@@ -11525,6 +12584,12 @@ export interface components {
             cargado_en: string;
             /** Format: int32 */
             movimientos: number;
+        };
+        /** @description Factura que no se pudo contabilizar. */
+        FacturaFallida: {
+            /** Format: uuid */
+            factura_id: string;
+            motivo: string;
         };
         /** @description Factura de proveedor (las líneas solo en el detalle). */
         FacturaProveedorRespuesta: {
@@ -11621,6 +12686,12 @@ export interface components {
             creada_en: string;
             /** Format: date-time */
             emitida_en?: string | null;
+            /**
+             * Format: uuid
+             * @description Si es una nota débito: la factura que ajusta.
+             */
+            nota_debito_de?: string | null;
+            concepto_nota_debito?: components["schemas"]["ConceptoNotaDebito"] | null;
             lineas: components["schemas"]["LineaVentaRespuesta"][];
         };
         /** @description Ficha completa del anunciante (vista de la plataforma). */
@@ -11697,6 +12768,36 @@ export interface components {
              * @description Reseñas publicadas en todas las copropiedades.
              */
             resenas: number;
+        };
+        /** @description Datos generales de la entidad. */
+        FichaEntidadRespuesta: {
+            /** @example Tienda La Esquina SAS */
+            nombre: string;
+            razon_social?: string | null;
+            /** @example 900123456-8 */
+            nit?: string | null;
+            direccion?: string | null;
+            /**
+             * @description Código DANE del municipio.
+             * @example 11001
+             */
+            municipio_dane?: string | null;
+            departamento?: string | null;
+            barrio?: string | null;
+            /** @example 4.711 */
+            latitud?: string | null;
+            /** @example -74.0721 */
+            longitud?: string | null;
+            telefono?: string | null;
+            correo?: string | null;
+            sitio_web?: string | null;
+            /**
+             * @description Zona IANA en que se muestran fechas y se evalúan horarios.
+             * @example America/Bogota
+             */
+            zona_horaria: string;
+            /** @description Lo cambia solo la plataforma. */
+            estado: components["schemas"]["EstadoCopropiedad"];
         };
         /** @description Ficha pública de una organización. */
         FichaOrganizacionRespuesta: {
@@ -11867,6 +12968,13 @@ export interface components {
             creditos: string;
             saldo_final: string;
         };
+        /** @description Fila válida de la vista previa (sin datos personales). */
+        FilaUsuarioPreviaRespuesta: {
+            /** Format: int32 */
+            fila: number;
+            /** @example contador */
+            rol: string;
+        };
         /** @description Fila de la vista previa (sin datos personales). */
         FilaVistaPreviaRespuesta: {
             /** Format: int32 */
@@ -12025,6 +13133,16 @@ export interface components {
             /** @example propiedad_horizontal */
             tipo_empresa: string;
         };
+        /** @description Estado de la habilitación ante la DIAN. */
+        HabilitacionRespuesta: {
+            /** @description `null` si aún no registra el software. */
+            software_id?: string | null;
+            test_set_id?: string | null;
+            estado?: components["schemas"]["EstadoHabilitacion"] | null;
+            ambiente?: components["schemas"]["AmbienteDian"] | null;
+            certificado?: components["schemas"]["CertificadoRespuesta"] | null;
+            envios: components["schemas"]["EnvioSetRespuesta"][];
+        };
         /** @description Contrato de un módulo para una copropiedad. */
         HabilitarModuloPeticion: {
             modulo: components["schemas"]["Modulo"];
@@ -12114,6 +13232,13 @@ export interface components {
             /** @description Saldo del extracto − saldo conciliado (cero si cuadra). */
             diferencia?: string | null;
         };
+        /** @description Resultado de contabilizar lo pendiente. */
+        InformeContabilizacionRespuesta: {
+            contabilizadas: string[];
+            /** @description Contabilizadas que se habían pagado a mano: registre su recaudo en la contabilidad. */
+            pagadas_a_mano: string[];
+            fallidas: components["schemas"]["FacturaFallida"][];
+        };
         /** @description QR leído con la cámara de la tablet. */
         IngresoQrPeticion: {
             qr: string;
@@ -12173,6 +13298,25 @@ export interface components {
             total: string;
             detalle: components["schemas"]["DetalleInteresRespuesta"][];
         };
+        /** @description Producto o servicio del catálogo. */
+        ItemRespuesta: {
+            /** Format: uuid */
+            id: string;
+            codigo: string;
+            descripcion: string;
+            unidad: string;
+            precio?: string | null;
+            tarifa_iva: string;
+            clasificacion: components["schemas"]["ClasificacionTributaria"];
+            /**
+             * Format: uuid
+             * @description Cuenta de ingreso (solo con contabilidad).
+             */
+            cuenta_id?: string | null;
+            activo: boolean;
+            /** Format: date-time */
+            actualizado_en: string;
+        };
         /**
          * @description Lado del movimiento que suma a una columna de la exógena.
          * @enum {string}
@@ -12197,10 +13341,11 @@ export interface components {
         LineaFacturaProveedorPeticion: {
             descripcion: string;
             /**
-             * @description Código de la cuenta de gasto, costo o activo.
+             * @description Código de la cuenta de gasto, costo o activo: obligatoria con contabilidad; sin ella (solo
+             *     facturación, para el documento soporte) no se envía.
              * @example 513525
              */
-            cuenta: string;
+            cuenta?: string | null;
             centro_costo?: string | null;
             /** @example 1000000 */
             base: string;
@@ -12324,24 +13469,35 @@ export interface components {
         };
         /** @description Línea de una factura de venta nueva. */
         LineaVentaPeticion: {
-            descripcion: string;
             /**
-             * @description Código de la cuenta de ingreso.
+             * Format: uuid
+             * @description Producto o servicio del catálogo: lo que la línea no traiga sale de él.
+             */
+            item_id?: string | null;
+            /** @description Obligatoria sin ítem. */
+            descripcion?: string | null;
+            /**
+             * @description Código de la cuenta de ingreso, solo si la entidad lleva contabilidad (si falta, la del
+             *     ítem o la de la regla del evento).
              * @example 415505
              */
-            cuenta: string;
+            cuenta?: string | null;
+            /** @description Código del centro de costo, solo con contabilidad. */
             centro_costo?: string | null;
             /** @example 1 */
             cantidad: string;
-            /** @example 350000 */
-            valor_unitario: string;
             /**
-             * @description Porcentaje de IVA (0 si no aplica). Solo una línea `alquiler_servicio` o `venta` de una
-             *     entidad responsable de IVA con perfil confirmado lleva IVA, y con una tarifa gravada
-             *     vigente del catálogo.
+             * @description Obligatorio sin ítem o si el ítem no tiene precio.
+             * @example 350000
+             */
+            valor_unitario?: string | null;
+            /**
+             * @description Porcentaje de IVA (0 si no aplica; si falta, el del ítem). Solo una línea
+             *     `alquiler_servicio` o `venta` de una entidad responsable de IVA con perfil confirmado
+             *     lleva IVA, y con una tarifa gravada vigente del catálogo.
              * @example 0
              */
-            tarifa_iva?: string;
+            tarifa_iva?: string | null;
             clasificacion?: components["schemas"]["ClasificacionTributaria"] | null;
         };
         /** @description Línea de una factura de venta. */
@@ -12424,6 +13580,10 @@ export interface components {
             credito?: string | null;
             separador_decimal?: components["schemas"]["SeparadorDecimal"];
         };
+        /** @description Mapeo guardado de la cuenta (`null` si nunca se guardó). */
+        MapeoExtractoRespuesta: {
+            mapeo?: components["schemas"]["MapeoColumnasDto"] | null;
+        };
         /**
          * @description Marco técnico contable (grupo NIIF).
          * @enum {string}
@@ -12500,6 +13660,11 @@ export interface components {
          * @enum {string}
          */
         MedioEgreso: "efectivo" | "transferencia" | "consignacion" | "pse" | "cheque";
+        /**
+         * @description Medio de un pago marcado a mano (sin tesorería).
+         * @enum {string}
+         */
+        MedioPagoManual: "efectivo" | "transferencia" | "consignacion" | "tarjeta" | "cheque" | "pse" | "otro";
         /**
          * @description Medio por el que entró el dinero de un recibo de caja.
          * @enum {string}
@@ -12606,12 +13771,6 @@ export interface components {
             consumido: string;
             dias: components["schemas"]["MetricaDiaRespuesta"][];
         };
-        /** @description Anunciante de la cuenta con su papel en la organización. */
-        MiAnuncianteRespuesta: {
-            anunciante: components["schemas"]["AnuncianteRespuesta"];
-            /** @description `dueno`, `gestor` u `operario` (solo redime cupones). */
-            rol: string;
-        };
         /** @description Miembro de la organización. */
         MiembroPeticion: {
             /** Format: uuid */
@@ -12668,7 +13827,7 @@ export interface components {
          * @description Módulo contratable por la copropiedad.
          * @enum {string}
          */
-        Modulo: "contabilidad" | "contabilidad_ph" | "facturacion_electronica" | "bienes_comunes" | "control_acceso" | "asambleas" | "gestion_administrativa" | "publicidad";
+        Modulo: "contabilidad" | "contabilidad_ph" | "facturacion_electronica" | "bienes_comunes" | "control_acceso" | "asambleas" | "gestion_administrativa";
         /** @description Módulo de contribución (crear o actualizar). */
         ModuloContribucionPeticion: {
             /** @example Torre con ascensor */
@@ -12720,9 +13879,9 @@ export interface components {
             /** @description Bienes con cartera vencida que no están en el padrón. */
             no_encontrados: string[];
         };
-        /** @description Anulación con motivo. */
+        /** @description Motivo de un desbloqueo (queda en la auditoría). */
         MotivoPeticion: {
-            /** @example Se liquidó con el presupuesto equivocado */
+            /** @example La titular confirmó su identidad por teléfono */
             motivo: string;
         };
         /**
@@ -12827,6 +13986,20 @@ export interface components {
              */
             fecha?: string | null;
         };
+        /** @description Nota débito de una factura de venta. */
+        NotaDebitoPeticion: {
+            concepto: components["schemas"]["ConceptoNotaDebito"];
+            /**
+             * @description Motivo (de 5 a 300 caracteres): descripción de la nota y de su corrección ante la DIAN.
+             * @example Intereses de mora de noviembre
+             */
+            motivo: string;
+            /** Format: date */
+            fecha: string;
+            /** Format: date */
+            vencimiento: string;
+            lineas: components["schemas"]["LineaVentaPeticion"][];
+        };
         /** @description Versión nueva de una nota. */
         NotaPeticion: {
             /** Format: int32 */
@@ -12904,9 +14077,10 @@ export interface components {
             nombre: string;
             /**
              * Format: uuid
-             * @description Cuenta que será su primer administrador.
+             * @description Cuenta existente que será su primer administrador (o `administrador`, no los dos).
              */
-            administrador_cuenta_id: string;
+            administrador_cuenta_id?: string | null;
+            administrador?: components["schemas"]["AdministradorNuevoPeticion"] | null;
             /**
              * @description NIT con o sin dígito de verificación (se valida con el algoritmo de la DIAN).
              * @example 900123456-8
@@ -12984,9 +14158,10 @@ export interface components {
             nit?: string | null;
             /**
              * Format: uuid
-             * @description Cuenta que será su primer administrador.
+             * @description Cuenta existente que será su primer administrador (o `administrador`, no los dos).
              */
-            administrador_cuenta_id: string;
+            administrador_cuenta_id?: string | null;
+            administrador?: components["schemas"]["AdministradorNuevoPeticion"] | null;
         };
         /** @description Factura de proveedor nueva. */
         NuevaFacturaProveedorPeticion: {
@@ -13369,6 +14544,14 @@ export interface components {
             cuantia_menor: string;
             campos: components["schemas"]["CampoExogenaDto"][];
         };
+        /** @description Producto o servicio nuevo. */
+        NuevoItemPeticion: components["schemas"]["DatosItemPeticion"] & {
+            /**
+             * @description Único en la entidad: 1 a 30 caracteres `A-Z a-z 0-9 . _ -`.
+             * @example ASE-H
+             */
+            codigo: string;
+        };
         /** @description Parqueadero nuevo. */
         NuevoParqueaderoPeticion: {
             /** @example S1-045 */
@@ -13524,6 +14707,43 @@ export interface components {
              * @description Desde cuándo (por defecto, ahora).
              */
             vigente_desde?: string | null;
+        };
+        /** @description Usuario nuevo de la entidad. */
+        NuevoUsuarioPeticion: {
+            /** @example Ana Pérez */
+            nombre: string;
+            /**
+             * @description Obligatorio. Si ya tiene cuenta (trabaja en otra PH o empresa), se le asigna el rol.
+             * @example ana@correo.co
+             */
+            correo: string;
+            /**
+             * Format: uuid
+             * @description Rol en la entidad (`GET …/roles`).
+             */
+            rol_id: string;
+            /** @example ana.perez */
+            usuario?: string | null;
+            /** @example 573001234567 */
+            telefono?: string | null;
+            /**
+             * @description Si coincide con una persona del censo, se vincula esa persona.
+             * @example 52123456
+             */
+            documento?: string | null;
+        };
+        /** @description Usuario nuevo de la plataforma. */
+        NuevoUsuarioPlataformaPeticion: {
+            /** @example Laura Soporte */
+            nombre: string;
+            /** @example laura@plataforma.co */
+            correo: string;
+            usuario?: string | null;
+            /**
+             * Format: uuid
+             * @description Rol de plataforma (`GET /plataforma/roles`) que se le asigna en el mismo paso.
+             */
+            rol_plataforma_id?: string | null;
         };
         /** @description Vehículo nuevo. */
         NuevoVehiculoPeticion: components["schemas"]["VehiculoDatos"] & {
@@ -14036,6 +15256,25 @@ export interface components {
             siguiente?: string | null;
         };
         /** @description Página de resultados de un listado. */
+        PaginaRespuesta_EntidadPlataformaRespuesta: {
+            /** @description Elementos de esta página. */
+            datos: {
+                /** Format: uuid */
+                id: string;
+                nombre: string;
+                nit?: string | null;
+                tipo: components["schemas"]["TipoEntidad"];
+                estado: components["schemas"]["EstadoCopropiedad"];
+                /** @description Módulos vigentes. */
+                modulos: components["schemas"]["Modulo"][];
+            }[];
+            /**
+             * Format: uuid
+             * @description Cursor para pedir la página siguiente (`despues=<siguiente>`); `null` si es la última.
+             */
+            siguiente?: string | null;
+        };
+        /** @description Página de resultados de un listado. */
         PaginaRespuesta_EventoAccesoRespuesta: {
             /** @description Elementos de esta página. */
             datos: {
@@ -14396,6 +15635,12 @@ export interface components {
                 respuesta_archivo_id?: string | null;
                 /** Format: date-time */
                 respondida_en?: string | null;
+                /**
+                 * Format: int32
+                 * @description Días hábiles que quedan para responder (calendario de festivos de Colombia, desde hoy):
+                 *     0 = vence hoy o ya venció; `null` si ya se respondió.
+                 */
+                dias_habiles_restantes?: number | null;
             }[];
             /**
              * Format: uuid
@@ -14483,6 +15728,29 @@ export interface components {
             siguiente?: string | null;
         };
         /** @description Página de resultados de un listado. */
+        PaginaRespuesta_UsuarioRespuesta: {
+            /** @description Elementos de esta página. */
+            datos: {
+                /** Format: uuid */
+                cuenta_id: string;
+                nombre: string;
+                usuario?: string | null;
+                correo?: string | null;
+                estado: components["schemas"]["EstadoCuenta"];
+                /** @description Aún no define su contraseña (se le puede reenviar el código). */
+                contrasena_pendiente: boolean;
+                /** Format: date-time */
+                ultimo_acceso_en?: string | null;
+                /** @description Códigos de sus roles vigentes en la entidad. */
+                roles: string[];
+            }[];
+            /**
+             * Format: uuid
+             * @description Cursor para pedir la página siguiente (`despues=<siguiente>`); `null` si es la última.
+             */
+            siguiente?: string | null;
+        };
+        /** @description Página de resultados de un listado. */
         PaginaRespuesta_VisitaRespuesta: {
             /** @description Elementos de esta página. */
             datos: {
@@ -14560,12 +15828,20 @@ export interface components {
             /** @example 1121500 */
             valor: string;
         };
+        /** @description Pago de una factura que se marca a mano. */
+        PagoManualPeticion: {
+            /** Format: date */
+            fecha: string;
+            medio: components["schemas"]["MedioPagoManual"];
+            /** @description Dato personal: referencia del pago (número de la transferencia…). */
+            referencia?: string | null;
+        };
         /** @description Estado del pago. */
         PagoPeticion: {
             /** @description `pagado` o `exonerado`. */
             estado_pago: components["schemas"]["EstadoPago"];
         };
-        /** @description Token de una pantalla (se entrega una sola vez). */
+        /** @description Token de una pantalla. */
         PantallaRespuesta: {
             token: string;
         };
@@ -14661,6 +15937,13 @@ export interface components {
             /** Format: date-time */
             hasta?: string | null;
         };
+        /** @description Periodo de la exportación. */
+        PeriodoParametros: {
+            /** Format: date */
+            desde: string;
+            /** Format: date */
+            hasta: string;
+        };
         /** @description Periodo a liquidar (cualquier día del mes). */
         PeriodoPeticion: {
             /**
@@ -14685,7 +15968,7 @@ export interface components {
          * @description Permiso del catálogo. El texto (`modulo.recurso.accion`) es contrato con la BD y con los clientes: no se renombra sin migración.
          * @enum {string}
          */
-        Permiso: "plataforma.copropiedades.crear" | "plataforma.copropiedades.ver" | "plataforma.cuentas.ver" | "plataforma.cuentas.bloquear" | "plataforma.roles.gestionar" | "plataforma.roles.asignar" | "plataforma.organizaciones.revisar" | "plataforma.modulos.gestionar" | "plataforma.entidades.crear" | "plataforma.plantillas_contables.publicar" | "plataforma.normativa.gestionar" | "plataforma.auditoria.ver" | "plataforma.publicidad.moderar" | "plataforma.publicidad.liquidar" | "plataforma.directorio.gestionar" | "plataforma.facturacion.ver" | "plataforma.whatsapp.gestionar" | "copropiedad.datos.ver" | "copropiedad.datos.editar" | "roles.ver" | "roles.gestionar" | "roles.asignar" | "auditoria.ver" | "archivos.subir" | "archivos.ver" | "archivos.personales.ver" | "personas.ver" | "personas.editar" | "personas.datos_sensibles.ver" | "proteccion_datos.gestionar" | "organizaciones.crear" | "organizaciones.vincular" | "contratos.gestionar" | "bienes_privados.ver" | "bienes_privados.editar" | "bienes_privados.coeficientes.editar" | "bienes_privados.coeficientes.activar" | "agrupaciones.editar" | "titulares.ver" | "titulares.editar" | "censo.ver" | "censo.editar" | "censo.aprobar" | "censo.exportar" | "importaciones.ejecutar" | "bienes_comunes.ver" | "bienes_comunes.editar" | "reservas.crear" | "reservas.aprobar" | "reservas.ver_todas" | "reservas.cancelar_cualquiera" | "reservas.entregas.registrar" | "reservas.restringir" | "parqueaderos.ver" | "parqueaderos.asignar" | "sorteos.gestionar" | "tickets.crear" | "tickets.asignar" | "tickets.atender" | "tickets.ver_todos" | "tickets.configurar" | "tickets.convivencia.ver" | "tickets.urgencias.recibir" | "conversaciones.atender" | "preguntas_frecuentes.editar" | "inventario.ver" | "inventario.editar" | "mantenimiento.planificar" | "mantenimiento.ejecutar" | "mantenimiento.verificar" | "asambleas.ver" | "asambleas.convocar" | "asambleas.conducir" | "asambleas.registrar" | "asambleas.votos.registrar" | "asambleas.votos.ver_detalle" | "acceso.registrar" | "acceso.visitantes.autorizar" | "acceso.bitacora.ver" | "acceso.correspondencia.entregar" | "acceso.minuta.registrar" | "acceso.minuta.ver" | "acceso.configurar" | "acceso.credenciales.gestionar" | "acceso.biometria.enrolar" | "comunicados.gestionar" | "contabilidad.ver" | "contabilidad.configurar" | "contabilidad.comprobantes.crear" | "contabilidad.comprobantes.contabilizar" | "contabilidad.comprobantes.revertir" | "contabilidad.periodos.cerrar" | "contabilidad.periodos.reabrir" | "contabilidad.periodos.aprobar_reapertura" | "contabilidad.exportar" | "tesoreria.configurar" | "tesoreria.recibos.registrar" | "tesoreria.egresos.registrar" | "tesoreria.egresos.autorizar" | "tesoreria.facturas_proveedor.gestionar" | "tesoreria.conciliar" | "cartera.ver" | "cartera.configurar" | "cartera.liquidar" | "cartera.ajustar" | "cartera.certificados.emitir" | "presupuesto.gestionar" | "tributario.configurar" | "tributario.perfil.confirmar" | "tributario.preparar" | "terceros.gestionar" | "facturacion.ver" | "facturacion.facturas.gestionar" | "facturacion.items.gestionar" | "facturacion.emitir" | "facturacion.recibir" | "directorio.ver" | "directorio.resenar" | "directorio.compartir";
+        Permiso: "plataforma.copropiedades.crear" | "plataforma.copropiedades.ver" | "plataforma.cuentas.ver" | "plataforma.cuentas.bloquear" | "plataforma.cuentas.crear" | "plataforma.roles.gestionar" | "plataforma.roles.asignar" | "plataforma.organizaciones.revisar" | "plataforma.modulos.gestionar" | "plataforma.entidades.crear" | "plataforma.entidades.usuarios" | "plataforma.soporte.ver" | "plataforma.entidad_propia.designar" | "plataforma.plantillas_contables.publicar" | "plataforma.normativa.gestionar" | "plataforma.auditoria.ver" | "plataforma.publicidad.moderar" | "plataforma.publicidad.gestionar" | "plataforma.publicidad.liquidar" | "plataforma.directorio.gestionar" | "plataforma.facturacion.ver" | "plataforma.whatsapp.gestionar" | "copropiedad.datos.ver" | "copropiedad.datos.editar" | "roles.ver" | "roles.gestionar" | "roles.asignar" | "auditoria.ver" | "archivos.subir" | "archivos.ver" | "archivos.personales.ver" | "personas.ver" | "personas.editar" | "personas.datos_sensibles.ver" | "proteccion_datos.gestionar" | "organizaciones.crear" | "organizaciones.vincular" | "contratos.gestionar" | "bienes_privados.ver" | "bienes_privados.editar" | "bienes_privados.coeficientes.editar" | "bienes_privados.coeficientes.activar" | "agrupaciones.editar" | "titulares.ver" | "titulares.editar" | "censo.ver" | "censo.editar" | "censo.aprobar" | "censo.exportar" | "importaciones.ejecutar" | "bienes_comunes.ver" | "bienes_comunes.editar" | "reservas.crear" | "reservas.aprobar" | "reservas.ver_todas" | "reservas.cancelar_cualquiera" | "reservas.entregas.registrar" | "reservas.restringir" | "parqueaderos.ver" | "parqueaderos.asignar" | "sorteos.gestionar" | "tickets.crear" | "tickets.asignar" | "tickets.atender" | "tickets.ver_todos" | "tickets.configurar" | "tickets.convivencia.ver" | "tickets.urgencias.recibir" | "conversaciones.atender" | "preguntas_frecuentes.editar" | "inventario.ver" | "inventario.editar" | "mantenimiento.planificar" | "mantenimiento.ejecutar" | "mantenimiento.verificar" | "asambleas.ver" | "asambleas.convocar" | "asambleas.conducir" | "asambleas.registrar" | "asambleas.votos.registrar" | "asambleas.votos.ver_detalle" | "acceso.registrar" | "acceso.visitantes.autorizar" | "acceso.bitacora.ver" | "acceso.correspondencia.entregar" | "acceso.minuta.registrar" | "acceso.minuta.ver" | "acceso.configurar" | "acceso.credenciales.gestionar" | "acceso.biometria.enrolar" | "comunicados.gestionar" | "contabilidad.ver" | "contabilidad.configurar" | "contabilidad.comprobantes.crear" | "contabilidad.comprobantes.contabilizar" | "contabilidad.comprobantes.revertir" | "contabilidad.periodos.cerrar" | "contabilidad.periodos.reabrir" | "contabilidad.periodos.aprobar_reapertura" | "contabilidad.exportar" | "tesoreria.configurar" | "tesoreria.recibos.registrar" | "tesoreria.egresos.registrar" | "tesoreria.egresos.autorizar" | "tesoreria.facturas_proveedor.gestionar" | "tesoreria.conciliar" | "cartera.ver" | "cartera.configurar" | "cartera.liquidar" | "cartera.ajustar" | "cartera.certificados.emitir" | "presupuesto.gestionar" | "tributario.configurar" | "tributario.perfil.confirmar" | "tributario.preparar" | "terceros.gestionar" | "facturacion.ver" | "facturacion.facturas.gestionar" | "facturacion.items.gestionar" | "facturacion.exportar" | "facturacion.configurar" | "facturacion.certificado.gestionar" | "facturacion.emitir" | "facturacion.recibir" | "directorio.ver" | "directorio.resenar" | "directorio.compartir";
         /** @description Permiso del catálogo. */
         PermisoRespuesta: {
             /** @example roles.asignar */
@@ -14725,6 +16008,20 @@ export interface components {
              *     `propietario`.
              */
             cuenta_id?: string | null;
+        };
+        /** @description Persona que recibió la factura o el bien. Solo viaja en el evento a la DIAN. */
+        PersonaRecibePeticion: {
+            tipo_documento: components["schemas"]["TipoDocumento"];
+            /**
+             * @description Sin puntos ni guiones.
+             * @example 1020304050
+             */
+            documento: string;
+            nombres: string;
+            apellidos: string;
+            cargo?: string | null;
+            /** @description Área, sección o departamento. */
+            area?: string | null;
         };
         /**
          * @description Persona (datos personales). La fecha de nacimiento y la movilidad reducida solo se ven con
@@ -15383,6 +16680,21 @@ export interface components {
             /** @example Mi número de celular cambió */
             detalle?: string | null;
         };
+        /** @description Resolución de numeración registrada desde la DIAN (sin la clave técnica). */
+        RangoSincronizadoRespuesta: {
+            /** Format: uuid */
+            id: string;
+            prefijo: string;
+            /** Format: int64 */
+            desde: number;
+            /** Format: int64 */
+            hasta: number;
+            numero_resolucion: string;
+            /** Format: date */
+            vigente_desde: string;
+            /** Format: date */
+            vigente_hasta: string;
+        };
         /** @description Reapertura de un periodo. */
         ReaperturaRespuesta: {
             /** Format: uuid */
@@ -15562,11 +16874,6 @@ export interface components {
             token: string;
             /** @example Teléfono de Ana */
             nombre?: string | null;
-        };
-        /** @description Registro de un anunciante por su cuenta. */
-        RegistroAnunciantePeticion: components["schemas"]["DatosAnunciantePeticion"] & {
-            /** @description Si el NIT ya existe, la cuenta debe administrarla (o reclamarla antes). */
-            organizacion: components["schemas"]["NuevaOrganizacionPeticion"];
         };
         /** @description Registro de un asistente. */
         RegistroAsistentePeticion: {
@@ -16054,6 +17361,16 @@ export interface components {
              * @description Borrador con los coeficientes del archivo (actívelo en `/cuadros-coeficientes`).
              */
             cuadro_borrador_id?: string | null;
+            /**
+             * Format: int32
+             * @description Importación de usuarios: usuarios de la planilla.
+             */
+            usuarios: number;
+            /**
+             * Format: int32
+             * @description Importación de usuarios: cuántos no tenían cuenta (solo se conoce al aplicar).
+             */
+            cuentas_nuevas: number;
         };
         /** @description Retenciones de un impuesto, concepto y tarifa. */
         ResumenRetencionRespuesta: {
@@ -16313,15 +17630,21 @@ export interface components {
             detalle?: string | null;
         };
         /**
-         * @description A qué copropiedades llega la campaña: solo atributos de la PH, nunca de personas. Cada
-         *     criterio vacío no restringe.
+         * @description A qué entidades (PH y empresas) llega la campaña: solo atributos de la entidad, nunca de
+         *     personas. Cada criterio vacío no restringe. `tipos`, `bienes_*` y `estratos` son de la PH:
+         *     una empresa no los cumple.
          */
         SegmentacionDto: {
             /**
-             * @description Copropiedades elegidas una por una (vacío = todas las que cumplan lo demás).
+             * @description Entidades elegidas una por una (vacío = todas las que cumplan lo demás).
              * @default []
              */
-            copropiedades: string[];
+            entidades: string[];
+            /**
+             * @description `propiedad_horizontal` y/o `empresa` (vacío = las dos).
+             * @default []
+             */
+            tipos_entidad: components["schemas"]["TipoEntidad"][];
             /**
              * Format: int32
              * @description Radio en km desde el anunciante (1 a 100).
@@ -16386,6 +17709,28 @@ export interface components {
             /** Format: int64 */
             cerradas: number;
         };
+        /** @description Cuántos documentos del set de pruebas enviar. */
+        SetPruebasPeticion: {
+            /**
+             * Format: int32
+             * @description Facturas de prueba (la DIAN indica cuántas pide al registrar el software). El total de
+             *     documentos va de 1 a 50.
+             * @example 8
+             */
+            cantidad: number;
+            /**
+             * Format: int32
+             * @description Notas crédito, cada una referida a una factura de este envío.
+             * @example 1
+             */
+            notas_credito?: number;
+            /**
+             * Format: int32
+             * @description Notas débito, cada una referida a una factura de este envío.
+             * @example 1
+             */
+            notas_debito?: number;
+        };
         /** @description Resultado de sincronizar las restricciones por mora. */
         SincronizacionMoraRespuesta: {
             restringidos: number;
@@ -16411,6 +17756,13 @@ export interface components {
              * @description Hora del servidor (para corregir el reloj del puente).
              */
             ahora: string;
+        };
+        /** @description Software registrado en el catálogo de participantes de la DIAN. */
+        SoftwarePeticion: {
+            software_id: string;
+            /** @description PIN que la entidad definió al registrar el software: se guarda cifrado y no vuelve. */
+            pin: string;
+            test_set_id?: string | null;
         };
         /** @description Solicitud de una reserva, cita o parqueadero de visitantes. */
         SolicitudPeticion: {
@@ -16472,6 +17824,29 @@ export interface components {
             respuesta_archivo_id?: string | null;
             /** Format: date-time */
             respondida_en?: string | null;
+            /**
+             * Format: int32
+             * @description Días hábiles que quedan para responder (calendario de festivos de Colombia, desde hoy):
+             *     0 = vence hoy o ya venció; `null` si ya se respondió.
+             */
+            dias_habiles_restantes?: number | null;
+        };
+        /** @description Motivo de un acceso de soporte. */
+        SoportePeticion: {
+            /** @example Ticket 4521: el administrador no ve la cartera */
+            motivo: string;
+        };
+        /** @description Acceso de soporte abierto. */
+        SoporteRespuesta: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            entidad_id: string;
+            /**
+             * Format: date-time
+             * @description Hasta cuándo puede entrar en solo lectura.
+             */
+            hasta: string;
         };
         /**
          * @description Sorteo. La `semilla` aparece solo después de ejecutarlo; antes, su `compromiso` (SHA-256)
@@ -16835,10 +18210,10 @@ export interface components {
          */
         TipoDocumentoReunion: "estados_financieros" | "presupuesto" | "informe" | "reglamento" | "otro";
         /**
-         * @description Qué es la entidad: `propiedad_horizontal` (menús de la Ley 675) o `empresa`.
+         * @description Qué es la entidad: `propiedad_horizontal` (menús de la Ley 675), `empresa` (cliente sin vertical) o `plataforma` (la que opera el sistema).
          * @enum {string}
          */
-        TipoEntidad: "propiedad_horizontal" | "empresa";
+        TipoEntidad: "propiedad_horizontal" | "empresa" | "plataforma";
         /**
          * @description Momento de la entrega del recurso.
          * @enum {string}
@@ -16863,7 +18238,7 @@ export interface components {
          * @description Documento que numera una resolución de la DIAN.
          * @enum {string}
          */
-        TipoNumeracion: "factura" | "documento_soporte";
+        TipoNumeracion: "factura" | "documento_soporte" | "contingencia";
         /**
          * @description Tipo de mantenimiento.
          * @enum {string}
@@ -17044,6 +18419,16 @@ export interface components {
             tramo: components["schemas"]["TramoEdad"];
             saldo: string;
         };
+        /** @description Factura de talonario que se transcribe. */
+        TranscripcionPeticion: {
+            /**
+             * Format: int64
+             * @description Número de la factura de papel, dentro de una resolución de contingencia vigente en la
+             *     fecha de la factura (`tipo: contingencia` en `/tributario/resoluciones`).
+             * @example 7
+             */
+            numero_talonario: number;
+        };
         /** @description Transición de la reunión. */
         TransicionPeticion: {
             accion: components["schemas"]["AccionReunion"];
@@ -17093,6 +18478,47 @@ export interface components {
             vigente_desde: string;
             /** Format: date-time */
             vigente_hasta?: string | null;
+        };
+        /** @description Usuario creado o activado en la entidad. */
+        UsuarioCreadoRespuesta: {
+            /** Format: uuid */
+            cuenta_id: string;
+            /** @description `false` = el correo ya tenía cuenta: se le asignó el rol y se le avisó por correo. */
+            cuenta_nueva: boolean;
+            /**
+             * Format: uuid
+             * @description Persona de la entidad vinculada a la cuenta.
+             */
+            persona_id: string;
+            /**
+             * Format: uuid
+             * @description `null` si ya tenía ese rol vigente.
+             */
+            asignacion_id?: string | null;
+        };
+        /** @description Usuario de la plataforma creado o reconocido. */
+        UsuarioPlataformaRespuesta: {
+            /** Format: uuid */
+            cuenta_id: string;
+            /** @description `false` = el correo ya tenía cuenta. */
+            cuenta_nueva: boolean;
+            /** Format: uuid */
+            asignacion_id?: string | null;
+        };
+        /** @description Usuario de la entidad (cuenta con algún rol vigente allí). */
+        UsuarioRespuesta: {
+            /** Format: uuid */
+            cuenta_id: string;
+            nombre: string;
+            usuario?: string | null;
+            correo?: string | null;
+            estado: components["schemas"]["EstadoCuenta"];
+            /** @description Aún no define su contraseña (se le puede reenviar el código). */
+            contrasena_pendiente: boolean;
+            /** Format: date-time */
+            ultimo_acceso_en?: string | null;
+            /** @description Códigos de sus roles vigentes en la entidad. */
+            roles: string[];
         };
         /** @description UVT de un año. */
         UvtPeticion: {
@@ -17282,6 +18708,11 @@ export interface components {
             importacion: components["schemas"]["ImportacionRespuesta"];
             filas: components["schemas"]["FilaVistaPreviaRespuesta"][];
         };
+        /** @description Importación de usuarios con su vista previa. */
+        VistaPreviaUsuariosRespuesta: {
+            importacion: components["schemas"]["ImportacionRespuesta"];
+            filas: components["schemas"]["FilaUsuarioPreviaRespuesta"][];
+        };
         /** @description Voto desde la papeleta. */
         VotoPapeletaPeticion: {
             /** Format: uuid */
@@ -17401,7 +18832,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin permiso o sin segundo factor */
+            /** @description Sin `plataforma.copropiedades.ver` (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -17461,8 +18892,17 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Otra copropiedad tiene ese NIT (`conflicto`) */
+            /** @description Otra copropiedad tiene ese NIT, o el `usuario` del administrador nuevo es de otra cuenta o la de su correo está bloqueada (`conflicto`) */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Falta el administrador o vienen los dos, o datos inválidos (`validacion`) */
+            422: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -17677,7 +19117,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
+            /** @description Sin `plataforma.roles.asignar` ni `plataforma.roles.gestionar` (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -17719,7 +19159,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
+            /** @description Sin `plataforma.roles.gestionar` (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -17773,7 +19213,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
+            /** @description Sin `plataforma.roles.gestionar` (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -17815,7 +19255,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
+            /** @description Sin `plataforma.roles.asignar` (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -17854,7 +19294,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
+            /** @description Sin `plataforma.roles.asignar` (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -17902,8 +19342,829 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
+            /** @description Sin `plataforma.cuentas.bloquear` (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
             403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    consultar_cuenta: {
+        parameters: {
+            query: {
+                /** @description Usuario o correo exactos. */
+                identificador: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Cuenta */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CuentaPlataformaRespuesta"];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `plataforma.cuentas.ver` (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description No hay una cuenta con ese identificador */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    crear_usuario_plataforma: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NuevoUsuarioPlataformaPeticion"];
+            };
+        };
+        responses: {
+            /** @description Usuario creado o reconocido */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UsuarioPlataformaRespuesta"];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `plataforma.cuentas.crear`; con rol, sin `plataforma.roles.asignar` o con un rol con permisos que usted no tiene (`sin_permiso`); o sin segundo factor (`segundo_factor_requerido`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description El rol no existe */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description El `usuario` es de otra cuenta o la cuenta está bloqueada (`conflicto`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Datos inválidos (`validacion`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    desbloquear_cuenta: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Cuenta */
+                cuenta_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MotivoPeticion"];
+            };
+        };
+        responses: {
+            /** @description Desbloqueada */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `plataforma.cuentas.bloquear` (`sin_permiso`; un superusuario solo lo desbloquea otro) o sin segundo factor (`segundo_factor_requerido`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description La cuenta no existe */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin motivo o la cuenta no está bloqueada (`validacion`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    listar_entidades: {
+        parameters: {
+            query?: {
+                /** @description Fragmento del nombre (sin tildes ni mayúsculas) o del NIT. */
+                q?: string;
+                /**
+                 * @description Elementos por página (1–200; 50 si se omite).
+                 * @example 50
+                 */
+                limite?: number;
+                /** @description Cursor: el valor `siguiente` de la página anterior. Se omite para la primera página. */
+                despues?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Entidades */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginaRespuesta_EntidadPlataformaRespuesta"];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `plataforma.copropiedades.ver` (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    crear_entidad: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NuevaEntidadPeticion"];
+            };
+        };
+        responses: {
+            /** @description Entidad creada */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EntidadRespuesta"];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `plataforma.entidades.crear` */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description La cuenta del administrador no existe */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Otra entidad tiene ese NIT, o el `usuario` del administrador nuevo es de otra cuenta o la de su correo está bloqueada (`conflicto`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Falta el administrador o vienen los dos, o datos inválidos (`validacion`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    cambiar_estado: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Entidad (PH, empresa o la plataforma) */
+                entidad_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EstadoCopropiedadPeticion"];
+            };
+        };
+        responses: {
+            /** @description Estado cambiado */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EstadoCopropiedadRespuesta"];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `plataforma.copropiedades.crear` (PH) o `plataforma.entidades.crear` (empresa) (`sin_permiso`), o sin segundo factor (`segundo_factor_requerido`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description No existe */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Transición no permitida (`conflicto_estado`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    abrir_soporte: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Entidad (PH, empresa o la plataforma) */
+                entidad_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SoportePeticion"];
+            };
+        };
+        responses: {
+            /** @description Acceso abierto */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SoporteRespuesta"];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `plataforma.soporte.ver` (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description La entidad no existe */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin motivo (`validacion`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    roles: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Entidad (PH, empresa o la plataforma) */
+                entidad_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Roles */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RolRespuesta"][];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `plataforma.entidades.usuarios` (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description La entidad no existe */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    asignaciones: {
+        parameters: {
+            query?: {
+                /** @description Solo las de esta cuenta. */
+                cuenta_id?: string;
+            };
+            header?: never;
+            path: {
+                /** @description Entidad (PH, empresa o la plataforma) */
+                entidad_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Asignaciones */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AsignacionRespuesta"][];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `plataforma.entidades.usuarios` (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description La entidad no existe */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    asignar: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Entidad (PH, empresa o la plataforma) */
+                entidad_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AsignacionPeticion"];
+            };
+        };
+        responses: {
+            /** @description Asignado */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AsignacionRespuesta"];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `plataforma.entidades.usuarios` (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Entidad, rol o cuenta inexistentes */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    revocar: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Entidad (PH, empresa o la plataforma) */
+                entidad_id: string;
+                /** @description Asignación */
+                asignacion_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Terminada */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `plataforma.entidades.usuarios` (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Es el último administrador (`conflicto`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    usuarios: {
+        parameters: {
+            query?: {
+                /** @description Fragmento del nombre (sin tildes ni mayúsculas), del correo o del usuario. */
+                q?: string;
+                /**
+                 * @description Elementos por página (1–200; 50 si se omite).
+                 * @example 50
+                 */
+                limite?: number;
+                /** @description Cursor: el valor `siguiente` de la página anterior. Se omite para la primera página. */
+                despues?: string;
+            };
+            header?: never;
+            path: {
+                /** @description Entidad (PH, empresa o la plataforma) */
+                entidad_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Usuarios */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginaRespuesta_UsuarioRespuesta"];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `plataforma.entidades.usuarios` (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description La entidad no existe */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    crear_usuario: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Entidad (PH, empresa o la plataforma) */
+                entidad_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NuevoUsuarioPeticion"];
+            };
+        };
+        responses: {
+            /** @description Usuario creado o activado */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UsuarioCreadoRespuesta"];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `plataforma.entidades.usuarios` (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Entidad o rol inexistentes */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description El `usuario` es de otra cuenta o la cuenta del correo está bloqueada (`conflicto`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Datos inválidos (`validacion`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    reenviar_codigo: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Entidad (PH, empresa o la plataforma) */
+                entidad_id: string;
+                /** @description Cuenta del usuario */
+                cuenta_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Código enviado */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `plataforma.entidades.usuarios` (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description No es usuario de la entidad */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Ya definió su contraseña (`validacion`) */
+            422: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -17940,7 +20201,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
+            /** @description Sin `plataforma.organizaciones.revisar` (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -17983,7 +20244,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
+            /** @description Sin `plataforma.organizaciones.revisar` (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -18030,7 +20291,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin permiso o sin segundo factor */
+            /** @description Sin `plataforma.whatsapp.gestionar` (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -18072,7 +20333,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
+            /** @description Sin `plataforma.whatsapp.gestionar` (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -18124,7 +20385,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
+            /** @description Sin `plataforma.whatsapp.gestionar` (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -18171,7 +20432,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
+            /** @description Sin `plataforma.whatsapp.gestionar` (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -18213,7 +20474,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
+            /** @description Sin `plataforma.whatsapp.gestionar` (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -18477,7 +20738,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
+            /** @description Sin `plataforma.directorio.gestionar` ni `plataforma.publicidad.moderar` (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -18531,7 +20792,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
+            /** @description Sin `plataforma.directorio.gestionar` (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -18793,6 +21054,863 @@ export interface operations {
             };
             /** @description Ocultar sin motivo (`validacion`) */
             422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    listar_campanas: {
+        parameters: {
+            query?: {
+                /**
+                 * @description Elementos por página (1–200; 50 si se omite).
+                 * @example 50
+                 */
+                limite?: number;
+                /** @description Cursor: el valor `siguiente` de la página anterior. Se omite para la primera página. */
+                despues?: string;
+            };
+            header?: never;
+            path: {
+                /** @description Comercio */
+                anunciante_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Campañas */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginaRespuesta_CampanaRespuesta"];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `plataforma.publicidad.gestionar` (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description El comercio no existe */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    crear_campana: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Comercio */
+                anunciante_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CampanaPeticion"];
+            };
+        };
+        responses: {
+            /** @description Campaña creada */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CampanaRespuesta"];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `plataforma.publicidad.gestionar` (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description El comercio no existe */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Datos inválidos (`validacion`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    ver_campana: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Comercio */
+                anunciante_id: string;
+                /** @description Campaña */
+                campana_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Campaña */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CampanaDetalleRespuesta"];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `plataforma.publicidad.gestionar` (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description No existe */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    editar_campana: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Comercio */
+                anunciante_id: string;
+                /** @description Campaña */
+                campana_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CampanaPeticion"];
+            };
+        };
+        responses: {
+            /** @description Campaña editada */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CampanaRespuesta"];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `plataforma.publicidad.gestionar` (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description No existe */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Datos inválidos o estado que no lo permite */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    cambiar_estado_campana: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Comercio */
+                anunciante_id: string;
+                /** @description Campaña */
+                campana_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AccionCampanaPeticion"];
+            };
+        };
+        responses: {
+            /** @description Estado cambiado */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CampanaRespuesta"];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `plataforma.publicidad.gestionar` (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description No existe */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Transición no permitida (`dominio`) o falta algo (`validacion`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    crear_creativo: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Comercio */
+                anunciante_id: string;
+                /** @description Campaña */
+                campana_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreativoPeticion"];
+            };
+        };
+        responses: {
+            /** @description Creativo creado */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CreativoRespuesta"];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `plataforma.publicidad.gestionar` (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description No existe */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Campaña no editable o cupón repetido (`conflicto`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Contenido inválido (condiciones obligatorias en promociones) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    editar_creativo: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Comercio */
+                anunciante_id: string;
+                /** @description Campaña */
+                campana_id: string;
+                /** @description Creativo */
+                creativo_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreativoPeticion"];
+            };
+        };
+        responses: {
+            /** @description Creativo guardado */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CreativoRespuesta"];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `plataforma.publicidad.gestionar` (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description No existe */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Campaña no editable (`conflicto`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    metricas: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Comercio */
+                anunciante_id: string;
+                /** @description Campaña */
+                campana_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Métricas */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MetricasRespuesta"];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `plataforma.publicidad.gestionar` (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description No existe */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    leads: {
+        parameters: {
+            query?: {
+                /**
+                 * @description Elementos por página (1–200; 50 si se omite).
+                 * @example 50
+                 */
+                limite?: number;
+                /** @description Cursor: el valor `siguiente` de la página anterior. Se omite para la primera página. */
+                despues?: string;
+            };
+            header?: never;
+            path: {
+                /** @description Comercio */
+                anunciante_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Contactos */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginaRespuesta_LeadRespuesta"];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `plataforma.publicidad.gestionar` (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description El comercio no existe */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    ver_enlace_comercio: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Comercio */
+                anunciante_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Token vigente o `null` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EnlaceTokenRespuesta"];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `plataforma.publicidad.gestionar` (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description El comercio no existe */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    generar_enlace_comercio: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Comercio */
+                anunciante_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Token nuevo */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EnlaceTokenRespuesta"];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `plataforma.publicidad.gestionar` (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description El comercio no existe */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description El servidor no tiene clave del Cofre (`validacion`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    revocar_enlace_comercio: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Comercio */
+                anunciante_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Revocado */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `plataforma.publicidad.gestionar` (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description El comercio no existe o no tenía enlace */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    exclusiones: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Exclusiones */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExclusionRespuesta"][];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `plataforma.publicidad.gestionar` (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    excluir: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ExclusionPeticion"];
+            };
+        };
+        responses: {
+            /** @description Excluida */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExclusionRespuesta"];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `plataforma.publicidad.gestionar` (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description La entidad no existe */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin motivo (`validacion`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    incluir: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Entidad */
+                entidad_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Incluida */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `plataforma.publicidad.gestionar` (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description No estaba excluida */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -19397,6 +22515,47 @@ export interface operations {
             };
         };
     };
+    ver_pantalla: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Copropiedad */
+                copropiedad_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Token vigente o `null` (genere uno) */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EnlaceTokenRespuesta"];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `plataforma.modulos.gestionar` */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
     generar_pantalla: {
         parameters: {
             query?: never;
@@ -19438,7 +22597,7 @@ export interface operations {
             };
         };
     };
-    crear_entidad: {
+    designar_entidad_plataforma: {
         parameters: {
             query?: never;
             header?: never;
@@ -19447,17 +22606,74 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["NuevaEntidadPeticion"];
+                "application/json": components["schemas"]["EntidadPlataformaPeticion"];
             };
         };
         responses: {
-            /** @description Entidad creada */
-            201: {
+            /** @description Entidad designada */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["EntidadRespuesta"];
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `plataforma.entidad_propia.designar` */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description La entidad no existe o está retirada */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Es una copropiedad (`conflicto`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    consumo_documentos: {
+        parameters: {
+            query: {
+                desde: string;
+                hasta: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Consumo por entidad */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsumoDocumentosRespuesta"][];
                 };
             };
             /** @description Sin sesión o token vencido (`no_autenticado`) */
@@ -19469,7 +22685,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin `plataforma.entidades.crear` */
+            /** @description Sin `plataforma.facturacion.ver` */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -19478,17 +22694,8 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description La cuenta del administrador no existe */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description Otra entidad tiene ese NIT (`conflicto`) */
-            409: {
+            /** @description Periodo invertido (`validacion`) */
+            422: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -19820,7 +23027,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
+            /** @description Sin `plataforma.plantillas_contables.publicar` (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -19872,7 +23079,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
+            /** @description Sin `plataforma.plantillas_contables.publicar` (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -19933,7 +23140,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
+            /** @description Sin `plataforma.plantillas_contables.publicar` (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -20724,7 +23931,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description La PH no tiene el módulo (`modulo_no_habilitado`) */
+            /** @description Token de máquina inválido o puente retirado */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -20877,7 +24084,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Firma inválida o enlace vencido (`enlace_invalido`) */
+            /** @description Enlace con firma inválida o vencido (`enlace_invalido`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -20926,6 +24133,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CuentaCreada"];
+                };
+            };
+            /** @description Registro cerrado (`REGISTRO_ABIERTO=false`, `no_encontrado`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
             /** @description Usuario o correo ya registrados (`conflicto`) */
@@ -21213,7 +24429,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description No puede editarla (`sin_permiso`) */
+            /** @description Solo soporte (`plataforma.organizaciones.revisar`), quien la creó mientras está sin reclamar, o sus dueños y gestores (`sin_permiso`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -21256,7 +24472,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin permiso (`sin_permiso`) */
+            /** @description Solo los dueños de la organización (los gestores agregan gestores y operarios) o soporte (`plataforma.organizaciones.revisar`) (`sin_permiso`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -21407,662 +24623,14 @@ export interface operations {
             };
         };
     };
-    mis_anunciantes: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Anunciantes */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["MiAnuncianteRespuesta"][];
-                };
-            };
-            /** @description Sin sesión o token vencido (`no_autenticado`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-        };
-    };
-    registrarse: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["RegistroAnunciantePeticion"];
-            };
-        };
-        responses: {
-            /** @description Anunciante registrado */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AnuncianteRespuesta"];
-                };
-            };
-            /** @description Sin sesión o token vencido (`no_autenticado`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description La organización ya existe y no la administra, o ya tiene anunciante (`conflicto`) */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description Datos inválidos (`validacion`) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-        };
-    };
-    mi_anunciante: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Anunciante */
-                anunciante_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Anunciante */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AnuncianteRespuesta"];
-                };
-            };
-            /** @description Sin sesión o token vencido (`no_autenticado`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description No existe o no es miembro */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-        };
-    };
-    editar_ficha: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Anunciante */
-                anunciante_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["FichaPeticion"];
-            };
-        };
-        responses: {
-            /** @description Ficha guardada */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["FichaAnuncianteRespuesta"];
-                };
-            };
-            /** @description Sin sesión o token vencido (`no_autenticado`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description No existe o no la administra */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description Categoría restringida o datos inválidos */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-        };
-    };
-    listar_campanas: {
-        parameters: {
-            query?: {
-                /**
-                 * @description Elementos por página (1–200; 50 si se omite).
-                 * @example 50
-                 */
-                limite?: number;
-                /** @description Cursor: el valor `siguiente` de la página anterior. Se omite para la primera página. */
-                despues?: string;
-            };
-            header?: never;
-            path: {
-                /** @description Anunciante */
-                anunciante_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Campañas */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PaginaRespuesta_CampanaRespuesta"];
-                };
-            };
-            /** @description Sin sesión o token vencido (`no_autenticado`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description No existe o no es miembro */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-        };
-    };
-    crear_campana: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Anunciante */
-                anunciante_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CampanaPeticion"];
-            };
-        };
-        responses: {
-            /** @description Campaña creada */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CampanaRespuesta"];
-                };
-            };
-            /** @description Sin sesión o token vencido (`no_autenticado`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description No existe o no la administra */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description Datos inválidos (`validacion`) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-        };
-    };
-    ver_campana: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Anunciante */
-                anunciante_id: string;
-                /** @description Campaña */
-                campana_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Campaña */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CampanaDetalleRespuesta"];
-                };
-            };
-            /** @description Sin sesión o token vencido (`no_autenticado`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description No existe */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-        };
-    };
-    editar_campana: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Anunciante */
-                anunciante_id: string;
-                /** @description Campaña */
-                campana_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CampanaPeticion"];
-            };
-        };
-        responses: {
-            /** @description Campaña editada */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CampanaRespuesta"];
-                };
-            };
-            /** @description Sin sesión o token vencido (`no_autenticado`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description No existe */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description Datos inválidos o estado que no lo permite */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-        };
-    };
-    cambiar_estado_campana: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Anunciante */
-                anunciante_id: string;
-                /** @description Campaña */
-                campana_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["AccionCampanaPeticion"];
-            };
-        };
-        responses: {
-            /** @description Estado cambiado */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CampanaRespuesta"];
-                };
-            };
-            /** @description Sin sesión o token vencido (`no_autenticado`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description No existe */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description Transición no permitida (`dominio`) o falta algo (`validacion`) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-        };
-    };
-    crear_creativo: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Anunciante */
-                anunciante_id: string;
-                /** @description Campaña */
-                campana_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreativoPeticion"];
-            };
-        };
-        responses: {
-            /** @description Creativo creado */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CreativoRespuesta"];
-                };
-            };
-            /** @description Sin sesión o token vencido (`no_autenticado`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description No existe */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description Campaña no editable o cupón repetido (`conflicto`) */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description Contenido inválido (condiciones obligatorias en promociones) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-        };
-    };
-    editar_creativo: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Anunciante */
-                anunciante_id: string;
-                /** @description Campaña */
-                campana_id: string;
-                /** @description Creativo */
-                creativo_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreativoPeticion"];
-            };
-        };
-        responses: {
-            /** @description Creativo guardado */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CreativoRespuesta"];
-                };
-            };
-            /** @description Sin sesión o token vencido (`no_autenticado`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description No existe */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description Campaña no editable (`conflicto`) */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-        };
-    };
-    metricas: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Anunciante */
-                anunciante_id: string;
-                /** @description Campaña */
-                campana_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Métricas */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["MetricasRespuesta"];
-                };
-            };
-            /** @description Sin sesión o token vencido (`no_autenticado`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description No existe */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-        };
-    };
-    leads: {
-        parameters: {
-            query?: {
-                /**
-                 * @description Elementos por página (1–200; 50 si se omite).
-                 * @example 50
-                 */
-                limite?: number;
-                /** @description Cursor: el valor `siguiente` de la página anterior. Se omite para la primera página. */
-                despues?: string;
-            };
-            header?: never;
-            path: {
-                /** @description Anunciante */
-                anunciante_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Contactos */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PaginaRespuesta_LeadRespuesta"];
-                };
-            };
-            /** @description Sin sesión o token vencido (`no_autenticado`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description No existe o no puede verlos */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-        };
-    };
     redimir: {
         parameters: {
             query?: never;
-            header?: never;
-            path: {
-                /** @description Anunciante */
-                anunciante_id: string;
+            header: {
+                /** @description Token del enlace de redención del comercio */
+                "X-Comercio": string;
             };
+            path?: never;
             cookie?: never;
         };
         requestBody: {
@@ -22080,7 +24648,7 @@ export interface operations {
                     "application/json": components["schemas"]["RedencionRespuesta"];
                 };
             };
-            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            /** @description Sin enlace o enlace revocado (`no_autenticado`) */
             401: {
                 headers: {
                     [name: string]: unknown;
@@ -22100,6 +24668,15 @@ export interface operations {
             };
             /** @description Oferta vencida o sin usos (`dominio`) */
             422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Demasiadas peticiones desde esta IP (`demasiadas_peticiones`, cabecera `Retry-After`) */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -22340,7 +24917,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description No exige permisos: basta un rol en la copropiedad */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -22507,7 +25084,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `copropiedad.datos.editar` (`sin_permiso`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -22944,7 +25521,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `bienes_privados.editar` (`sin_permiso`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -23000,7 +25577,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `bienes_privados.editar` (`sin_permiso`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -23065,7 +25642,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `bienes_privados.editar` (`sin_permiso`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -23126,7 +25703,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `bienes_privados.editar` (`sin_permiso`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -23308,7 +25885,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `titulares.editar` (`sin_permiso`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -23380,7 +25957,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `titulares.editar` (`sin_permiso`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -23430,7 +26007,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description No exige permisos: basta un rol en la copropiedad */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -23586,7 +26163,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `bienes_privados.ver` (`sin_permiso`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -23642,7 +26219,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `bienes_privados.coeficientes.editar` (`sin_permiso`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -23712,7 +26289,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `bienes_privados.ver` (`sin_permiso`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -26943,7 +29520,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el módulo (`modulo_no_habilitado`) */
+            /** @description No exige permisos (solo bienes de los que la cuenta es titular o pagador); módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -26998,7 +29575,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el módulo (`modulo_no_habilitado`) */
+            /** @description No exige permisos (si la cuenta no es titular ni pagador del bien, 404); módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -27050,7 +29627,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el módulo (`modulo_no_habilitado`) */
+            /** @description No exige permisos (si la cuenta no es titular ni pagador del bien, 404); módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -27102,7 +29679,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el módulo (`modulo_no_habilitado`) */
+            /** @description No exige permisos (si la cuenta no es titular ni pagador del bien, 404); módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -27154,7 +29731,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el módulo (`modulo_no_habilitado`) */
+            /** @description No exige permisos (si la cuenta no es titular ni pagador del bien, 404); módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -27708,7 +30285,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `censo.editar` (`sin_permiso`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -27817,7 +30394,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `censo.editar` (`sin_permiso`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -27885,7 +30462,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `censo.editar` (`sin_permiso`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -28049,7 +30626,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `censo.editar` (`sin_permiso`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -28166,7 +30743,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description No es titular ni residente del bien (`sin_permiso`) */
+            /** @description La cuenta no está vinculada al bien y no tiene `censo.editar` (`sin_permiso`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -28218,7 +30795,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `censo.aprobar` (`sin_permiso`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -28283,7 +30860,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `censo.aprobar` (`sin_permiso`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -28570,7 +31147,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `personas.ver` (`sin_permiso`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -28874,6 +31451,11 @@ export interface operations {
         parameters: {
             query?: {
                 tipo?: components["schemas"]["TipoRecurso"];
+                /**
+                 * @description Solo los bienes comunes de esta categoría (la zona de la maqueta 3D: `piscina`,
+                 *     `cancha`, `gimnasio`, `salon_social`…).
+                 */
+                categoria?: components["schemas"]["CategoriaBienComun"];
             };
             header?: never;
             path: {
@@ -29017,7 +31599,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `bienes_comunes.ver` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -29073,7 +31655,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `bienes_comunes.editar` (o `parqueaderos.asignar` si es un parqueadero) (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -29129,7 +31711,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `bienes_comunes.editar` (o `parqueaderos.asignar` si es un parqueadero) (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -29184,7 +31766,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `bienes_comunes.ver` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -29305,7 +31887,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `reservas.crear` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -29375,7 +31957,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description No es su reserva y no tiene `reservas.ver_todas` ni `reservas.entregas.registrar` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -29427,7 +32009,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `reservas.aprobar` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -29492,7 +32074,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `reservas.aprobar` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -29557,7 +32139,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description No es suya (`sin_permiso`) */
+            /** @description No es su reserva y no tiene `reservas.cancelar_cualquiera` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -29687,7 +32269,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `reservas.entregas.registrar` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -29748,7 +32330,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `reservas.entregas.registrar` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -29813,7 +32395,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `reservas.aprobar` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -29831,7 +32413,194 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description No tiene valor que pagar (`validacion`) */
+            /** @description No tiene valor que pagar, o el recurso se cobra en la cartera o con factura (`validacion`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    ver_cobro: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Copropiedad */
+                copropiedad_id: string;
+                /** @description Recurso */
+                recurso_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Configuración de cobro */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CobroRecursoDto"];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `bienes_comunes.ver` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description No existe */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    configurar_cobro: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Copropiedad */
+                copropiedad_id: string;
+                /** @description Recurso */
+                recurso_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CobroRecursoDto"];
+            };
+        };
+        responses: {
+            /** @description Configuración guardada */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CobroRecursoDto"];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `cartera.configurar` ni `contabilidad.configurar` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description El recurso o el ítem no existen */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Factura sin ítem o ítem en otro destino (`validacion`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    facturar: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Copropiedad */
+                copropiedad_id: string;
+                /** @description Reserva */
+                reserva_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Factura en borrador */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FacturaVentaRespuesta"];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `facturacion.facturas.gestionar` (`sin_permiso`) o sin facturación ni contabilidad (`modulo_no_habilitado`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description La reserva no existe */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description La reserva ya tiene factura (`conflicto`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description El recurso no se cobra con factura, sin valor, no aprobada o sin solicitante (`validacion`) */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -29978,7 +32747,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `reservas.restringir` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -30136,7 +32905,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `parqueaderos.asignar` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -30210,7 +32979,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `parqueaderos.asignar` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -30269,7 +33038,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `parqueaderos.asignar` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -30319,7 +33088,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `bienes_comunes.ver` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -30497,7 +33266,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `sorteos.gestionar` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -30788,7 +33557,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `tickets.configurar` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -30854,7 +33623,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin permisos de tickets (`sin_permiso`) o sin el módulo (`modulo_no_habilitado`) */
+            /** @description Sin `tickets.crear`, `tickets.ver_todos`, `tickets.atender` ni `tickets.convivencia.ver` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -31019,7 +33788,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description No es el solicitante, no lo atiende y no tiene `tickets.ver_todos` (en convivencia, `tickets.convivencia.ver`) (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -31214,7 +33983,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Su papel no permite ese cambio (`sin_permiso`) */
+            /** @description La transición no corresponde a su papel: gestiona (`tickets.asignar`), atiende (`tickets.atender`) o es el solicitante (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -31288,7 +34057,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description No es el solicitante ni atiende el ticket (`sin_permiso`) */
+            /** @description No es el solicitante ni lo atiende (`tickets.atender`) ni gestiona (`tickets.asignar`) (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -31353,7 +34122,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description No es el solicitante (`sin_permiso`) */
+            /** @description No es el solicitante: solo él califica (`sin_permiso`, como si faltara `tickets.crear`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -31412,7 +34181,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el módulo (`modulo_no_habilitado`) */
+            /** @description Sin `copropiedad.datos.ver` (las inactivas, con `preguntas_frecuentes.editar`) (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -31531,7 +34300,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `preguntas_frecuentes.editar` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -31642,7 +34411,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `conversaciones.atender` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -31759,7 +34528,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `conversaciones.atender` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -31945,7 +34714,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `inventario.ver` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -32001,7 +34770,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `inventario.editar` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -32064,7 +34833,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `inventario.editar` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -32129,7 +34898,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `inventario.editar` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -32319,7 +35088,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `mantenimiento.planificar` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -32382,7 +35151,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin permisos de mantenimiento (`sin_permiso`) */
+            /** @description Sin `mantenimiento.planificar`, `mantenimiento.ejecutar`, `mantenimiento.verificar` ni `inventario.ver` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -32497,7 +35266,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `mantenimiento.planificar`, `mantenimiento.verificar` ni `inventario.ver`; con `mantenimiento.ejecutar`, solo sus órdenes asignadas (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -32553,7 +35322,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso de esa acción (`sin_permiso`) */
+            /** @description Iniciar y ejecutar: `mantenimiento.planificar` o la orden asignada con `mantenimiento.ejecutar`; verificar: `mantenimiento.verificar` (nunca quien la ejecutó) (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -32625,7 +35394,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `mantenimiento.planificar` ni la orden asignada con `mantenimiento.ejecutar` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -32684,7 +35453,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description No exige permisos: basta un rol en la copropiedad; módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -32791,7 +35560,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `mantenimiento.planificar` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -32865,7 +35634,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `mantenimiento.planificar` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -32917,7 +35686,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `mantenimiento.planificar` ni `inventario.ver` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -32973,7 +35742,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `mantenimiento.planificar` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -33583,7 +36352,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el módulo (`modulo_no_habilitado`) */
+            /** @description No exige permisos: basta un rol en la copropiedad; módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -33635,7 +36404,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description No exige permisos (si no se le envió a la persona de la cuenta, 404); módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -33687,7 +36456,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description No exige permisos (si no se le envió a la persona de la cuenta, 404); módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -33707,229 +36476,6 @@ export interface operations {
             };
             /** @description El comunicado no pide confirmación (`conflicto`) */
             409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-        };
-    };
-    consultar: {
-        parameters: {
-            query?: {
-                /**
-                 * @description Código de una categoría o de una rama (incluye sus subcategorías).
-                 * @example servicios_tecnicos
-                 */
-                categoria?: string;
-                /**
-                 * @description Texto libre: nombre, descripción, categoría o sinónimos («modista», «lavadora»).
-                 * @example costurera
-                 */
-                q?: string;
-                /**
-                 * @description Elementos por página (1–200; 50 si se omite).
-                 * @example 50
-                 */
-                limite?: number;
-                /** @description Cursor: el valor `siguiente` de la página anterior. Se omite para la primera página. */
-                despues?: string;
-            };
-            header?: never;
-            path: {
-                /** @description Copropiedad */
-                copropiedad_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Fichas */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PaginaRespuesta_FichaDirectorioRespuesta"];
-                };
-            };
-            /** @description Sin sesión o token vencido (`no_autenticado`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description Sin `directorio.ver` (`sin_permiso`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description La copropiedad no existe o la cuenta no tiene roles en ella (`no_encontrado`) */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-        };
-    };
-    destacadas: {
-        parameters: {
-            query?: {
-                /** @description Código de una categoría o de una rama. */
-                categoria?: string;
-            };
-            header?: never;
-            path: {
-                /** @description Copropiedad */
-                copropiedad_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Destacadas */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["FichaDirectorioRespuesta"][];
-                };
-            };
-            /** @description Sin sesión o token vencido (`no_autenticado`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description Sin `directorio.ver` (`sin_permiso`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description La copropiedad no existe o la cuenta no tiene roles en ella (`no_encontrado`) */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-        };
-    };
-    categorias: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Copropiedad */
-                copropiedad_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Categorías */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CategoriaDirectorioRespuesta"][];
-                };
-            };
-            /** @description Sin sesión o token vencido (`no_autenticado`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description Sin `directorio.ver` (`sin_permiso`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description La copropiedad no existe o la cuenta no tiene roles en ella (`no_encontrado`) */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-        };
-    };
-    ficha: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Copropiedad */
-                copropiedad_id: string;
-                /** @description Anunciante */
-                anunciante_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Ficha */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["FichaDirectorioRespuesta"];
-                };
-            };
-            /** @description Sin sesión o token vencido (`no_autenticado`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description No existe o no alcanza a la copropiedad */
-            404: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -33979,7 +36525,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `directorio.ver` (`sin_permiso`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -34109,7 +36655,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `directorio.ver` (`sin_permiso`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -34360,6 +36906,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
+            /** @description El servidor no tiene clave del Cofre (`validacion`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
         };
     };
     revocar_enlace: {
@@ -34463,413 +37018,6 @@ export interface operations {
             };
             /** @description Demasiadas peticiones (`demasiadas_peticiones`) */
             429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-        };
-    };
-    estado_autorizacion: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Copropiedad */
-                copropiedad_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Estado */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AutorizacionPublicidadRespuesta"];
-                };
-            };
-            /** @description Sin sesión o token vencido (`no_autenticado`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description La copropiedad no existe o la cuenta no tiene roles en ella (`no_encontrado`) */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description La cuenta no está en el censo */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-        };
-    };
-    autorizar: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Copropiedad */
-                copropiedad_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["AutorizarPublicidadPeticion"];
-            };
-        };
-        responses: {
-            /** @description Autorizada */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Sin sesión o token vencido (`no_autenticado`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description La copropiedad no existe o la cuenta no tiene roles en ella (`no_encontrado`) */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description Versión de la política no vigente o la cuenta no está en el censo */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-        };
-    };
-    revocar: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Copropiedad */
-                copropiedad_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Revocada (o no había) */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Sin sesión o token vencido (`no_autenticado`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description La copropiedad no existe o la cuenta no tiene roles en ella (`no_encontrado`) */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description La cuenta no está en el censo */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-        };
-    };
-    piezas: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Copropiedad */
-                copropiedad_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Piezas */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PiezaRespuesta"][];
-                };
-            };
-            /** @description Sin sesión o token vencido (`no_autenticado`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description Sin `directorio.ver` */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description La copropiedad no existe o la cuenta no tiene roles en ella (`no_encontrado`) */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-        };
-    };
-    eventos: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Copropiedad */
-                copropiedad_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["EventosPeticion"];
-            };
-        };
-        responses: {
-            /** @description Aceptados */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["EventosRespuesta"];
-                };
-            };
-            /** @description Sin sesión o token vencido (`no_autenticado`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description La copropiedad no existe o la cuenta no tiene roles en ella (`no_encontrado`) */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description Demasiados eventos (`validacion`) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-        };
-    };
-    cupon: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Copropiedad */
-                copropiedad_id: string;
-                /** @description Oferta */
-                creativo_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Cupón */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CuponRespuesta"];
-                };
-            };
-            /** @description Sin sesión o token vencido (`no_autenticado`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description La oferta no se muestra en la PH o no autorizó la publicidad */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-        };
-    };
-    reportar: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Copropiedad */
-                copropiedad_id: string;
-                /** @description Anuncio */
-                creativo_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ReporteAnuncioPeticion"];
-            };
-        };
-        responses: {
-            /** @description Reportado */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ReporteAnuncioRespuesta"];
-                };
-            };
-            /** @description Sin sesión o token vencido (`no_autenticado`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description No existe */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description Sin motivo */
-            422: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -35073,7 +37221,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `asambleas.ver` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -35129,7 +37277,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `asambleas.convocar` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -35203,7 +37351,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `asambleas.convocar` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -35270,7 +37418,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `asambleas.convocar` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -35322,7 +37470,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `asambleas.convocar` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -35380,7 +37528,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `asambleas.conducir` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -35445,7 +37593,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `asambleas.convocar` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -35506,7 +37654,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `asambleas.convocar` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -35562,7 +37710,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `asambleas.convocar` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -35632,7 +37780,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `asambleas.convocar` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -35688,7 +37836,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `asambleas.convocar` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -35753,7 +37901,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Abrir registro, instalar, suspender, reanudar y cerrar: `asambleas.conducir`; cancelar: `asambleas.convocar` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -35814,7 +37962,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `asambleas.ver` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -35866,7 +38014,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `asambleas.conducir` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -35918,7 +38066,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `asambleas.ver` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -36078,7 +38226,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `asambleas.registrar` ni `asambleas.ver` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -36134,7 +38282,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `asambleas.registrar` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -36210,7 +38358,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `asambleas.registrar` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -36277,7 +38425,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `asambleas.registrar` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -36340,7 +38488,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `asambleas.registrar` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -36407,7 +38555,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `asambleas.registrar` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -36474,7 +38622,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `asambleas.registrar` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -36535,7 +38683,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `asambleas.registrar` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -36593,7 +38741,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `asambleas.registrar` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -36658,7 +38806,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `asambleas.convocar` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -36724,7 +38872,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `asambleas.convocar` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -36785,7 +38933,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `asambleas.ver` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -36841,7 +38989,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `asambleas.convocar` ni `asambleas.conducir` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -36908,7 +39056,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `asambleas.convocar` ni `asambleas.conducir` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -36969,7 +39117,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `asambleas.convocar` ni `asambleas.conducir` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -37036,7 +39184,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `asambleas.conducir` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -37106,7 +39254,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin permiso (`sin_permiso`) o el asistente no está presente (`no_inscrito`) */
+            /** @description Sin `asambleas.votos.registrar` (`sin_permiso`) o el asistente no está presente (`no_inscrito`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -37169,7 +39317,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `asambleas.ver` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -37281,7 +39429,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `asambleas.conducir` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -37342,7 +39490,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `asambleas.ver` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -37394,7 +39542,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `asambleas.conducir` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -37459,7 +39607,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `asambleas.conducir` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -37518,7 +39666,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `asambleas.ver` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -37572,7 +39720,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `asambleas.registrar` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -37639,7 +39787,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `asambleas.ver` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -37699,7 +39847,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `asambleas.ver` (en reservadas, la opción exige `asambleas.votos.ver_detalle`) (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -37751,7 +39899,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `asambleas.ver` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -37809,7 +39957,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `asambleas.convocar` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -37991,7 +40139,7 @@ export interface operations {
                     "application/json": components["schemas"]["VotoRespuesta"];
                 };
             };
-            /** @description No está presente (`no_inscrito`) */
+            /** @description Papeleta inválida o el asistente no está presente (`no_inscrito`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -38064,7 +40212,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin permiso (`sin_permiso`) o sin el módulo (`modulo_no_habilitado`) */
+            /** @description Sin `acceso.registrar` ni `acceso.bitacora.ver`; con `acceso.visitantes.autorizar`, solo las de su bien (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -38181,7 +40329,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description La cuenta no puede decidir por ese bien (`sin_permiso`) */
+            /** @description Sin `acceso.visitantes.autorizar` o la persona no puede decidir por el bien: residente adulto o titular (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -38244,7 +40392,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `acceso.registrar` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -38314,7 +40462,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin permiso (`sin_permiso`) */
+            /** @description Sin `acceso.registrar` ni `acceso.bitacora.ver`; con `acceso.visitantes.autorizar`, solo las de su bien (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -38366,7 +40514,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `acceso.registrar` ni `acceso.bitacora.ver`; con `acceso.visitantes.autorizar`, solo las de su bien (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -38431,7 +40579,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description La cuenta no puede decidir por ese bien (`sin_permiso`) */
+            /** @description Sin `acceso.visitantes.autorizar` o la persona no puede decidir por el bien: residente adulto o titular (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -38548,7 +40696,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `acceso.registrar` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -38622,7 +40770,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `acceso.registrar` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -38687,7 +40835,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `acceso.registrar` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -38748,7 +40896,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin permiso (`sin_permiso`) */
+            /** @description Sin `acceso.registrar` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -38818,7 +40966,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin permiso (`sin_permiso`) */
+            /** @description Sin `acceso.registrar`, `acceso.bitacora.ver` ni `acceso.correspondencia.entregar`; un residente, solo la de su bien (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -38985,7 +41133,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `acceso.registrar`, `acceso.bitacora.ver` ni `acceso.correspondencia.entregar`; un residente, solo la de su bien (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -39124,7 +41272,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `acceso.correspondencia.entregar` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -39183,7 +41331,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin permiso (`sin_permiso`) o sin el módulo (`modulo_no_habilitado`) */
+            /** @description Sin `acceso.configurar` ni `acceso.registrar` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -39769,7 +41917,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `acceso.configurar` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -39925,7 +42073,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `acceso.configurar` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -39986,7 +42134,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `acceso.configurar` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -40092,7 +42240,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `acceso.configurar` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -40157,7 +42305,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `acceso.configurar` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -40401,7 +42549,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `acceso.credenciales.gestionar` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -40462,7 +42610,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `acceso.credenciales.gestionar` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -40578,7 +42726,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `acceso.credenciales.gestionar` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -40637,7 +42785,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `acceso.credenciales.gestionar` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -40806,7 +42954,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description No es la persona misma y no tiene `acceso.biometria.enrolar` (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -40856,7 +43004,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description No exige permisos: basta un rol en la copropiedad */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -41019,7 +43167,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description De otra persona, sin `proteccion_datos.gestionar` (`sin_permiso`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -41123,7 +43271,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin permiso (`sin_permiso`) */
+            /** @description No es el titular y no tiene `proteccion_datos.gestionar` (`sin_permiso`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -41179,7 +43327,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin permiso (`sin_permiso`) */
+            /** @description No es el titular y no tiene `proteccion_datos.gestionar` (`sin_permiso`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -41244,7 +43392,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin permiso (`sin_permiso`) */
+            /** @description No es el titular y no tiene `proteccion_datos.gestionar` (`sin_permiso`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -41306,7 +43454,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Pide las de otra persona sin permiso (`sin_permiso`) */
+            /** @description Las de otra persona, sin `proteccion_datos.gestionar` (el titular ve las suyas) (`sin_permiso`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -41412,7 +43560,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `proteccion_datos.gestionar` (`sin_permiso`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -41477,7 +43625,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `proteccion_datos.gestionar` (`sin_permiso`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -41542,7 +43690,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `proteccion_datos.gestionar` (`sin_permiso`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -41570,81 +43718,6 @@ export interface operations {
                 };
             };
             /** @description Sin texto ni archivo (`validacion`) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-        };
-    };
-    consultar: {
-        parameters: {
-            query?: {
-                /** @example visita */
-                entidad?: string;
-                entidad_id?: string;
-                /** @description Acción exacta (`acceso.visita.decidir`) o prefijo terminado en punto (`acceso.`). */
-                accion?: string;
-                actor_id?: string;
-                desde?: string;
-                hasta?: string;
-                /**
-                 * @description Elementos por página (1–200; 50 si se omite).
-                 * @example 50
-                 */
-                limite?: number;
-                /** @description Cursor: el valor `siguiente` de la página anterior. Se omite para la primera página. */
-                despues?: string;
-            };
-            header?: never;
-            path: {
-                /** @description Copropiedad */
-                copropiedad_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Eventos */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PaginaRespuesta_EventoAuditadoRespuesta"];
-                };
-            };
-            /** @description Sin sesión o token vencido (`no_autenticado`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description Sin `auditoria.ver` (`sin_permiso`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description La copropiedad no existe o la cuenta no tiene roles en ella (`no_encontrado`) */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description Cursor inválido o fechas invertidas (`validacion`) */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -41752,7 +43825,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description No exige permisos: basta un rol en la copropiedad */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -41804,7 +43877,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `importaciones.ejecutar` (`sin_permiso`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -41856,7 +43929,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `importaciones.ejecutar` (`sin_permiso`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -41876,403 +43949,6 @@ export interface operations {
             };
             /** @description Ya aplicada, con errores o los datos cambiaron (`conflicto`) */
             409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-        };
-    };
-    listar_roles: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Copropiedad */
-                copropiedad_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Roles */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["RolRespuesta"][];
-                };
-            };
-            /** @description Sin sesión o token vencido (`no_autenticado`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description Sin `roles.ver` (`sin_permiso`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description La copropiedad no existe o la cuenta no tiene roles en ella (`no_encontrado`) */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-        };
-    };
-    crear_rol: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Copropiedad */
-                copropiedad_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["NuevoRolPeticion"];
-            };
-        };
-        responses: {
-            /** @description Rol creado */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["RolRespuesta"];
-                };
-            };
-            /** @description Sin sesión o token vencido (`no_autenticado`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description Sin `roles.gestionar` o permisos que no tiene (`sin_permiso`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description La copropiedad no existe o la cuenta no tiene roles en ella (`no_encontrado`) */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description Código repetido (`conflicto`) */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-        };
-    };
-    editar_permisos: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Copropiedad */
-                copropiedad_id: string;
-                /** @description Rol */
-                rol_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["PermisosPeticion"];
-            };
-        };
-        responses: {
-            /** @description Rol actualizado */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["RolRespuesta"];
-                };
-            };
-            /** @description Sin sesión o token vencido (`no_autenticado`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description No existe en la copropiedad */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description Es una plantilla (`conflicto`) */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-        };
-    };
-    listar_asignaciones: {
-        parameters: {
-            query?: {
-                /** @description Solo las de esta cuenta. */
-                cuenta_id?: string;
-            };
-            header?: never;
-            path: {
-                /** @description Copropiedad */
-                copropiedad_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Asignaciones */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AsignacionRespuesta"][];
-                };
-            };
-            /** @description Sin sesión o token vencido (`no_autenticado`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description La copropiedad no existe o la cuenta no tiene roles en ella (`no_encontrado`) */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-        };
-    };
-    asignar: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Copropiedad */
-                copropiedad_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["AsignacionPeticion"];
-            };
-        };
-        responses: {
-            /** @description Asignado */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AsignacionRespuesta"];
-                };
-            };
-            /** @description Sin sesión o token vencido (`no_autenticado`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description Sin `roles.asignar` o rol con más permisos (`sin_permiso`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description Rol o cuenta inexistentes */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-        };
-    };
-    revocar: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Copropiedad */
-                copropiedad_id: string;
-                /** @description Asignación */
-                asignacion_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Terminada */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Sin sesión o token vencido (`no_autenticado`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description La copropiedad no existe o la cuenta no tiene roles en ella (`no_encontrado`) */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description Es el último administrador (`conflicto`) */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-        };
-    };
-    buscar_cuenta: {
-        parameters: {
-            query: {
-                /** @description Usuario o correo exactos. */
-                identificador: string;
-            };
-            header?: never;
-            path: {
-                /** @description Copropiedad */
-                copropiedad_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Cuenta */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CuentaEncontrada"];
-                };
-            };
-            /** @description Sin sesión o token vencido (`no_autenticado`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description No hay una cuenta activa con ese identificador */
-            404: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -42318,7 +43994,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `organizaciones.vincular` ni `organizaciones.crear` (`sin_permiso`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -42372,7 +44048,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `organizaciones.crear` (`sin_permiso`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -42431,7 +44107,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `contratos.gestionar` ni `organizaciones.vincular` (`sin_permiso`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -42485,7 +44161,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `organizaciones.vincular` (`sin_permiso`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -42537,7 +44213,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `contratos.gestionar` (`sin_permiso`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -42593,7 +44269,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin el permiso (`sin_permiso`) o módulo no contratado (`modulo_no_habilitado`) */
+            /** @description Sin `roles.asignar` (`sin_permiso`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -42622,38 +44298,25 @@ export interface operations {
             };
         };
     };
-    subir: {
+    ver_ficha: {
         parameters: {
-            query: {
-                /**
-                 * @description Nombre original, para mostrarlo y descargarlo.
-                 * @example Reglamento de propiedad horizontal.pdf
-                 */
-                nombre: string;
-                /** @description `publico`, `interno`, `personal` o `sensible`. */
-                clasificacion: components["schemas"]["ClasificacionArchivo"];
-            };
+            query?: never;
             header?: never;
             path: {
-                /** @description Copropiedad */
-                copropiedad_id: string;
+                /** @description Entidad */
+                entidad_id: string;
             };
             cookie?: never;
         };
-        /** @description Contenido del archivo */
-        requestBody: {
-            content: {
-                "application/octet-stream": number[];
-            };
-        };
+        requestBody?: never;
         responses: {
-            /** @description Archivo guardado */
-            201: {
+            /** @description Ficha */
+            200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ArchivoRespuesta"];
+                    "application/json": components["schemas"]["FichaEntidadRespuesta"];
                 };
             };
             /** @description Sin sesión o token vencido (`no_autenticado`) */
@@ -42665,7 +44328,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin `archivos.subir` (`sin_permiso`) */
+            /** @description Sin `copropiedad.datos.ver` (`sin_permiso`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -42674,17 +44337,8 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description La copropiedad no existe o la cuenta no tiene roles en ella (`no_encontrado`) */
+            /** @description La cuenta no tiene roles en la entidad (`no_encontrado`) */
             404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description Tipo no admitido, vacío o muy grande (`validacion`) */
-            422: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -42694,27 +44348,29 @@ export interface operations {
             };
         };
     };
-    enlace: {
+    actualizar_ficha: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                /** @description Copropiedad */
-                copropiedad_id: string;
-                /** @description Archivo */
-                archivo_id: string;
+                /** @description Entidad */
+                entidad_id: string;
             };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CambiosEntidadPeticion"];
+            };
+        };
         responses: {
-            /** @description Enlace firmado */
+            /** @description Datos actualizados */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["EnlaceRespuesta"];
+                    "application/json": components["schemas"]["FichaEntidadRespuesta"];
                 };
             };
             /** @description Sin sesión o token vencido (`no_autenticado`) */
@@ -42726,7 +44382,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin permiso (`sin_permiso`) */
+            /** @description Sin `copropiedad.datos.editar` (`sin_permiso`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -42735,8 +44391,26 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description No existe en la copropiedad */
+            /** @description La cuenta no tiene roles en la entidad (`no_encontrado`) */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Otra entidad tiene ese NIT (`conflicto`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Dato inválido (`validacion`) */
+            422: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -42777,6 +44451,1922 @@ export interface operations {
                 };
             };
             /** @description La cuenta no tiene roles en la entidad (`no_encontrado`) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    listar_roles: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Entidad (en una PH, el id de la copropiedad) */
+                entidad_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Roles */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RolRespuesta"][];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `roles.ver` (`sin_permiso`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    crear_rol: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Entidad (en una PH, el id de la copropiedad) */
+                entidad_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NuevoRolPeticion"];
+            };
+        };
+        responses: {
+            /** @description Rol creado */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RolRespuesta"];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `roles.gestionar` o permisos que no tiene (`sin_permiso`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Código repetido (`conflicto`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    editar_permisos: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Entidad (en una PH, el id de la copropiedad) */
+                entidad_id: string;
+                /** @description Rol */
+                rol_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PermisosPeticion"];
+            };
+        };
+        responses: {
+            /** @description Rol actualizado */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RolRespuesta"];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description No existe en la copropiedad */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Es una plantilla (`conflicto`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    listar_asignaciones: {
+        parameters: {
+            query?: {
+                /** @description Solo las de esta cuenta. */
+                cuenta_id?: string;
+            };
+            header?: never;
+            path: {
+                /** @description Entidad (en una PH, el id de la copropiedad) */
+                entidad_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Asignaciones */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AsignacionRespuesta"][];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    asignar: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Entidad (en una PH, el id de la copropiedad) */
+                entidad_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AsignacionPeticion"];
+            };
+        };
+        responses: {
+            /** @description Asignado */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AsignacionRespuesta"];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `roles.asignar` o rol con más permisos (`sin_permiso`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Rol o cuenta inexistentes */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    revocar: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Entidad (en una PH, el id de la copropiedad) */
+                entidad_id: string;
+                /** @description Asignación */
+                asignacion_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Terminada */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Es el último administrador (`conflicto`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    buscar_cuenta: {
+        parameters: {
+            query: {
+                /** @description Usuario o correo exactos. */
+                identificador: string;
+            };
+            header?: never;
+            path: {
+                /** @description Entidad (en una PH, el id de la copropiedad) */
+                entidad_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Cuenta */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CuentaEncontrada"];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description No hay una cuenta activa con ese identificador */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    importar: {
+        parameters: {
+            query: {
+                /** @example bienes_privados.xlsx */
+                nombre: string;
+            };
+            header?: never;
+            path: {
+                /** @description Entidad (en una PH, el id de la copropiedad) */
+                entidad_id: string;
+            };
+            cookie?: never;
+        };
+        /** @description Contenido del CSV o XLSX */
+        requestBody: {
+            content: {
+                "application/octet-stream": number[];
+            };
+        };
+        responses: {
+            /** @description Importación registrada (revise `estado` y `errores`) */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VistaPreviaUsuariosRespuesta"];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `importaciones.ejecutar` o sin `roles.asignar` (`sin_permiso`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description No es CSV/XLSX o no se puede leer (`validacion`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    listar: {
+        parameters: {
+            query?: {
+                /** @description Fragmento del nombre (sin tildes ni mayúsculas), del correo o del usuario. */
+                q?: string;
+                /**
+                 * @description Elementos por página (1–200; 50 si se omite).
+                 * @example 50
+                 */
+                limite?: number;
+                /** @description Cursor: el valor `siguiente` de la página anterior. Se omite para la primera página. */
+                despues?: string;
+            };
+            header?: never;
+            path: {
+                /** @description Entidad (en una PH, el id de la copropiedad) */
+                entidad_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Usuarios */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginaRespuesta_UsuarioRespuesta"];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `roles.ver` (`sin_permiso`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    crear: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Entidad (en una PH, el id de la copropiedad) */
+                entidad_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NuevoUsuarioPeticion"];
+            };
+        };
+        responses: {
+            /** @description Usuario creado o activado */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UsuarioCreadoRespuesta"];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `roles.asignar` o con un rol con permisos que usted no tiene (`sin_permiso`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description El rol no existe en la entidad */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description El `usuario` es de otra cuenta, la cuenta del correo está bloqueada o el documento es de una persona con otra cuenta (`conflicto`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Datos inválidos (`validacion`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    reenviar_codigo: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Entidad (en una PH, el id de la copropiedad) */
+                entidad_id: string;
+                /** @description Cuenta del usuario */
+                cuenta_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Código enviado */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `roles.asignar` (`sin_permiso`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description La cuenta no es usuario de la entidad */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Ya definió su contraseña (`validacion`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    plantilla: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Entidad (en una PH, el id de la copropiedad) */
+                entidad_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Plantilla CSV */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/csv": string;
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description No exige permisos: basta un rol en la entidad */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    confirmar_importacion: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Entidad (en una PH, el id de la copropiedad) */
+                entidad_id: string;
+                /** @description Importación de usuarios */
+                importacion_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Aplicada */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImportacionRespuesta"];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `importaciones.ejecutar` o sin `roles.asignar` (`sin_permiso`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description No existe o no es de usuarios */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Ya aplicada, con errores, los datos cambiaron o una fila choca con otra cuenta (`conflicto`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    consultar: {
+        parameters: {
+            query?: {
+                /**
+                 * @description Código de una categoría o de una rama (incluye sus subcategorías).
+                 * @example servicios_tecnicos
+                 */
+                categoria?: string;
+                /**
+                 * @description Texto libre: nombre, descripción, categoría o sinónimos («modista», «lavadora»).
+                 * @example costurera
+                 */
+                q?: string;
+                /**
+                 * @description Elementos por página (1–200; 50 si se omite).
+                 * @example 50
+                 */
+                limite?: number;
+                /** @description Cursor: el valor `siguiente` de la página anterior. Se omite para la primera página. */
+                despues?: string;
+            };
+            header?: never;
+            path: {
+                /** @description Entidad (PH o empresa) */
+                entidad_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Fichas */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginaRespuesta_FichaDirectorioRespuesta"];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `directorio.ver` (`sin_permiso`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    destacadas: {
+        parameters: {
+            query?: {
+                /** @description Código de una categoría o de una rama. */
+                categoria?: string;
+            };
+            header?: never;
+            path: {
+                /** @description Entidad (PH o empresa) */
+                entidad_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Destacadas */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FichaDirectorioRespuesta"][];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `directorio.ver` (`sin_permiso`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    categorias: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Entidad (PH o empresa) */
+                entidad_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Categorías */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CategoriaDirectorioRespuesta"][];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `directorio.ver` (`sin_permiso`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    ficha: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Entidad (PH o empresa) */
+                entidad_id: string;
+                /** @description Anunciante */
+                anunciante_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Ficha */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FichaDirectorioRespuesta"];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `directorio.ver` (`sin_permiso`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description No existe o no alcanza a la copropiedad */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    estado_autorizacion: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Entidad (PH o empresa) */
+                entidad_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Estado */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AutorizacionPublicidadRespuesta"];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description No exige permisos: basta un rol en la copropiedad (sin persona en la copropiedad, 422) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description La cuenta no está en el censo */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    autorizar: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Entidad (PH o empresa) */
+                entidad_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AutorizarPublicidadPeticion"];
+            };
+        };
+        responses: {
+            /** @description Autorizada */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description No exige permisos: solo el titular autoriza (sin persona en la copropiedad, 422) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Versión de la política no vigente o la cuenta no está en el censo */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    revocar: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Entidad (PH o empresa) */
+                entidad_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Revocada (o no había) */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description No exige permisos: solo el titular retira su autorización */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description La cuenta no está en el censo */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    piezas: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Entidad (PH o empresa) */
+                entidad_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Piezas */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PiezaRespuesta"][];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `directorio.ver` */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    eventos: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Entidad (PH o empresa) */
+                entidad_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EventosPeticion"];
+            };
+        };
+        responses: {
+            /** @description Aceptados */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EventosRespuesta"];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `directorio.ver` (`sin_permiso`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Demasiados eventos (`validacion`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    cupon: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Entidad (PH o empresa) */
+                entidad_id: string;
+                /** @description Oferta */
+                creativo_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Cupón */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CuponRespuesta"];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `directorio.ver` (`sin_permiso`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description La oferta no se muestra en la PH o no autorizó la publicidad */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    reportar: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Entidad (PH o empresa) */
+                entidad_id: string;
+                /** @description Anuncio */
+                creativo_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReporteAnuncioPeticion"];
+            };
+        };
+        responses: {
+            /** @description Reportado */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReporteAnuncioRespuesta"];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `directorio.ver` (`sin_permiso`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description No existe */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin motivo */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    subir: {
+        parameters: {
+            query: {
+                /**
+                 * @description Nombre original, para mostrarlo y descargarlo.
+                 * @example Reglamento de propiedad horizontal.pdf
+                 */
+                nombre: string;
+                /** @description `publico`, `interno`, `personal` o `sensible`. */
+                clasificacion: components["schemas"]["ClasificacionArchivo"];
+            };
+            header?: never;
+            path: {
+                /** @description Entidad (en una PH, el id de la copropiedad) */
+                entidad_id: string;
+            };
+            cookie?: never;
+        };
+        /** @description Contenido del archivo */
+        requestBody: {
+            content: {
+                "application/octet-stream": number[];
+            };
+        };
+        responses: {
+            /** @description Archivo guardado */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ArchivoRespuesta"];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `archivos.subir` (`sin_permiso`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Tipo no admitido, vacío o muy grande (`validacion`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    enlace: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Entidad (en una PH, el id de la copropiedad) */
+                entidad_id: string;
+                /** @description Archivo */
+                archivo_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Enlace firmado */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EnlaceRespuesta"];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `archivos.ver` (los personales exigen `archivos.personales.ver`) (`sin_permiso`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description No existe en la copropiedad */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    consultar: {
+        parameters: {
+            query?: {
+                /** @example visita */
+                entidad?: string;
+                entidad_id?: string;
+                /** @description Acción exacta (`acceso.visita.decidir`) o prefijo terminado en punto (`acceso.`). */
+                accion?: string;
+                actor_id?: string;
+                desde?: string;
+                hasta?: string;
+                /**
+                 * @description Elementos por página (1–200; 50 si se omite).
+                 * @example 50
+                 */
+                limite?: number;
+                /** @description Cursor: el valor `siguiente` de la página anterior. Se omite para la primera página. */
+                despues?: string;
+            };
+            header?: never;
+            path: {
+                /** @description Entidad (en una PH, el id de la copropiedad) */
+                entidad_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Eventos */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginaRespuesta_EventoAuditadoRespuesta"];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `auditoria.ver` (`sin_permiso`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Cursor inválido o fechas invertidas (`validacion`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    listar_terceros: {
+        parameters: {
+            query?: {
+                /** @description Fragmento del nombre o del documento. */
+                texto?: string;
+                /**
+                 * @description Elementos por página (1–200; 50 si se omite).
+                 * @example 50
+                 */
+                limite?: number;
+                /** @description Cursor: el valor `siguiente` de la página anterior. Se omite para la primera página. */
+                despues?: string;
+            };
+            header?: never;
+            path: {
+                /** @description Entidad */
+                entidad_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Terceros */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginaRespuesta_TerceroRespuesta"];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `contabilidad.ver`, `facturacion.ver` ni `terceros.gestionar`, o sin contabilidad ni facturación */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    crear_tercero: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Entidad */
+                entidad_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NuevoTerceroPeticion"];
+            };
+        };
+        responses: {
+            /** @description Tercero creado o completado */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TerceroRespuesta"];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `terceros.gestionar` o sin el módulo */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Dato inválido (`validacion`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    guardar_datos_fiscales: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Entidad */
+                entidad_id: string;
+                /** @description Persona */
+                persona_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DatosFiscalesDto"];
+            };
+        };
+        responses: {
+            /** @description Datos guardados */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DatosFiscalesDto"];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description La persona no existe */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Dato inválido (`validacion`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    catalogo: {
+        parameters: {
+            query?: {
+                /** @description Vigentes en esta fecha (sin ella, todas las versiones). */
+                fecha?: string;
+            };
+            header?: never;
+            path: {
+                /** @description Entidad */
+                entidad_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Catálogo */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogoTributarioRespuesta"];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `contabilidad.ver` ni `facturacion.ver`, o sin contabilidad ni facturación */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    listar_perfiles: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Entidad */
+                entidad_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Versiones */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PerfilTributarioRespuesta"][];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `contabilidad.ver` ni `facturacion.ver`, o sin contabilidad ni facturación */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    crear_perfil: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Entidad */
+                entidad_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NuevoPerfilPeticion"];
+            };
+        };
+        responses: {
+            /** @description Versión en borrador */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PerfilTributarioRespuesta"];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `tributario.configurar` o sin el módulo */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Perfil incoherente con el RUT (`validacion`, `dato_invalido`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    confirmar_perfil: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Entidad */
+                entidad_id: string;
+                /** @description Versión del perfil */
+                perfil_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Versión confirmada */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PerfilTributarioRespuesta"];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `tributario.perfil.confirmar` o sin el módulo */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Ya estaba confirmada (`conflicto`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    listar_resoluciones: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Entidad */
+                entidad_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Resoluciones */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResolucionRespuesta"][];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `contabilidad.ver` ni `facturacion.ver`, o sin contabilidad ni facturación */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    crear_resolucion: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Entidad */
+                entidad_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NuevaResolucionPeticion"];
+            };
+        };
+        responses: {
+            /** @description Resolución */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResolucionRespuesta"];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `tributario.configurar` o sin el módulo */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Ya existe ese rango (`conflicto`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Rango, prefijo o vigencia inválidos (`validacion`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    activar_resolucion: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Entidad */
+                entidad_id: string;
+                /** @description Resolución */
+                resolucion_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ActivaPeticion"];
+            };
+        };
+        responses: {
+            /** @description Actualizada */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `tributario.configurar` o sin el módulo */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Resolución inexistente */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -43668,167 +47258,6 @@ export interface operations {
                 };
             };
             /** @description Falta título o texto, o el rubro no existe (`validacion`) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-        };
-    };
-    listar_terceros: {
-        parameters: {
-            query?: {
-                /** @description Fragmento del nombre o del documento. */
-                texto?: string;
-                /**
-                 * @description Elementos por página (1–200; 50 si se omite).
-                 * @example 50
-                 */
-                limite?: number;
-                /** @description Cursor: el valor `siguiente` de la página anterior. Se omite para la primera página. */
-                despues?: string;
-            };
-            header?: never;
-            path: {
-                /** @description Entidad */
-                entidad_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Terceros */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PaginaRespuesta_TerceroRespuesta"];
-                };
-            };
-            /** @description Sin sesión o token vencido (`no_autenticado`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description Sin `contabilidad.ver` o sin el módulo */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-        };
-    };
-    crear_tercero: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Entidad */
-                entidad_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["NuevoTerceroPeticion"];
-            };
-        };
-        responses: {
-            /** @description Tercero creado o completado */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["TerceroRespuesta"];
-                };
-            };
-            /** @description Sin sesión o token vencido (`no_autenticado`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description Sin `terceros.gestionar` o sin el módulo */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description Dato inválido (`validacion`) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-        };
-    };
-    guardar_datos_fiscales: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Entidad */
-                entidad_id: string;
-                /** @description Persona */
-                persona_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["DatosFiscalesDto"];
-            };
-        };
-        responses: {
-            /** @description Datos guardados */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DatosFiscalesDto"];
-                };
-            };
-            /** @description Sin sesión o token vencido (`no_autenticado`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description La persona no existe */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description Dato inválido (`validacion`) */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -46334,334 +49763,6 @@ export interface operations {
             };
         };
     };
-    listar_facturas: {
-        parameters: {
-            query?: {
-                persona_id?: string;
-                estado?: components["schemas"]["EstadoFacturaVenta"];
-                desde?: string;
-                hasta?: string;
-            };
-            header?: never;
-            path: {
-                /** @description Entidad */
-                entidad_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Facturas */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["FacturaVentaRespuesta"][];
-                };
-            };
-            /** @description Sin sesión o token vencido (`no_autenticado`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description Sin `facturacion.ver` o sin el módulo */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-        };
-    };
-    crear_factura: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Entidad */
-                entidad_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["NuevaFacturaVentaPeticion"];
-            };
-        };
-        responses: {
-            /** @description Factura en borrador */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["FacturaVentaRespuesta"];
-                };
-            };
-            /** @description Sin sesión o token vencido (`no_autenticado`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description Sin `facturacion.facturas.gestionar` o sin el módulo */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description Cliente inexistente */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description El documento origen ya tiene factura (`conflicto`) */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description Línea inválida (`validacion`) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-        };
-    };
-    ver_factura: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Entidad */
-                entidad_id: string;
-                /** @description Factura */
-                factura_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Factura */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["FacturaVentaRespuesta"];
-                };
-            };
-            /** @description Sin sesión o token vencido (`no_autenticado`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description Sin `facturacion.ver` o sin el módulo */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-        };
-    };
-    eliminar_factura: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Entidad */
-                entidad_id: string;
-                /** @description Factura */
-                factura_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Borrada */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Sin sesión o token vencido (`no_autenticado`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description Sin `facturacion.facturas.gestionar` o sin el módulo */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description Ya se emitió (`conflicto`) */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-        };
-    };
-    emitir_factura: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Entidad */
-                entidad_id: string;
-                /** @description Factura */
-                factura_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Factura emitida */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["FacturaVentaRespuesta"];
-                };
-            };
-            /** @description Sin sesión o token vencido (`no_autenticado`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description Sin `facturacion.facturas.gestionar` o sin el módulo */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description No está en borrador (`conflicto_estado`) */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description Sin regla, periodo cerrado o descuadre (`regla_contable`) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-        };
-    };
-    anular_factura: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Entidad */
-                entidad_id: string;
-                /** @description Factura */
-                factura_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["AnulacionPeticion"];
-            };
-        };
-        responses: {
-            /** @description Factura anulada */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["FacturaVentaRespuesta"];
-                };
-            };
-            /** @description Sin sesión o token vencido (`no_autenticado`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description Sin `facturacion.facturas.gestionar` o sin el módulo */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description Tiene recaudos o no se emitió (`conflicto_estado`) */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-        };
-    };
     cartera: {
         parameters: {
             query: {
@@ -46752,6 +49853,114 @@ export interface operations {
             };
             /** @description Archivo o mapeo inválidos (`validacion`) */
             422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    ver_mapeo: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Entidad */
+                entidad_id: string;
+                /** @description Cuenta de tesorería */
+                cuenta_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Mapeo guardado o `null` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MapeoExtractoRespuesta"];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `tesoreria.conciliar` o sin el módulo */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description La cuenta no existe */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    guardar_mapeo: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Entidad */
+                entidad_id: string;
+                /** @description Cuenta de tesorería */
+                cuenta_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MapeoColumnasDto"];
+            };
+        };
+        responses: {
+            /** @description Mapeo guardado */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MapeoExtractoRespuesta"];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `tesoreria.conciliar` o sin el módulo */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description La cuenta no existe */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -47328,355 +50537,6 @@ export interface operations {
             };
         };
     };
-    catalogo: {
-        parameters: {
-            query?: {
-                /** @description Vigentes en esta fecha (sin ella, todas las versiones). */
-                fecha?: string;
-            };
-            header?: never;
-            path: {
-                /** @description Entidad */
-                entidad_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Catálogo */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CatalogoTributarioRespuesta"];
-                };
-            };
-            /** @description Sin sesión o token vencido (`no_autenticado`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description Sin `contabilidad.ver` o sin el módulo */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-        };
-    };
-    listar_perfiles: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Entidad */
-                entidad_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Versiones */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PerfilTributarioRespuesta"][];
-                };
-            };
-            /** @description Sin sesión o token vencido (`no_autenticado`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description Sin `contabilidad.ver` o sin el módulo */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-        };
-    };
-    crear_perfil: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Entidad */
-                entidad_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["NuevoPerfilPeticion"];
-            };
-        };
-        responses: {
-            /** @description Versión en borrador */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PerfilTributarioRespuesta"];
-                };
-            };
-            /** @description Sin sesión o token vencido (`no_autenticado`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description Sin `tributario.configurar` o sin el módulo */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description Perfil incoherente con el RUT (`validacion`, `dato_invalido`) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-        };
-    };
-    confirmar_perfil: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Entidad */
-                entidad_id: string;
-                /** @description Versión del perfil */
-                perfil_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Versión confirmada */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PerfilTributarioRespuesta"];
-                };
-            };
-            /** @description Sin sesión o token vencido (`no_autenticado`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description Sin `tributario.perfil.confirmar` o sin el módulo */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description Ya estaba confirmada (`conflicto`) */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-        };
-    };
-    listar_resoluciones: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Entidad */
-                entidad_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Resoluciones */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ResolucionRespuesta"][];
-                };
-            };
-            /** @description Sin sesión o token vencido (`no_autenticado`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description Sin `contabilidad.ver` o sin el módulo */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-        };
-    };
-    crear_resolucion: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Entidad */
-                entidad_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["NuevaResolucionPeticion"];
-            };
-        };
-        responses: {
-            /** @description Resolución */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ResolucionRespuesta"];
-                };
-            };
-            /** @description Sin sesión o token vencido (`no_autenticado`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description Sin `tributario.configurar` o sin el módulo */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description Ya existe ese rango (`conflicto`) */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description Rango, prefijo o vigencia inválidos (`validacion`) */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-        };
-    };
-    activar_resolucion: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Entidad */
-                entidad_id: string;
-                /** @description Resolución */
-                resolucion_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ActivaPeticion"];
-            };
-        };
-        responses: {
-            /** @description Actualizada */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Sin sesión o token vencido (`no_autenticado`) */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description Sin `tributario.configurar` o sin el módulo */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-            /** @description Resolución inexistente */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorRespuesta"];
-                };
-            };
-        };
-    };
     preparar_retencion: {
         parameters: {
             query: {
@@ -48091,6 +50951,699 @@ export interface operations {
             };
         };
     };
+    listar_items: {
+        parameters: {
+            query?: {
+                /** @description Busca en el código y la descripción, sin tildes ni mayúsculas. */
+                texto?: string;
+                /** @description Incluir los inactivos. */
+                con_inactivos?: boolean;
+            };
+            header?: never;
+            path: {
+                /** @description Entidad */
+                entidad_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Ítems */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ItemRespuesta"][];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `facturacion.ver` o sin el módulo */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    crear_item: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Entidad */
+                entidad_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NuevoItemPeticion"];
+            };
+        };
+        responses: {
+            /** @description Ítem creado */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ItemRespuesta"];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `facturacion.items.gestionar` o sin el módulo */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description El código ya existe (`conflicto`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Dato inválido o cuenta sin contabilidad (`validacion`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    ver_item: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Entidad */
+                entidad_id: string;
+                /** @description Ítem */
+                item_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Ítem */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ItemRespuesta"];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `facturacion.ver` o sin el módulo */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Ítem inexistente */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    actualizar_item: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Entidad */
+                entidad_id: string;
+                /** @description Ítem */
+                item_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DatosItemPeticion"];
+            };
+        };
+        responses: {
+            /** @description Ítem actualizado */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ItemRespuesta"];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `facturacion.items.gestionar` o sin el módulo */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Ítem inexistente */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Dato inválido (`validacion`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    listar_facturas: {
+        parameters: {
+            query?: {
+                persona_id?: string;
+                estado?: components["schemas"]["EstadoFacturaVenta"];
+                desde?: string;
+                hasta?: string;
+            };
+            header?: never;
+            path: {
+                /** @description Entidad */
+                entidad_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Facturas */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FacturaVentaRespuesta"][];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `facturacion.ver` o sin el módulo */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    crear_factura: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Entidad */
+                entidad_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NuevaFacturaVentaPeticion"];
+            };
+        };
+        responses: {
+            /** @description Factura en borrador */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FacturaVentaRespuesta"];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `facturacion.facturas.gestionar` o sin el módulo */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Cliente inexistente */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description El documento origen ya tiene factura (`conflicto`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Línea inválida (`validacion`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    ver_factura: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Entidad */
+                entidad_id: string;
+                /** @description Factura */
+                factura_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Factura */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FacturaVentaRespuesta"];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `facturacion.ver` o sin el módulo */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    eliminar_factura: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Entidad */
+                entidad_id: string;
+                /** @description Factura */
+                factura_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Borrada */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `facturacion.facturas.gestionar` o sin el módulo */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Ya se emitió (`conflicto`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    emitir_factura: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Entidad */
+                entidad_id: string;
+                /** @description Factura */
+                factura_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Factura emitida */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FacturaVentaRespuesta"];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `facturacion.facturas.gestionar` o sin el módulo */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description No está en borrador (`conflicto_estado`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin regla, periodo cerrado o descuadre (`regla_contable`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    anular_factura: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Entidad */
+                entidad_id: string;
+                /** @description Factura */
+                factura_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AnulacionPeticion"];
+            };
+        };
+        responses: {
+            /** @description Factura anulada */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FacturaVentaRespuesta"];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `facturacion.facturas.gestionar` o sin el módulo */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Tiene recaudos o no se emitió (`conflicto_estado`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    marcar_pagada: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Entidad */
+                entidad_id: string;
+                /** @description Factura */
+                factura_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PagoManualPeticion"];
+            };
+        };
+        responses: {
+            /** @description Factura pagada */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FacturaVentaRespuesta"];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `facturacion.facturas.gestionar` o sin el módulo */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description La entidad lleva contabilidad (`conflicto`) o la factura no está emitida (`conflicto_estado`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Fecha anterior a la factura (`validacion`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    emitir_nota_debito: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Entidad */
+                entidad_id: string;
+                /** @description Factura de venta que se ajusta */
+                factura_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NotaDebitoPeticion"];
+            };
+        };
+        responses: {
+            /** @description Documento electrónico de la nota débito (su `origen` es la nota, que se ve en `/facturas`) */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DocumentoElectronicoRespuesta"];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `facturacion.facturas.gestionar` ni `facturacion.emitir` (`sin_permiso`) o sin el módulo (`modulo_no_habilitado`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Factura inexistente */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description La factura no tiene factura electrónica validada (`conflicto`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Factura anulada, es otra nota débito, motivo o línea inválidos (`validacion`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
     emitir_factura_electronica: {
         parameters: {
             query?: never;
@@ -48142,6 +51695,80 @@ export interface operations {
                 };
             };
             /** @description Sin perfil de facturador, sin resolución vigente o factura sin emitir (`validacion`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    transcribir_factura_contingencia: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Entidad */
+                entidad_id: string;
+                /** @description Factura de venta */
+                factura_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TranscripcionPeticion"];
+            };
+        };
+        responses: {
+            /** @description Documento (validado, rechazado o en espera de la DIAN) */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DocumentoElectronicoRespuesta"];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `facturacion.emitir` (`sin_permiso`) o sin el módulo (`modulo_no_habilitado`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Factura inexistente */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Ese número ya se transcribió o la factura ya tiene otra factura electrónica (`conflicto`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description El número no está en una resolución de contingencia vigente o la factura no está emitida (`validacion`) */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -48277,6 +51904,80 @@ export interface operations {
                 };
             };
             /** @description El proveedor factura electrónicamente, la compra no está causada o no hay resolución (`validacion`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    emitir_nota_ajuste_soporte: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Entidad */
+                entidad_id: string;
+                /** @description Factura de proveedor */
+                factura_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NotaCreditoPeticion"];
+            };
+        };
+        responses: {
+            /** @description Nota de ajuste */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DocumentoElectronicoRespuesta"];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `facturacion.facturas.gestionar` ni `facturacion.emitir` (`sin_permiso`) o sin el módulo (`modulo_no_habilitado`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Compra inexistente */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description La compra no tiene documento soporte validado o ya tiene pagos (`conflicto`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Motivo inválido (`validacion`) */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -48465,6 +52166,58 @@ export interface operations {
                 };
                 content: {
                     "application/pdf": number[];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `facturacion.ver` o sin el módulo */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Documento inexistente */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    paquete_adquirente: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Entidad */
+                entidad_id: string;
+                /** @description Documento */
+                documento_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description ZIP */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/zip": number[];
                 };
             };
             /** @description Sin sesión o token vencido (`no_autenticado`) */
@@ -48820,7 +52573,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Evento registrado */
+            /** @description Evento registrado (mire `estado`: la DIAN pudo rechazarlo) */
             201: {
                 headers: {
                     [name: string]: unknown;
@@ -48838,7 +52591,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Sin `facturacion.recibir` o sin el módulo */
+            /** @description Sin `facturacion.recibir` (`sin_permiso`) o sin el módulo (`modulo_no_habilitado`) */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -48865,7 +52618,776 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorRespuesta"];
                 };
             };
-            /** @description Faltan los eventos previos o reclamo sin motivo (`validacion`) */
+            /** @description Faltan los eventos previos, el concepto del reclamo o quien recibió (`validacion`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    aceptacion_tacita: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Entidad */
+                entidad_id: string;
+                /** @description Factura electrónica */
+                documento_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Evento registrado (mire `estado`: la DIAN pudo rechazarlo) */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EventoRadianRespuesta"];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `facturacion.emitir` (`sin_permiso`) o sin el módulo (`modulo_no_habilitado`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Documento inexistente */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Ya registrada (`conflicto`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description No es una factura validada a crédito (`validacion`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    eventos_documento: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Entidad */
+                entidad_id: string;
+                /** @description Factura electrónica */
+                documento_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Eventos */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EventoRadianRespuesta"][];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `facturacion.ver` (`sin_permiso`) o sin el módulo (`modulo_no_habilitado`) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    libro_ventas: {
+        parameters: {
+            query: {
+                desde: string;
+                hasta: string;
+            };
+            header?: never;
+            path: {
+                /** @description Entidad */
+                entidad_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description CSV */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/csv": string;
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `facturacion.exportar` o sin el módulo */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Periodo inválido o demasiado grande (`validacion`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    libro_compras: {
+        parameters: {
+            query: {
+                desde: string;
+                hasta: string;
+            };
+            header?: never;
+            path: {
+                /** @description Entidad */
+                entidad_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description CSV */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/csv": string;
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `facturacion.exportar` o sin el módulo */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Periodo inválido o demasiado grande (`validacion`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    paquete: {
+        parameters: {
+            query: {
+                desde: string;
+                hasta: string;
+            };
+            header?: never;
+            path: {
+                /** @description Entidad */
+                entidad_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description ZIP */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/zip": number[];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `facturacion.exportar` o sin el módulo */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Periodo inválido o demasiado grande (`validacion`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    contabilizar: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Entidad */
+                entidad_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PeriodoParametros"];
+            };
+        };
+        responses: {
+            /** @description Informe */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InformeContabilizacionRespuesta"];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `contabilidad.comprobantes.contabilizar` o sin el módulo de contabilidad */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Periodo inválido (`validacion`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    ver_habilitacion: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Entidad */
+                entidad_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Habilitación */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HabilitacionRespuesta"];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `facturacion.configurar` o sin el módulo */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    registrar_software: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Entidad */
+                entidad_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SoftwarePeticion"];
+            };
+        };
+        responses: {
+            /** @description Software registrado */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HabilitacionRespuesta"];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `facturacion.configurar` o sin el módulo */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Ya está en producción (`conflicto_estado`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Dato inválido o servidor sin clave maestra (`validacion`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    cargar_certificado: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Entidad */
+                entidad_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CertificadoPeticion"];
+            };
+        };
+        responses: {
+            /** @description Certificado cargado */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CertificadoRespuesta"];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `facturacion.certificado.gestionar` o sin el módulo */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Archivo o contraseña inválidos, certificado vencido o sin no repudio (`validacion`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    enviar_set_pruebas: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Entidad */
+                entidad_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetPruebasPeticion"];
+            };
+        };
+        responses: {
+            /** @description Documentos enviados */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EnvioSetRespuesta"][];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `facturacion.configurar` o sin el módulo */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Falta el software, el certificado o el TestSetId (`validacion`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description La DIAN no responde (`interno`): reintente */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    consultar_set_pruebas: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Entidad */
+                entidad_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Habilitación actualizada */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HabilitacionRespuesta"];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `facturacion.configurar` o sin el módulo */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Falta el software o el certificado (`validacion`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    pasar_a_produccion: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Entidad */
+                entidad_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description En producción */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HabilitacionRespuesta"];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `facturacion.configurar` o sin el módulo */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Aún no está habilitada (`conflicto_estado`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    sincronizar_rangos: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Entidad */
+                entidad_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Rangos nuevos */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RangoSincronizadoRespuesta"][];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `facturacion.configurar` o sin el módulo */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description La entidad no está en producción (`validacion`) */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+        };
+    };
+    registrar_compra: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Entidad */
+                entidad_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NuevaFacturaProveedorPeticion"];
+            };
+        };
+        responses: {
+            /** @description Compra registrada */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FacturaProveedorRespuesta"];
+                };
+            };
+            /** @description Sin sesión o token vencido (`no_autenticado`) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Sin `facturacion.facturas.gestionar` (o, con contabilidad, `tesoreria.facturas_proveedor.gestionar`) o sin el módulo */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Tercero inexistente */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Compra repetida del proveedor (`conflicto`) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorRespuesta"];
+                };
+            };
+            /** @description Dato inválido; sin contabilidad, cuentas o retenciones (`validacion`) */
             422: {
                 headers: {
                     [name: string]: unknown;

@@ -24,6 +24,9 @@ export function useNavegacion() {
   const consulta: Consulta = {
     tieneModulo: (m) => entidad.tieneModulo(m),
     tienePermiso: (p) => entidad.tienePermiso(p),
+    get esPH() {
+      return entidad.esPH
+    },
   }
 
   const plantilla = computed<IdPlantilla>(() =>
