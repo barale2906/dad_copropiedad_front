@@ -106,12 +106,13 @@ Se mantiene al día: quien crea una pieza reutilizable la agrega aquí.
 | Reintentar un POST sin duplicar | `idempotencia()` → cabecera `Idempotency-Key` | `src/api/cliente.ts` |
 | Tipos del backend | `Modulo`, `Permiso`, `EntidadDeLaCuenta`, `Capacidades`… | `src/api/tipos.ts` (alias de `esquema.d.ts`) |
 | Mostrar un error | `mensajeDeError(e)` | `src/api/errores.ts` |
-| Ejecutar una acción (idempotencia, errores por código, 429) | `useAccion((clave, …) => …, { alConflicto, alExito })` | `src/composables/useAccion.ts` |
+| Ejecutar una acción (idempotencia, errores por código, 429) | `useAccion((clave, …) => …, { alConflicto, alExito })`; `ejecutar()` → `{ ok, valor }` | `src/composables/useAccion.ts` |
 | Botones por estado del recurso / cuatro ojos | `accionesPermitidas(estado, mapa)`, `puedeAprobar(autores, cuentaId)` | `src/composables/reglas.ts` |
 | Fechas en la zona de la entidad | `fecha`, `fechaHora`, `hora`, `aUtc` (con `useEntidad().zonaHoraria`) | `src/formato/fechas.ts` |
 | Montos, porcentajes, coeficientes, sumas | `moneda`, `porcentaje`, `coeficiente`, `sumar`, `restar`, `comparar`, `leerDecimal` | `src/formato/decimales.ts` |
 | Generar UUID (también en HTTP) | `uuid()` | `src/api/uuid.ts` |
-| Sesión, login, 2FA, cierre | `useSesion()` | `src/stores/sesion.ts` |
+| Sesión, login, 2FA, cierre, definir contraseña | `useSesion()` (`definirContrasena`, `recuperarContrasena`) | `src/stores/sesion.ts` |
+| Cuenta de la persona (perfil, 2FA, sesiones, dispositivos, permisos de plataforma) | `useCuenta()`: `asegurar`, `id`, `permisosPlataforma`, `segundoFactorActivo` | `src/stores/cuenta.ts` |
 | Entidad activa, ¿es PH?, permisos, módulos, roles, modo soporte, zona horaria | `useEntidad()`: `esPH`, `modoSoporte`, `zonaHoraria`, `ficha`, `tieneModulo`, `tienePermiso`, `tieneRol`, `refrescar` | `src/stores/entidad.ts` |
 | Preferencias del navegador | `usePreferencias()` (vista, calidad 3D) | `src/stores/preferencias.ts` |
 | Secciones, acciones y su estado (módulos «alguno de» / `requiereTodos`, módulo por acción, `soloPH`) | `SECCIONES`, `estadoSeccion`, `seccionContratada`, `accionesVisibles`, `TEXTO_ESTADO` | `src/escena/mapa-modulos.ts` |
@@ -132,6 +133,8 @@ Se mantiene al día: quien crea una pieza reutilizable la agrega aquí.
 | Estado de un recurso | `<HudInsignia tono>` (`exito`, `aviso`, `peligro`, `info`, `neutro`) | `src/hud/componentes/HudInsignia.vue` |
 | Cargando / vacío / error | `<HudEstado estado mensaje referencia @reintentar>` (slot: acción del vacío) | `src/hud/componentes/HudEstado.vue` |
 | Diálogo modal | `<HudDialogo v-model:abierto titulo>` (slot `acciones`) | `src/hud/componentes/HudDialogo.vue` |
+| Secreto que se muestra una vez | `<SecretoUnaVez valor etiqueta aviso>` | `src/hud/componentes/SecretoUnaVez.vue` |
+| Código QR | `<HudCodigoQr texto descripcion>` | `src/hud/componentes/HudCodigoQr.vue` |
 | Confirmar con motivo (anular, rechazar…) | `<ConfirmarConMotivo v-model:abierto titulo accion @confirmar>` | `src/hud/componentes/ConfirmarConMotivo.vue` |
 | Barra superior de la entidad | `<BarraSuperior>` (slot para acciones) | `src/pantallas/componentes/BarraSuperior.vue` |
 | Marco de módulo (menú lateral, migas, volver) | `ModuloView.vue` (base del marco de módulos) | `src/pantallas/ModuloView.vue` |
@@ -140,7 +143,7 @@ Se mantiene al día: quien crea una pieza reutilizable la agrega aquí.
 | Piezas 3D | `Kit` (`caja`, `losa`, `cilindro_`, `cono_`) y `torre`, `edificio`, `arbol`, `carro`, `escritorio` | `src/escena/piezas.ts` |
 | Fondo ambiental HUD | clase `.fondo-hud`; rótulos: `.rotulo`; texto oculto accesible: `.solo-lector` | `src/hud/estilos/base.css` |
 | Transición entre vistas | `<Transition name="vista">` | `src/hud/estilos/base.css` |
-| Datos de prueba / demo | `fetchDemo` (usuarios `uno`, `empresa`, `2fa`, `nuevo` sin roles) | `src/mocks/demo.ts` |
+| Datos de prueba / demo | `fetchDemo` (usuarios `uno`, `empresa`, `2fa`, `nuevo` sin roles, `sinverificar`; códigos `123456`); un `Manejador` por área (`json`, `error`, `sinContenido`) | `src/mocks/demo.ts`, `src/mocks/http.ts`, `src/mocks/<area>.ts` |
 | Preparar pruebas | `prepararConDemo()`, `conCapacidades()` (`modo_soporte` opcional), `ENTIDAD_PH` | `src/__tests__/ayudantes.ts` |
 | Pasos E2E | `entrar()`, `esperarMaqueta()`, `elegirZona()` | `e2e/utilidades.ts` |
 
@@ -158,6 +161,7 @@ Se mantiene al día: quien crea una pieza reutilizable la agrega aquí.
 | Iconos | `unplugin-icons` + `@iconify-json/tabler` | Solo se empaqueta lo importado |
 | Fuentes | `@fontsource-variable/inter`, `@fontsource/rajdhani` (latin) | Alojadas en el propio build |
 | Decimales | `decimal.js-light` | Montos y coeficientes (texto decimal del backend) |
+| Código QR | `qrcode-generator` (MIT, sin dependencias) | Solo en «Mi cuenta» (segundo factor), chunk diferido |
 | Pruebas unitarias y de componentes | Vitest 5 + `@vue/test-utils` + jsdom, cobertura v8 | |
 | Pruebas E2E | Playwright 1.56 (imagen Docker de la misma versión) | Chromium con SwiftShader para WebGL |
 | Accesibilidad | `@axe-core/playwright` (WCAG 2.1 AA) | `playwright-core` fijado por `overrides` |
@@ -350,7 +354,7 @@ Buenas prácticas:
 | Primera vez | `make instalar` |
 | Desarrollo (`:5173`) | `make dev` |
 | Shell en el contenedor | `make sh` |
-| Tipos del contrato | `make tipos-api` (lee `$(BACK_DIR)/apps/api/openapi.json` y guarda su huella en `src/api/contrato.huella`; `make verificar` avisa si el backend cambió) |
+| Tipos del contrato | `make tipos-api` (lee `$(BACK_DIR)/apps/api/openapi.json`, omite los `operationId` repetidos del contrato y guarda su huella en `src/api/contrato.huella`; `make verificar` avisa si el backend cambió) |
 | Verificación completa | `make verificar` |
 | Pruebas unitarias / con cobertura | `make test` · `make cov` (informe en `coverage/`) |
 | E2E + accesibilidad | `make e2e` · `make e2e ARGS="e2e/flujos.spec.ts --project movil"` |

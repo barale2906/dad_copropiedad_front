@@ -13,6 +13,7 @@ import { cargarConfig } from './app/config'
 import { router } from './app/router'
 import { iniciarCliente } from './api/cliente'
 import { alCerrarSesion } from './api/tokens'
+import { useCuenta } from './stores/cuenta'
 import { useEntidad } from './stores/entidad'
 import { useSesion } from './stores/sesion'
 
@@ -30,6 +31,7 @@ const app = createApp(App).use(createPinia()).use(router)
 alCerrarSesion(() => {
   useSesion().alTerminar()
   useEntidad().salir()
+  useCuenta().limpiar()
   if (router.currentRoute.value.name !== 'ingresar') router.replace({ name: 'ingresar' })
 })
 

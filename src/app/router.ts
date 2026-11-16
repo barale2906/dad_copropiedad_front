@@ -30,7 +30,14 @@ export const router = createRouter({
           : { name: 'entidades' }
       },
     },
+    {
+      path: '/contrasena',
+      name: 'contrasena',
+      component: () => import('@/pantallas/DefinirContrasenaView.vue'),
+      meta: { publica: true },
+    },
     { path: '/entidades', name: 'entidades', component: SelectorEntidadView },
+    { path: '/cuenta', name: 'cuenta', component: () => import('@/pantallas/cuenta/CuentaView.vue') },
     {
       path: '/e/:entidadId',
       name: 'maqueta',

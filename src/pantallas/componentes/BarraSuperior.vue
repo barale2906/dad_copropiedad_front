@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { useEntidad } from '@/stores/entidad'
 import { useSesion } from '@/stores/sesion'
 import ICambiar from '~icons/tabler/switch-horizontal'
+import IUsuario from '~icons/tabler/user-circle'
 import ISalir from '~icons/tabler/logout'
 import IAlerta from '~icons/tabler/alert-triangle'
 import { avisoDeEstado, ESTADO_ENTIDAD, TIPO_ENTIDAD } from '../textos-entidad'
@@ -52,6 +53,13 @@ async function salir() {
 
     <div class="acciones">
       <slot />
+      <RouterLink
+        :to="{ name: 'cuenta' }"
+        class="boton-icono"
+        title="Mi cuenta"
+      >
+        <IUsuario /><span class="texto">Mi cuenta</span>
+      </RouterLink>
       <RouterLink
         v-if="sesion.entidades.length > 1"
         :to="{ name: 'entidades' }"

@@ -4,6 +4,9 @@ import { ErrorApi, mensajeDeError } from '@/api/errores'
 import { uuid } from '@/api/uuid'
 import { useEntidad } from '@/stores/entidad'
 
+/** Resultado de `ejecutar`: distingue «terminó bien sin datos» de «falló». */
+export type ResultadoAccion<R> = { ok: true; valor: R } | { ok: false }
+
 export interface OpcionesAccion<R> {
   /** 409 `conflicto_estado`: el recurso cambió; recárguelo (el mensaje se muestra igual). */
   alConflicto?: () => void | Promise<void>
@@ -79,9 +82,9 @@ export function useAccion<A extends unknown[], R>(
     }
   }
 
-  /** Ejecuta la acción; devuelve el resultado o `undefined` si falló (ver `error`). */
-  async function ejecutar(...args: A): Promise<R | undefined> {
-    if (cargando.value || segundosEspera.value > 0) return undefined
+  /** Ejecuta la acción; si falla, `ok` es `false` y el mensaje queda en `error`. */
+  async function ejecutar(...args: A): Promise<ResultadoAccion<R>> {
+    if (cargando.value || segundosEspera.value > 0) return { ok: false }
     cargando.value = true
     error.value = null
     codigo.value = null
@@ -90,10 +93,10 @@ export function useAccion<A extends unknown[], R>(
       const r = await fn(clave, ...args)
       clave = null
       opciones.alExito?.(r)
-      return r
+      return { ok: true, valor: r }
     } catch (e) {
       await traducir(e)
-      return undefined
+      return { ok: false }
     } finally {
       cargando.value = false
     }

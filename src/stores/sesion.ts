@@ -74,6 +74,18 @@ export const useSesion = defineStore('sesion', () => {
   }
 
   /**
+   * Define la contraseña con el código que llegó al correo: la usan «olvidé mi contraseña» y
+   * los usuarios nuevos que creó un administrador (no hay registro abierto).
+   */
+  async function definirContrasena(correo: string, codigo: string, contrasenaNueva: string): Promise<void> {
+    await exigir(
+      api().POST('/api/v1/auth/contrasena/restablecer', {
+        body: { correo, codigo, contrasena_nueva: contrasenaNueva },
+      }),
+    )
+  }
+
+  /**
    * Cierra la sesión **primero en este navegador** (aunque se recargue o se cierre la pestaña
    * enseguida, ya no queda abierta) y luego la revoca en el servidor sin esperar respuesta.
    */
@@ -106,6 +118,7 @@ export const useSesion = defineStore('sesion', () => {
     iniciar,
     completarSegundoFactor,
     recuperarContrasena,
+    definirContrasena,
     cerrar,
     alTerminar,
   }

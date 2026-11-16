@@ -78,3 +78,20 @@ test('pantalla de carga', async ({ page }) => {
   await revisar(page)
   liberar()
 })
+
+test('definir contraseña', async ({ page }) => {
+  await page.goto('/contrasena')
+  await expect(page.getByRole('heading', { name: 'Definir contraseña' })).toBeVisible()
+  await revisar(page)
+})
+
+test('mi cuenta con el segundo factor en inscripción', async ({ page }) => {
+  await entrar(page)
+  await page.getByRole('link', { name: 'Mi cuenta' }).click()
+  await page.getByRole('button', { name: 'Activar segundo factor' }).click()
+  await expect(page.getByRole('img', { name: /Código QR/ })).toBeVisible()
+  await revisar(page)
+  await page.getByRole('button', { name: 'Cerrar todas las sesiones' }).click()
+  await expect(page.getByRole('dialog')).toBeVisible()
+  await revisar(page)
+})

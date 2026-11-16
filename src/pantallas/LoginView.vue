@@ -114,8 +114,8 @@ async function recuperar() {
 const TITULOS: Record<Paso, [string, string]> = {
   credenciales: ['Acceso', 'Identifíquese para entrar al sistema'],
   codigo: ['Segundo factor', 'Ingrese el código de 6 dígitos de su aplicación autenticadora'],
-  recuperar: ['Recuperar acceso', 'Le enviaremos un enlace para restablecer su contraseña'],
-  recuperado: ['Revise su correo', 'Si la cuenta existe, recibirá el enlace en unos minutos'],
+  recuperar: ['Recuperar acceso', 'Le enviaremos un código para definir una contraseña nueva'],
+  recuperado: ['Revise su correo', 'Si la cuenta existe, recibirá un código de 6 dígitos en unos minutos'],
 }
 </script>
 
@@ -240,6 +240,12 @@ const TITULOS: Record<Paso, [string, string]> = {
           >
             ¿Olvidó su contraseña?
           </button>
+          <RouterLink
+            :to="{ name: 'contrasena' }"
+            class="enlace"
+          >
+            ¿Es nuevo? Defina su contraseña con el código
+          </RouterLink>
         </form>
 
         <form
@@ -315,7 +321,7 @@ const TITULOS: Record<Paso, [string, string]> = {
             bloque
             :cargando="cargando"
           >
-            Enviar enlace
+            Enviar código
           </HudBoton>
           <button
             type="button"
@@ -332,6 +338,12 @@ const TITULOS: Record<Paso, [string, string]> = {
           class="formulario"
         >
           <HudBoton
+            :a="{ name: 'contrasena', state: { correo: correo.trim() } }"
+            bloque
+          >
+            Ya tengo el código
+          </HudBoton>
+          <HudBoton
             variante="secundario"
             bloque
             @click="ir('credenciales')"
@@ -346,7 +358,8 @@ const TITULOS: Record<Paso, [string, string]> = {
         class="demo"
       >
         <strong>Modo demo:</strong> cualquier usuario y contraseña. Incluya «uno» para una sola
-        entidad, «empresa» para la oficina o «2fa» para el segundo factor (código 123456).
+        entidad, «empresa» para la oficina, «2fa» para el segundo factor o «nuevo» para una cuenta sin
+        roles. Los códigos del demo son 123456.
       </p>
     </HudPanel>
   </main>

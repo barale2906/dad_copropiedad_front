@@ -33,10 +33,10 @@ describe('useAccion', () => {
       if (fallar) throw falla(422, 'validacion')
       return 'ok'
     })
-    expect(await accion.ejecutar()).toBeUndefined()
+    expect(await accion.ejecutar()).toEqual({ ok: false })
     expect(accion.error.value).toBe('Error validacion')
     fallar = false
-    expect(await accion.ejecutar()).toBe('ok')
+    expect(await accion.ejecutar()).toEqual({ ok: true, valor: 'ok' })
     await accion.ejecutar()
     expect(claves[0]).toBe(claves[1])
     expect(claves[2]).not.toBe(claves[1])
@@ -111,6 +111,11 @@ describe('useAccion', () => {
     expect(accion.codigo.value).toBeNull()
     accion.reiniciar()
     expect(accion.error.value).toBeNull()
+  })
+
+  it('una acción sin respuesta también termina bien', async () => {
+    const { accion } = crear(() => Promise.resolve(undefined))
+    expect(await accion.ejecutar()).toEqual({ ok: true, valor: undefined })
   })
 
   it('avisa el éxito con el resultado', async () => {

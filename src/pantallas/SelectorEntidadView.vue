@@ -14,6 +14,7 @@ import IEdificio from '~icons/tabler/building-skyscraper'
 import IMaletin from '~icons/tabler/briefcase'
 import IFlecha from '~icons/tabler/chevron-right'
 import ISalir from '~icons/tabler/logout'
+import IUsuario from '~icons/tabler/user-circle'
 import MarcaDad from './componentes/MarcaDad.vue'
 import { ESTADO_ENTIDAD, TIPO_ENTIDAD } from './textos-entidad'
 
@@ -56,12 +57,20 @@ async function salir() {
     />
     <header class="barra">
       <MarcaDad />
-      <HudBoton
-        variante="fantasma"
-        @click="salir"
-      >
-        <ISalir /> Salir
-      </HudBoton>
+      <div class="acciones-barra">
+        <HudBoton
+          :a="{ name: 'cuenta' }"
+          variante="fantasma"
+        >
+          <IUsuario aria-hidden="true" /> Mi cuenta
+        </HudBoton>
+        <HudBoton
+          variante="fantasma"
+          @click="salir"
+        >
+          <ISalir aria-hidden="true" /> Salir
+        </HudBoton>
+      </div>
     </header>
 
     <section class="contenido">
@@ -156,6 +165,11 @@ async function salir() {
   height: 72px;
   max-width: 1200px;
   margin: 0 auto;
+}
+
+.acciones-barra {
+  display: flex;
+  gap: 4px;
 }
 
 .contenido {

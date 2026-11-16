@@ -2,6 +2,9 @@
  * Backend simulado para `modoDemo: true` (config.json). Responde con el formato del contrato
  * para poder diseñar sin la API. Se carga en un chunk aparte solo en modo demo.
  *
+ * Es un enrutador: aquí viven la sesión y las entidades; cada área tiene su archivo
+ * (`cuenta.ts`, y uno por módulo en `src/mocks/<seccion>.ts`) con un `Manejador`.
+ *
  * Usuarios: cualquiera con cualquier contraseña.
  *  - que contenga `2fa` → pide segundo factor (código 123456)
  *  - que contenga `uno` → una sola entidad (entra directo)
@@ -9,6 +12,13 @@
  *  - que contenga `nuevo` → sin entidades (cuenta aún sin roles)
  */
 import type { Capacidades, EntidadDeLaCuenta, FichaEntidad, Permiso, Tokens } from '@/api/tipos'
+import { cuenta, cuentaPublica, iniciarCuenta } from './cuenta'
+import { error, json, type Manejador } from './http'
+
+/** Manejadores que exigen sesión, en orden; el primero que responda gana. */
+const CON_SESION: Manejador[] = [cuenta]
+/** Manejadores sin sesión (además del inicio de sesión). */
+const SIN_SESION: Manejador[] = [cuentaPublica]
 
 const TODOS: Permiso[] = [
   'copropiedad.datos.ver', 'roles.ver', 'roles.gestionar', 'auditoria.ver', 'archivos.ver',
@@ -86,17 +96,6 @@ function fichaDe(e: EntidadDeLaCuenta): FichaEntidad {
   }
 }
 
-function json(cuerpo: unknown, estado = 200): Response {
-  return new Response(JSON.stringify(cuerpo), {
-    status: estado,
-    headers: { 'Content-Type': 'application/json', 'X-Request-Id': 'demo' },
-  })
-}
-
-function error(estado: number, codigo: string, mensaje: string): Response {
-  return json({ error: { codigo, mensaje } }, estado)
-}
-
 function tokens(): Tokens {
   const ahora = Date.now()
   return {
@@ -136,6 +135,7 @@ export async function fetchDemo(req: Request): Promise<Response> {
     const p = (await req.json()) as { identificador: string; contrasena: string }
     if (!p.identificador || !p.contrasena) return error(401, 'credenciales_invalidas', 'Usuario o contraseña incorrectos.')
     usuario = p.identificador.toLowerCase()
+    iniciarCuenta(usuario)
     if (usuario.includes('2fa')) {
       return json({ resultado: 'segundo_factor', desafio: 'demo-desafio', desafio_expira_en: new Date(Date.now() + 300_000).toISOString() })
     }
@@ -149,10 +149,15 @@ export async function fetchDemo(req: Request): Promise<Response> {
   if (m === 'POST' && ruta === '/auth/sesion/renovar') {
     const p = (await req.json()) as { token_renovacion: string }
     usuario = p.token_renovacion.split('-')[2] ?? ''
+    iniciarCuenta(usuario)
     return json(tokens())
   }
   if (m === 'POST' && ruta === '/auth/contrasena/recuperar') return new Response(null, { status: 202 })
   if (m === 'DELETE' && ruta === '/auth/sesion') return new Response(null, { status: 204 })
+  for (const atender of SIN_SESION) {
+    const r = await atender(req, ruta)
+    if (r) return r
+  }
 
   if (!req.headers.get('Authorization')) return error(401, 'no_autenticado', 'Inicie sesión.')
 
@@ -170,6 +175,10 @@ export async function fetchDemo(req: Request): Promise<Response> {
       return error(403, 'sin_permiso', 'No tiene permiso para ver la ficha.')
     }
     return json(fichaDe(e))
+  }
+  for (const atender of CON_SESION) {
+    const r = await atender(req, ruta)
+    if (r) return r
   }
   return error(404, 'no_encontrado', `Demo: ${m} ${ruta} no está simulado.`)
 }

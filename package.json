@@ -14,7 +14,7 @@
     "cov": "vitest run --coverage",
     "e2e": "playwright test",
     "presupuesto": "node scripts/presupuesto.mjs",
-    "tipos-api": "openapi-typescript /contrato/openapi.json -o src/api/esquema.d.ts && node scripts/contrato.mjs guardar",
+    "tipos-api": "node scripts/tipos-api.mjs",
     "contrato": "node scripts/contrato.mjs"
   },
   "dependencies": {
@@ -23,6 +23,7 @@
     "decimal.js-light": "2.5.1",
     "openapi-fetch": "0.17.0",
     "pinia": "4.1.0",
+    "qrcode-generator": "2.0.4",
     "three": "0.186.1",
     "vue": "3.5.44",
     "vue-router": "5.4.0"
