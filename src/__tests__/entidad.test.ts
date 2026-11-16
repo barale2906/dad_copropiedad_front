@@ -4,9 +4,7 @@ import { limpiar } from '@/api/tokens'
 import { fetchDemo } from '@/mocks/demo'
 import { useEntidad, ZONA_HORARIA_PREDETERMINADA } from '@/stores/entidad'
 import { useSesion } from '@/stores/sesion'
-import { API, conCapacidades, ENTIDAD_PH, prepararConDemo } from './ayudantes'
-
-const esFicha = (r: Request) => /\/entidades\/[^/]+$/.test(new URL(r.url).pathname)
+import { API, conCapacidades, conRespuesta, ENTIDAD_PH, prepararConDemo } from './ayudantes'
 
 /** Inicia sesión en el demo y devuelve el id de la entidad con ese nombre. */
 async function conSesion(nombre: RegExp): Promise<string> {
@@ -75,9 +73,7 @@ describe('useEntidad', () => {
   })
 
   it('si la ficha falla, entra igual con la zona predeterminada', async () => {
-    iniciarCliente(API, (r) =>
-      esFicha(r) ? Promise.resolve(new Response(null, { status: 500 })) : fetchDemo(r),
-    )
+    conRespuesta('GET', /^\/entidades\/[^/]+$/, () => new Response(null, { status: 500 }))
     const id = await conSesion(/Los Robles/)
     const e = useEntidad()
     await e.entrar(id)

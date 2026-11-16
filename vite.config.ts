@@ -18,6 +18,8 @@ export default defineConfig({
     target: 'es2022',
     // three.js vive en su propio chunk diferido (~150 KB gzip); el aviso por defecto no aplica.
     chunkSizeWarningLimit: 700,
+    // Lo lee scripts/presupuesto.mjs (peso por módulo) y lo borra al terminar.
+    manifest: true,
   },
   test: {
     environment: 'jsdom',

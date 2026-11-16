@@ -126,6 +126,10 @@ Se mantiene al día: quien crea una pieza reutilizable la agrega aquí.
 | Ilustraciones HUD (SVG, sin three.js) | `<IlustracionPerdido escenario>`, `<IlustracionConstruccion>` | `src/hud/ilustraciones/` |
 | Página «no encontrado» | ruta `no-encontrado` (comodín); rutas de módulo inexistentes con `existeEnElMapa()` | `src/pantallas/NoEncontradoView.vue`, `src/app/router.ts` |
 | Campo de formulario | `<HudCampo v-model etiqueta error ayuda multilinea al-salir>` (slots `antes`/`despues`) | `src/hud/componentes/HudCampo.vue` |
+| Lista desplegable | `<HudSelector v-model etiqueta opciones vacio error>` | `src/hud/componentes/HudSelector.vue` |
+| Fecha / fecha y hora | `<HudFecha v-model etiqueta con-hora minimo maximo>` (convertir con `aUtc`) | `src/hud/componentes/HudFecha.vue` |
+| Refresco periódico (solo con la pestaña visible) | `useRefresco(fn, { cada, alVolver })` | `src/composables/useRefresco.ts` |
+| Tiempo real (WebSocket con token en subprotocolo) | `conectarEnVivo(url, { alMensaje, alEstado })` → `cerrar()` | `src/api/en-vivo.ts` |
 | Monto (mostrar / escribir) | `<HudMonto valor>`, `<HudCampoMonto v-model etiqueta>` (modelo = texto decimal) | `src/hud/componentes/` |
 | Listado por cursor (cargar más, recarga, filtros con retardo) | `useListado((despues, filtros) => …, { filtros, retardo })` → `filas`, `estado`, `hayMas`, `cargarMas`, `recargar` | `src/composables/useListado.ts` |
 | Tabla (tarjetas en móvil), orden y selección | `<HudTabla filas columnas clave titulo orden seleccionable v-model:seleccion>` (slots `celda-<clave>`) | `src/hud/componentes/HudTabla.vue` |
@@ -149,7 +153,7 @@ Se mantiene al día: quien crea una pieza reutilizable la agrega aquí.
 | Fondo ambiental HUD | clase `.fondo-hud`; rótulos: `.rotulo`; texto oculto accesible: `.solo-lector` | `src/hud/estilos/base.css` |
 | Transición entre vistas | `<Transition name="vista">` | `src/hud/estilos/base.css` |
 | Datos de prueba / demo | `fetchDemo` (usuarios `uno`, `empresa`, `2fa`, `nuevo` sin roles, `sinverificar`; códigos `123456`); un `Manejador` por área (`json`, `error`, `sinContenido`) | `src/mocks/demo.ts`, `src/mocks/http.ts`, `src/mocks/<area>.ts` |
-| Preparar pruebas | `prepararConDemo()`, `conCapacidades()` (`modo_soporte` opcional), `conConfig()`, `ENTIDAD_PH` | `src/__tests__/ayudantes.ts` |
+| Preparar pruebas | `prepararConDemo()`, `conCapacidades()` (`modo_soporte` opcional), `conConfig()`, `conRespuesta(metodo, ruta, fn)`, `ENTIDAD_PH` | `src/__tests__/ayudantes.ts` |
 | Pasos E2E | `entrar()`, `esperarMaqueta()`, `elegirZona()` | `e2e/utilidades.ts` |
 
 ## 4. Tecnologías
@@ -172,9 +176,12 @@ Se mantiene al día: quien crea una pieza reutilizable la agrega aquí.
 | Accesibilidad | `@axe-core/playwright` (WCAG 2.1 AA) | `playwright-core` fijado por `overrides` |
 | Calidad | ESLint (vue + typescript-eslint), Prettier | |
 | Contenedores | Docker: `node:24-alpine` (dev/build), `nginx:alpine` (preview), Playwright (e2e) | |
-| UI de formularios complejos | PrimeVue *unstyled* (prevista para la fase 3) | Se agrega con su sección aquí |
+| UI de formularios | Componentes `Hud*` sobre controles nativos (`<select>`, `<input type=date>`, `<dialog>`) | PrimeVue **no** se incorpora: desde la v5 su licencia es comercial (ver reglas) |
 
 Reglas de dependencias:
+- **Solo software libre y gratuito** (MIT, Apache 2.0, BSD, ISC). Revisar la licencia de la
+  versión exacta (`LICENSE` del paquete), no solo el campo `license`: si una versión nueva cambia
+  a una licencia comercial o con clave, no se actualiza y se busca alternativa.
 - Versiones **exactas** (`--save-exact`) con **al menos 2 semanas** de publicadas
   (`npm install --before=<fecha>`). Nunca rangos `^`/`~`.
 - Antes de agregar una librería: ¿lo resuelve la plataforma, Vue o algo ya instalado? ¿Cuántos KB
@@ -239,6 +246,7 @@ se excede):
 |---|---|
 | JS inicial (login) | ≤ 120 KB gzip, sin three.js |
 | Chunk del motor 3D (`EscenaCanvas`) | ≤ 220 KB gzip |
+| JS propio de cada módulo (`src/modulos/<seccion>/`) | ≤ 90 KB gzip |
 
 Reglas del motor:
 - Render **bajo demanda**: no agregar bucles continuos; pedir cuadros con `solicitar()` solo
