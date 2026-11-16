@@ -48,8 +48,8 @@ e2e: ## Pruebas E2E + accesibilidad (Playwright) contra el build de producción
 	docker compose --profile e2e run --rm e2e npx playwright test $(ARGS); \
 		estado=$$?; docker compose --profile e2e stop preview >/dev/null; exit $$estado
 
-verificar: ## typecheck + lint + pruebas con cobertura, antes de terminar una tarea
-	$(RUN) sh -c 'npm run typecheck && npm run lint && npm run cov'
+verificar: ## aviso de contrato + typecheck + lint + pruebas con cobertura, antes de terminar una tarea
+	$(RUN) sh -c 'npm run contrato && npm run typecheck && npm run lint && npm run cov'
 
 build: ## Genera ./dist (solo archivos estáticos)
 	rm -rf dist

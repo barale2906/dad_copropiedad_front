@@ -15,6 +15,7 @@ import IMaletin from '~icons/tabler/briefcase'
 import IFlecha from '~icons/tabler/chevron-right'
 import ISalir from '~icons/tabler/logout'
 import MarcaDad from './componentes/MarcaDad.vue'
+import { ESTADO_ENTIDAD, TIPO_ENTIDAD } from './textos-entidad'
 
 const sesion = useSesion()
 const entidad = useEntidad()
@@ -34,19 +35,6 @@ const lista = computed(() => {
   // La última usada primero.
   return [...todas].sort((a, b) => Number(b.entidad_id === ultima) - Number(a.entidad_id === ultima))
 })
-
-const TIPO: Record<EntidadDeLaCuenta['tipo'], string> = {
-  propiedad_horizontal: 'Propiedad horizontal',
-  empresa: 'Empresa',
-  plataforma: 'Plataforma',
-}
-
-const ESTADO: Record<string, string> = {
-  en_configuracion: 'En configuración',
-  activa: 'Activa',
-  suspendida: 'Suspendida',
-  retirada: 'Retirada',
-}
 
 const roles = (r: string[]) => r.map((x) => x.replace(/_/g, ' ')).join(' · ')
 
@@ -80,11 +68,20 @@ async function salir() {
       <p class="rotulo acento">
         Selección de sector
       </p>
-      <h1>¿Dónde va a trabajar hoy?</h1>
-      <p class="ayuda">
-        Tiene acceso a {{ sesion.entidades.length }}
-        {{ sesion.entidades.length === 1 ? 'entidad' : 'entidades' }}.
-      </p>
+      <template v-if="sesion.entidades.length > 0">
+        <h1>¿Dónde va a trabajar hoy?</h1>
+        <p class="ayuda">
+          Tiene acceso a {{ sesion.entidades.length }}
+          {{ sesion.entidades.length === 1 ? 'entidad' : 'entidades' }}.
+        </p>
+      </template>
+      <template v-else>
+        <h1>Su cuenta aún no tiene roles</h1>
+        <p class="vacio">
+          Todavía no puede trabajar en ninguna copropiedad ni empresa. Pida al administrador de
+          su entidad que le asigne un rol y vuelva a iniciar sesión.
+        </p>
+      </template>
 
       <label
         v-if="sesion.entidades.length > 5"
@@ -99,15 +96,10 @@ async function salir() {
         >
       </label>
 
-      <p
-        v-if="sesion.entidades.length === 0"
-        class="vacio"
+      <ul
+        v-if="lista.length > 0"
+        class="rejilla"
       >
-        Su cuenta aún no tiene roles en ninguna copropiedad ni empresa. Pida al administrador
-        que le asigne uno.
-      </p>
-
-      <ul class="rejilla">
         <li
           v-for="(e, i) in lista"
           :key="e.entidad_id"
@@ -127,7 +119,7 @@ async function salir() {
             </span>
             <span class="datos">
               <span class="tipo rotulo">
-                {{ TIPO[e.tipo] }}
+                {{ TIPO_ENTIDAD[e.tipo] }}
                 <em v-if="e.entidad_id === ultima">· Última</em>
               </span>
               <strong>{{ e.nombre }}</strong>
@@ -136,7 +128,7 @@ async function salir() {
                 <span
                   class="estado"
                   :data-estado="e.estado"
-                >{{ ESTADO[e.estado] ?? e.estado }}</span>
+                >{{ ESTADO_ENTIDAD[e.estado] }}</span>
               </span>
               <span class="roles">{{ roles(e.roles) }}</span>
             </span>
@@ -214,6 +206,7 @@ h1 {
 .vacio {
   color: var(--texto-2);
   max-width: 60ch;
+  margin-top: 12px;
 }
 
 .rejilla {

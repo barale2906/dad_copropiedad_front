@@ -6,8 +6,9 @@
  *  - que contenga `2fa` → pide segundo factor (código 123456)
  *  - que contenga `uno` → una sola entidad (entra directo)
  *  - que contenga `empresa` → solo la empresa (maqueta de oficina)
+ *  - que contenga `nuevo` → sin entidades (cuenta aún sin roles)
  */
-import type { Capacidades, EntidadDeLaCuenta, Permiso, Tokens } from '@/api/tipos'
+import type { Capacidades, EntidadDeLaCuenta, FichaEntidad, Permiso, Tokens } from '@/api/tipos'
 
 const TODOS: Permiso[] = [
   'copropiedad.datos.ver', 'roles.ver', 'roles.gestionar', 'auditoria.ver', 'archivos.ver',
@@ -66,6 +67,25 @@ const ENTIDADES: (EntidadDeLaCuenta & { capacidades: Capacidades })[] = [
 
 let usuario = ''
 
+function fichaDe(e: EntidadDeLaCuenta): FichaEntidad {
+  return {
+    nombre: e.nombre,
+    razon_social: e.nombre,
+    nit: e.nit,
+    direccion: 'Calle 100 # 15-20',
+    municipio_dane: '11001',
+    departamento: 'Bogotá D. C.',
+    barrio: null,
+    latitud: null,
+    longitud: null,
+    telefono: null,
+    correo: null,
+    sitio_web: null,
+    zona_horaria: 'America/Bogota',
+    estado: e.estado,
+  }
+}
+
 function json(cuerpo: unknown, estado = 200): Response {
   return new Response(JSON.stringify(cuerpo), {
     status: estado,
@@ -89,6 +109,7 @@ function tokens(): Tokens {
 }
 
 function entidadesDe(u: string): EntidadDeLaCuenta[] {
+  if (u.includes('nuevo')) return []
   const lista = u.includes('empresa')
     ? ENTIDADES.filter((e) => e.tipo === 'empresa')
     : u.includes('uno')
@@ -140,6 +161,15 @@ export async function fetchDemo(req: Request): Promise<Response> {
   if (m === 'GET' && cap) {
     const e = ENTIDADES.find((x) => x.entidad_id === cap[1])
     return e ? json(e.capacidades) : error(404, 'no_encontrado', 'No encontrada.')
+  }
+  const ficha = ruta.match(/^\/entidades\/([^/]+)$/)
+  if (m === 'GET' && ficha) {
+    const e = ENTIDADES.find((x) => x.entidad_id === ficha[1])
+    if (!e) return error(404, 'no_encontrado', 'No encontrada.')
+    if (!e.capacidades.permisos.includes('copropiedad.datos.ver')) {
+      return error(403, 'sin_permiso', 'No tiene permiso para ver la ficha.')
+    }
+    return json(fichaDe(e))
   }
   return error(404, 'no_encontrado', `Demo: ${m} ${ruta} no está simulado.`)
 }

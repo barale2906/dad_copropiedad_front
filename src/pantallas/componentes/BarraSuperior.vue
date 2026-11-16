@@ -1,14 +1,21 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useEntidad } from '@/stores/entidad'
 import { useSesion } from '@/stores/sesion'
 import ICambiar from '~icons/tabler/switch-horizontal'
 import ISalir from '~icons/tabler/logout'
+import IAlerta from '~icons/tabler/alert-triangle'
+import { avisoDeEstado, ESTADO_ENTIDAD, TIPO_ENTIDAD } from '../textos-entidad'
 import MarcaDad from './MarcaDad.vue'
 
 const entidad = useEntidad()
 const sesion = useSesion()
 const router = useRouter()
+
+const tipo = computed(() => entidad.capacidades?.tipo ?? entidad.activa?.tipo ?? 'empresa')
+const estado = computed(() => entidad.activa?.estado ?? 'activa')
+const aviso = computed(() => avisoDeEstado(estado.value))
 
 async function salir() {
   await sesion.cerrar()
@@ -28,9 +35,20 @@ async function salir() {
     </RouterLink>
 
     <div class="entidad">
-      <span class="rotulo">{{ entidad.esPH ? 'Propiedad horizontal' : 'Empresa' }}</span>
+      <span class="rotulo">{{ TIPO_ENTIDAD[tipo] }}</span>
       <strong>{{ entidad.activa?.nombre }}</strong>
     </div>
+
+    <p
+      v-if="aviso"
+      class="aviso-estado"
+      :data-estado="estado"
+      :title="aviso"
+    >
+      <IAlerta aria-hidden="true" />
+      <span class="etiqueta-estado">{{ ESTADO_ENTIDAD[estado] }}</span>
+      <span class="solo-lector">. {{ aviso }}</span>
+    </p>
 
     <div class="acciones">
       <slot />
@@ -93,6 +111,27 @@ async function salir() {
   text-overflow: ellipsis;
 }
 
+.aviso-estado {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+  margin: 0;
+  padding: 4px 10px;
+  border: 1px solid currentcolor;
+  color: var(--ambar);
+  font-family: var(--fuente-display);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.aviso-estado[data-estado='suspendida'],
+.aviso-estado[data-estado='retirada'] {
+  color: var(--magenta);
+}
+
 .acciones {
   display: flex;
   align-items: center;
@@ -146,6 +185,16 @@ async function salir() {
 
   .entidad .rotulo {
     display: none;
+  }
+
+  /* Solo el icono; el estado sigue en el texto accesible y en el título. */
+  .etiqueta-estado {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
   }
 }
 </style>

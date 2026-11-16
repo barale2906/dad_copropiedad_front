@@ -5,6 +5,8 @@ type S = components['schemas']
 
 export type EntidadDeLaCuenta = S['EntidadDeLaCuenta']
 export type TipoEntidad = S['TipoEntidad']
+export type EstadoEntidad = S['EstadoCopropiedad']
+export type FichaEntidad = S['FichaEntidadRespuesta']
 export type Modulo = S['Modulo']
 export type Permiso = S['Permiso']
 export type Capacidades = S['CapacidadesRespuesta']

@@ -18,12 +18,12 @@ Solo **Docker** con Compose y BuildKit. No se instala Node ni nada más en el eq
 make            # lista los comandos
 make instalar   # una vez: imagen de desarrollo + npm ci (en un volumen de Docker)
 make dev        # http://localhost:5173 con recarga en caliente
-make verificar  # tipos + lint + pruebas unitarias con cobertura, antes de terminar una tarea
+make verificar  # aviso de contrato + tipos + lint + pruebas con cobertura, antes de terminar una tarea
 make e2e        # pruebas E2E + accesibilidad (Playwright) en escritorio y móvil
 make build      # ./dist: solo archivos estáticos (falla si se excede el presupuesto de peso)
 make paquete    # dad-front-<versión>.tar.gz + .sha256 para los servidores
 make preview    # sirve el build final con Nginx en http://localhost:8088
-make tipos-api  # regenera src/api/esquema.d.ts desde el openapi.json del backend
+make tipos-api  # regenera src/api/esquema.d.ts (y su huella) desde el openapi.json del backend
 make sh         # shell en el contenedor (p. ej. npm install <paquete> --save-exact)
 ```
 

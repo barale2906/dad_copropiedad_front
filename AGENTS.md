@@ -105,10 +105,11 @@ Se mantiene al día: quien crea una pieza reutilizable la agrega aquí.
 | Mostrar un error | `mensajeDeError(e)` | `src/api/errores.ts` |
 | Generar UUID (también en HTTP) | `uuid()` | `src/api/uuid.ts` |
 | Sesión, login, 2FA, cierre | `useSesion()` | `src/stores/sesion.ts` |
-| Entidad activa, ¿es PH?, permisos, módulos, modo soporte | `useEntidad()`: `esPH`, `modoSoporte`, `tieneModulo`, `tienePermiso`, `refrescar` | `src/stores/entidad.ts` |
+| Entidad activa, ¿es PH?, permisos, módulos, roles, modo soporte, zona horaria | `useEntidad()`: `esPH`, `modoSoporte`, `zonaHoraria`, `ficha`, `tieneModulo`, `tienePermiso`, `tieneRol`, `refrescar` | `src/stores/entidad.ts` |
 | Preferencias del navegador | `usePreferencias()` (vista, calidad 3D) | `src/stores/preferencias.ts` |
 | Secciones, acciones y su estado (módulos «alguno de» / `requiereTodos`, módulo por acción, `soloPH`) | `SECCIONES`, `estadoSeccion`, `seccionContratada`, `accionesVisibles`, `TEXTO_ESTADO` | `src/escena/mapa-modulos.ts` |
 | Zonas de la maqueta y rutas | `useNavegacion()`: `zonas`, `estadosZonas`, `secciones`, `rutaAccion`, `rutaMaqueta` | `src/pantallas/navegacion.ts` |
+| Nombre del tipo y del estado de una entidad, aviso si no está activa | `TIPO_ENTIDAD`, `ESTADO_ENTIDAD`, `avisoDeEstado()` | `src/pantallas/textos-entidad.ts` |
 | Icono de una sección | `ICONOS[slug]`; iconos sueltos: `~icons/tabler/<nombre>` | `src/pantallas/iconos.ts` |
 | Panel de vidrio HUD | `<HudPanel etiqueta resaltado>` | `src/hud/componentes/HudPanel.vue` |
 | Botón | `<HudBoton variante tipo cargando bloque>` | `src/hud/componentes/HudBoton.vue` |
@@ -120,7 +121,7 @@ Se mantiene al día: quien crea una pieza reutilizable la agrega aquí.
 | Piezas 3D | `Kit` (`caja`, `losa`, `cilindro_`, `cono_`) y `torre`, `edificio`, `arbol`, `carro`, `escritorio` | `src/escena/piezas.ts` |
 | Fondo ambiental HUD | clase `.fondo-hud`; rótulos: `.rotulo`; texto oculto accesible: `.solo-lector` | `src/hud/estilos/base.css` |
 | Transición entre vistas | `<Transition name="vista">` | `src/hud/estilos/base.css` |
-| Datos de prueba / demo | `fetchDemo` (usuarios `uno`, `empresa`, `2fa`) | `src/mocks/demo.ts` |
+| Datos de prueba / demo | `fetchDemo` (usuarios `uno`, `empresa`, `2fa`, `nuevo` sin roles) | `src/mocks/demo.ts` |
 | Preparar pruebas | `prepararConDemo()`, `conCapacidades()` (`modo_soporte` opcional), `ENTIDAD_PH` | `src/__tests__/ayudantes.ts` |
 | Pasos E2E | `entrar()`, `esperarMaqueta()`, `elegirZona()` | `e2e/utilidades.ts` |
 
@@ -328,7 +329,7 @@ Buenas prácticas:
 | Primera vez | `make instalar` |
 | Desarrollo (`:5173`) | `make dev` |
 | Shell en el contenedor | `make sh` |
-| Tipos del contrato | `make tipos-api` (lee `$(BACK_DIR)/apps/api/openapi.json`) |
+| Tipos del contrato | `make tipos-api` (lee `$(BACK_DIR)/apps/api/openapi.json` y guarda su huella en `src/api/contrato.huella`; `make verificar` avisa si el backend cambió) |
 | Verificación completa | `make verificar` |
 | Pruebas unitarias / con cobertura | `make test` · `make cov` (informe en `coverage/`) |
 | E2E + accesibilidad | `make e2e` · `make e2e ARGS="e2e/flujos.spec.ts --project movil"` |
@@ -349,7 +350,7 @@ Buenas prácticas:
 - No escribir código nuevo sin buscar antes qué reutilizar (§3).
 - No duplicar código: extender o extraer.
 - No importar `three` fuera de `src/escena/` ni cargar la escena de forma síncrona.
-- No editar `src/api/esquema.d.ts` a mano.
+- No editar `src/api/esquema.d.ts` ni `src/api/contrato.huella` a mano.
 - No usar `any`, `v-html` con datos externos ni `Number()` para montos.
 - No usar colores o tamaños sueltos fuera de los tokens.
 - No desactivar lints ni pruebas, ni bajar umbrales de cobertura o del presupuesto para que pase.

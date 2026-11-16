@@ -49,6 +49,21 @@ test.describe('selección de entidad', () => {
     await esperarMaqueta(page)
     await expect(page.getByText('Conjunto Residencial Los Robles')).toBeVisible()
   })
+
+  test('una cuenta sin roles ve el aviso y puede salir', async ({ page }) => {
+    await entrar(page, 'nuevo')
+    await expect(page.getByRole('heading', { name: 'Su cuenta aún no tiene roles' })).toBeVisible()
+    await expect(page.getByRole('list')).toHaveCount(0)
+    await page.getByRole('button', { name: /Salir/ }).click()
+    await expect(page).toHaveURL(/\/ingresar/)
+  })
+
+  test('una entidad en configuración se avisa en la barra superior', async ({ page }) => {
+    await entrar(page)
+    await page.getByRole('button', { name: /Torres del Parque/ }).click()
+    await esperarMaqueta(page)
+    await expect(page.getByRole('banner')).toContainText('aún está en configuración')
+  })
 })
 
 test.describe('maqueta del conjunto (PH)', () => {

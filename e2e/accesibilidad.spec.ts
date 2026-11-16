@@ -29,6 +29,19 @@ test('selector de entidad', async ({ page }) => {
   await revisar(page)
 })
 
+test('cuenta sin roles', async ({ page }) => {
+  await entrar(page, 'nuevo')
+  await expect(page.getByRole('heading', { name: 'Su cuenta aún no tiene roles' })).toBeVisible()
+  await revisar(page)
+})
+
+test('barra superior con aviso de estado', async ({ page }) => {
+  await entrar(page)
+  await page.getByRole('button', { name: /Torres del Parque/ }).click()
+  await esperarMaqueta(page)
+  await revisar(page)
+})
+
 test('maqueta con panel de zona', async ({ page }) => {
   await entrar(page, 'uno')
   await esperarMaqueta(page)
