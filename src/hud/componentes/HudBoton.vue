@@ -1,18 +1,38 @@
 <script setup lang="ts">
+import { RouterLink, type RouteLocationRaw } from 'vue-router'
+
 withDefaults(
   defineProps<{
+    /** Con un destino se dibuja como enlace (navegar); sin él, como botón (acción). */
+    a?: RouteLocationRaw
     variante?: 'primario' | 'secundario' | 'fantasma'
     tipo?: 'button' | 'submit'
     cargando?: boolean
     deshabilitado?: boolean
     bloque?: boolean
   }>(),
-  { variante: 'primario', tipo: 'button', cargando: false, deshabilitado: false, bloque: false },
+  {
+    a: undefined,
+    variante: 'primario',
+    tipo: 'button',
+    cargando: false,
+    deshabilitado: false,
+    bloque: false,
+  },
 )
 </script>
 
 <template>
+  <RouterLink
+    v-if="a"
+    :to="a"
+    class="hud-boton"
+    :class="[variante, { bloque }]"
+  >
+    <slot />
+  </RouterLink>
   <button
+    v-else
     class="hud-boton"
     :class="[variante, { bloque, cargando }]"
     :type="tipo"
@@ -43,6 +63,7 @@ withDefaults(
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
+  text-decoration: none;
   cursor: pointer;
   clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
   transition:

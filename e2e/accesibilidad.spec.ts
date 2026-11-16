@@ -59,3 +59,22 @@ test('vista de lista y marco de módulo', async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'Reservar' })).toBeVisible()
   await revisar(page)
 })
+
+test('página no encontrada', async ({ page }) => {
+  await page.goto('/no/existe')
+  await expect(page.getByRole('heading', { name: 'Esta página no existe' })).toBeVisible()
+  await revisar(page)
+})
+
+test('pantalla de carga', async ({ page }) => {
+  let liberar: () => void = () => {}
+  const retenida = new Promise<void>((ok) => (liberar = ok))
+  await page.route('**/assets/MaquetaView-*.js', async (ruta) => {
+    await retenida
+    await ruta.continue()
+  })
+  await entrar(page, 'uno')
+  await expect(page.getByRole('status').filter({ hasText: 'Ensamblando módulos' })).toBeVisible()
+  await revisar(page)
+  liberar()
+})

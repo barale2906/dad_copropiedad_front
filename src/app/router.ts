@@ -1,4 +1,5 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory, type RouteLocationNormalized } from 'vue-router'
+import { SECCIONES } from '@/escena/mapa-modulos'
 import LoginView from '@/pantallas/LoginView.vue'
 import SelectorEntidadView from '@/pantallas/SelectorEntidadView.vue'
 import { useEntidad } from '@/stores/entidad'
@@ -10,6 +11,8 @@ declare module 'vue-router' {
     publica?: boolean
     /** Exige entrar a la entidad de `:entidadId` (pide sus capacidades). */
     entidad?: boolean
+    /** Se muestra con o sin sesión, sin redirigir (p. ej. «no encontrado»). */
+    libre?: boolean
   }
 }
 
@@ -40,14 +43,36 @@ export const router = createRouter({
       component: () => import('@/pantallas/ModuloView.vue'),
       meta: { entidad: true },
     },
-    { path: '/:pathMatch(.*)*', redirect: '/' },
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'no-encontrado',
+      component: () => import('@/pantallas/NoEncontradoView.vue'),
+      meta: { libre: true },
+    },
   ],
+})
+
+/** ¿La ruta de módulo nombra una sección y una acción que existen en el mapa? */
+export function existeEnElMapa(to: { name?: unknown; params: Record<string, unknown> }): boolean {
+  if (to.name !== 'modulo') return true
+  const seccion = SECCIONES[String(to.params.seccion)]
+  const accion = String(to.params.accion ?? '')
+  return !!seccion && (!accion || seccion.acciones.some((a) => a.id === accion))
+}
+
+/** Muestra «no encontrado» conservando la dirección que se pidió. */
+const noEncontrado = (to: RouteLocationNormalized) => ({
+  name: 'no-encontrado',
+  params: { pathMatch: to.path.slice(1).split('/') },
+  query: to.query,
+  hash: to.hash,
 })
 
 router.beforeEach(async (to) => {
   const sesion = useSesion()
   if (sesion.estado === 'desconocido') await sesion.restaurar()
 
+  if (to.meta.libre) return true
   if (to.meta.publica) return sesion.estado === 'autenticado' ? { name: 'inicio' } : true
   if (sesion.estado !== 'autenticado') {
     return { name: 'ingresar', query: to.fullPath !== '/' ? { volver: to.fullPath } : {} }
@@ -59,5 +84,5 @@ router.beforeEach(async (to) => {
       return { name: 'entidades' }
     }
   }
-  return true
+  return existeEnElMapa(to) || noEncontrado(to)
 })

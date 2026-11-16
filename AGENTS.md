@@ -112,7 +112,10 @@ Se mantiene al día: quien crea una pieza reutilizable la agrega aquí.
 | Nombre del tipo y del estado de una entidad, aviso si no está activa | `TIPO_ENTIDAD`, `ESTADO_ENTIDAD`, `avisoDeEstado()` | `src/pantallas/textos-entidad.ts` |
 | Icono de una sección | `ICONOS[slug]`; iconos sueltos: `~icons/tabler/<nombre>` | `src/pantallas/iconos.ts` |
 | Panel de vidrio HUD | `<HudPanel etiqueta resaltado>` | `src/hud/componentes/HudPanel.vue` |
-| Botón | `<HudBoton variante tipo cargando bloque>` | `src/hud/componentes/HudBoton.vue` |
+| Botón (o enlace con `a`) | `<HudBoton a variante tipo cargando bloque>` | `src/hud/componentes/HudBoton.vue` |
+| Pantalla de carga | `<HudCarga mensaje>` (en `App.vue`, con `vigilarNavegacion(router)`) | `src/hud/componentes/HudCarga.vue`, `src/app/carga.ts` |
+| Ilustraciones HUD (SVG, sin three.js) | `<IlustracionPerdido escenario>`, `<IlustracionConstruccion>` | `src/hud/ilustraciones/` |
+| Página «no encontrado» | ruta `no-encontrado` (comodín); rutas de módulo inexistentes con `existeEnElMapa()` | `src/pantallas/NoEncontradoView.vue`, `src/app/router.ts` |
 | Campo de formulario | `<HudCampo v-model etiqueta error ayuda>` (slots `antes`/`despues`) | `src/hud/componentes/HudCampo.vue` |
 | Barra superior de la entidad | `<BarraSuperior>` (slot para acciones) | `src/pantallas/componentes/BarraSuperior.vue` |
 | Marco de módulo (menú lateral, migas, volver) | `ModuloView.vue` (base del marco de módulos) | `src/pantallas/ModuloView.vue` |
@@ -215,6 +218,8 @@ se excede):
 Reglas del motor:
 - Render **bajo demanda**: no agregar bucles continuos; pedir cuadros con `solicitar()` solo
   mientras algo cambia. El holograma del login es la única animación continua (≤ 30 fps).
+  Fuera del motor, las ilustraciones SVG (404, carga) animan solo `transform`/`opacity` en CSS y
+  se detienen con `prefers-reduced-motion`.
 - Reutilizar geometrías y materiales del `Kit`; **no crear materiales por malla**. Para un estado
   visual nuevo se agrega un rol o una paleta, no materiales sueltos.
 - Sin sombras en tiempo real, sin postprocesado, sin texturas pesadas (las del kit se generan en

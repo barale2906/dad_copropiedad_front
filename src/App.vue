@@ -1,9 +1,13 @@
 <script setup lang="ts">
-import type { RouteLocationNormalizedLoaded } from 'vue-router'
+import { type RouteLocationNormalizedLoaded, useRouter } from 'vue-router'
+import { vigilarNavegacion } from '@/app/carga'
+import HudCarga from '@/hud/componentes/HudCarga.vue'
 
 /** La maqueta se conserva (KeepAlive) por entidad; los módulos comparten el marco. */
 const clave = (r: RouteLocationNormalizedLoaded) =>
   r.params.entidadId ? `${String(r.name)}-${String(r.params.entidadId)}` : String(r.name)
+
+const cargando = vigilarNavegacion(useRouter())
 </script>
 
 <template>
@@ -23,4 +27,5 @@ const clave = (r: RouteLocationNormalizedLoaded) =>
       </KeepAlive>
     </Transition>
   </RouterView>
+  <HudCarga v-if="cargando" />
 </template>

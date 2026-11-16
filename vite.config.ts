@@ -28,7 +28,14 @@ export default defineConfig({
       reporter: ['text-summary', 'html'],
       // La lógica (API, sesión, permisos, navegación) exige cobertura; las vistas y el motor 3D
       // se cubren con las pruebas E2E (Playwright).
-      include: ['src/api/**/*.ts', 'src/stores/**/*.ts', 'src/escena/mapa-modulos.ts', 'src/pantallas/navegacion.ts'],
+      include: [
+        'src/api/**/*.ts',
+        'src/stores/**/*.ts',
+        'src/app/carga.ts',
+        'src/escena/mapa-modulos.ts',
+        'src/pantallas/navegacion.ts',
+        'src/pantallas/textos-entidad.ts',
+      ],
       exclude: ['src/api/esquema.d.ts', 'src/api/tipos.ts'],
       thresholds: { lines: 80, functions: 80, branches: 70, statements: 80 },
     },

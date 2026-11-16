@@ -151,3 +151,39 @@ test('sin WebGL se muestra la vista de lista automáticamente', async ({ browser
   await expect(page.getByRole('heading', { name: '¿Qué necesita hacer?' })).toBeVisible()
   await contexto.close()
 })
+
+test.describe('no encontrado y carga', () => {
+  test('una dirección desconocida muestra la página 404 sin sesión', async ({ page }) => {
+    await page.goto('/no/existe')
+    await expect(page.getByRole('heading', { name: 'Esta página no existe' })).toBeVisible()
+    await expect(page).toHaveURL(/\/no\/existe$/)
+    await page.getByRole('link', { name: /Ir al acceso/ }).click()
+    await expect(page).toHaveURL(/\/ingresar/)
+  })
+
+  test('una sección inexistente de la entidad muestra la 404 y vuelve a la maqueta', async ({ page }) => {
+    await entrar(page, 'uno')
+    await esperarMaqueta(page)
+    const maqueta = page.url()
+    await page.goto(`${maqueta}/inventado`)
+    await expect(page.getByRole('heading', { name: 'Esta página no existe' })).toBeVisible()
+    await expect(page).toHaveURL(/\/inventado$/)
+    await page.getByRole('link', { name: /Volver a la maqueta/ }).click()
+    await esperarMaqueta(page)
+  })
+
+  test('una navegación lenta muestra la pantalla de carga hasta terminar', async ({ page }) => {
+    let liberar: () => void = () => {}
+    const retenida = new Promise<void>((ok) => (liberar = ok))
+    await page.route('**/assets/MaquetaView-*.js', async (ruta) => {
+      await retenida
+      await ruta.continue()
+    })
+    await entrar(page, 'uno')
+    const carga = page.getByRole('status').filter({ hasText: 'Ensamblando módulos' })
+    await expect(carga).toBeVisible()
+    liberar()
+    await esperarMaqueta(page)
+    await expect(carga).toHaveCount(0)
+  })
+})
