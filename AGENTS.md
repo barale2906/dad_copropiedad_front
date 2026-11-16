@@ -50,8 +50,9 @@ SPA con Vue 3. Capas y quién puede importar a quién (la flecha indica "puede u
 
 ```
 pantallas/ ─┐
-modulos/  ──┼──► stores/ ──► api/ ──► (backend)
-            ├──► hud/  (componentes visuales, sin lógica de negocio)
+modulos/  ──┼──► composables/ ──► stores/ ──► api/ ──► (backend)
+            ├──► hud/  (componentes visuales, sin lógica de negocio) ──► formato/
+            ├──► formato/ (funciones puras de formato)
             └──► escena/ (solo vía defineAsyncComponent o datos sin three.js)
 app/ (arranque y router) ──► todo lo anterior
 ```
@@ -60,7 +61,9 @@ app/ (arranque y router) ──► todo lo anterior
 |---|---|---|
 | `src/app/` | Arranque, router, guardas, `config.json` | Tener lógica de pantallas |
 | `src/api/` | Cliente HTTP tipado, tokens, errores, tipos del contrato | Importar Vue, stores o vistas |
-| `src/stores/` | Estado compartido (sesión, entidad activa, preferencias) | Importar componentes |
+| `src/stores/` | Estado compartido (sesión, entidad activa, preferencias, cuenta) | Importar componentes |
+| `src/composables/` | Lógica con estado que reutilizan los módulos (`useAccion`, `useListado`, `useRefresco`) y reglas puras comunes | Importar componentes |
+| `src/formato/` | Funciones puras de formato: fechas en la zona de la entidad, montos y coeficientes | Importar Vue, stores, API o componentes |
 | `src/hud/` | Sistema visual: tokens, estilos base, componentes `Hud*` | Llamar a la API o leer stores de negocio |
 | `src/escena/` | Motor 3D, piezas, plantillas, calidad, `mapa-modulos.ts` | Importar stores, router o vistas (recibe todo por props/opciones) |
 | `src/pantallas/` | Pantallas transversales y su navegación | Contener lógica de un módulo funcional |
@@ -103,6 +106,10 @@ Se mantiene al día: quien crea una pieza reutilizable la agrega aquí.
 | Reintentar un POST sin duplicar | `idempotencia()` → cabecera `Idempotency-Key` | `src/api/cliente.ts` |
 | Tipos del backend | `Modulo`, `Permiso`, `EntidadDeLaCuenta`, `Capacidades`… | `src/api/tipos.ts` (alias de `esquema.d.ts`) |
 | Mostrar un error | `mensajeDeError(e)` | `src/api/errores.ts` |
+| Ejecutar una acción (idempotencia, errores por código, 429) | `useAccion((clave, …) => …, { alConflicto, alExito })` | `src/composables/useAccion.ts` |
+| Botones por estado del recurso / cuatro ojos | `accionesPermitidas(estado, mapa)`, `puedeAprobar(autores, cuentaId)` | `src/composables/reglas.ts` |
+| Fechas en la zona de la entidad | `fecha`, `fechaHora`, `hora`, `aUtc` (con `useEntidad().zonaHoraria`) | `src/formato/fechas.ts` |
+| Montos, porcentajes, coeficientes, sumas | `moneda`, `porcentaje`, `coeficiente`, `sumar`, `restar`, `comparar`, `leerDecimal` | `src/formato/decimales.ts` |
 | Generar UUID (también en HTTP) | `uuid()` | `src/api/uuid.ts` |
 | Sesión, login, 2FA, cierre | `useSesion()` | `src/stores/sesion.ts` |
 | Entidad activa, ¿es PH?, permisos, módulos, roles, modo soporte, zona horaria | `useEntidad()`: `esPH`, `modoSoporte`, `zonaHoraria`, `ficha`, `tieneModulo`, `tienePermiso`, `tieneRol`, `refrescar` | `src/stores/entidad.ts` |
@@ -116,7 +123,11 @@ Se mantiene al día: quien crea una pieza reutilizable la agrega aquí.
 | Pantalla de carga | `<HudCarga mensaje>` (en `App.vue`, con `vigilarNavegacion(router)`) | `src/hud/componentes/HudCarga.vue`, `src/app/carga.ts` |
 | Ilustraciones HUD (SVG, sin three.js) | `<IlustracionPerdido escenario>`, `<IlustracionConstruccion>` | `src/hud/ilustraciones/` |
 | Página «no encontrado» | ruta `no-encontrado` (comodín); rutas de módulo inexistentes con `existeEnElMapa()` | `src/pantallas/NoEncontradoView.vue`, `src/app/router.ts` |
-| Campo de formulario | `<HudCampo v-model etiqueta error ayuda>` (slots `antes`/`despues`) | `src/hud/componentes/HudCampo.vue` |
+| Campo de formulario | `<HudCampo v-model etiqueta error ayuda multilinea al-salir>` (slots `antes`/`despues`) | `src/hud/componentes/HudCampo.vue` |
+| Monto (mostrar / escribir) | `<HudMonto valor>`, `<HudCampoMonto v-model etiqueta>` (modelo = texto decimal) | `src/hud/componentes/` |
+| Cargando / vacío / error | `<HudEstado estado mensaje referencia @reintentar>` (slot: acción del vacío) | `src/hud/componentes/HudEstado.vue` |
+| Diálogo modal | `<HudDialogo v-model:abierto titulo>` (slot `acciones`) | `src/hud/componentes/HudDialogo.vue` |
+| Confirmar con motivo (anular, rechazar…) | `<ConfirmarConMotivo v-model:abierto titulo accion @confirmar>` | `src/hud/componentes/ConfirmarConMotivo.vue` |
 | Barra superior de la entidad | `<BarraSuperior>` (slot para acciones) | `src/pantallas/componentes/BarraSuperior.vue` |
 | Marco de módulo (menú lateral, migas, volver) | `ModuloView.vue` (base del marco de módulos) | `src/pantallas/ModuloView.vue` |
 | Lienzo 3D | `<EscenaCanvas plantilla perfil estados enfocada holgura>` (siempre asíncrono) | `src/escena/EscenaCanvas.vue` |

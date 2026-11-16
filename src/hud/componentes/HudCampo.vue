@@ -7,9 +7,13 @@ defineProps<{
   autocompletar?: string
   error?: string | null
   ayuda?: string
-  modoEntrada?: 'text' | 'numeric' | 'email'
+  modoEntrada?: 'text' | 'numeric' | 'decimal' | 'email'
   requerido?: boolean
   maximo?: number
+  /** Texto de varias líneas (motivos, observaciones). */
+  multilinea?: boolean
+  /** Al salir del campo (p. ej. para dar formato al valor). */
+  alSalir?: () => void
 }>()
 
 const valor = defineModel<string>({ required: true })
@@ -27,7 +31,19 @@ const id = useId()
     >{{ etiqueta }}</label>
     <div class="marco">
       <slot name="antes" />
+      <textarea
+        v-if="multilinea"
+        :id="id"
+        v-model="valor"
+        rows="3"
+        :required="requerido"
+        :maxlength="maximo"
+        :aria-invalid="!!error || undefined"
+        :aria-describedby="error || ayuda ? `${id}-msg` : undefined"
+        @blur="alSalir?.()"
+      />
       <input
+        v-else
         :id="id"
         v-model="valor"
         :type="tipo ?? 'text'"
@@ -37,6 +53,7 @@ const id = useId()
         :maxlength="maximo"
         :aria-invalid="!!error || undefined"
         :aria-describedby="error || ayuda ? `${id}-msg` : undefined"
+        @blur="alSalir?.()"
       >
       <slot name="despues" />
     </div>
@@ -84,6 +101,18 @@ input {
   background: transparent;
   outline: none;
   font-size: 16px; /* evita el zoom automático de iOS */
+}
+
+textarea {
+  flex: 1;
+  min-width: 0;
+  min-height: 84px;
+  padding: 10px 0;
+  border: 0;
+  background: transparent;
+  outline: none;
+  font-size: 16px;
+  resize: vertical;
 }
 
 input::placeholder {
