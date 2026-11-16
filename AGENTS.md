@@ -125,6 +125,11 @@ Se mantiene al día: quien crea una pieza reutilizable la agrega aquí.
 | Página «no encontrado» | ruta `no-encontrado` (comodín); rutas de módulo inexistentes con `existeEnElMapa()` | `src/pantallas/NoEncontradoView.vue`, `src/app/router.ts` |
 | Campo de formulario | `<HudCampo v-model etiqueta error ayuda multilinea al-salir>` (slots `antes`/`despues`) | `src/hud/componentes/HudCampo.vue` |
 | Monto (mostrar / escribir) | `<HudMonto valor>`, `<HudCampoMonto v-model etiqueta>` (modelo = texto decimal) | `src/hud/componentes/` |
+| Listado por cursor (cargar más, recarga, filtros con retardo) | `useListado((despues, filtros) => …, { filtros, retardo })` → `filas`, `estado`, `hayMas`, `cargarMas`, `recargar` | `src/composables/useListado.ts` |
+| Tabla (tarjetas en móvil), orden y selección | `<HudTabla filas columnas clave titulo orden seleccionable v-model:seleccion>` (slots `celda-<clave>`) | `src/hud/componentes/HudTabla.vue` |
+| Fin del listado | `<HudCargarMas hay-mas cargando infinito @cargar>` | `src/hud/componentes/HudCargarMas.vue` |
+| Barra de filtros con chips | `<HudFiltros activos @quitar @limpiar>` (slot: campos) | `src/hud/componentes/HudFiltros.vue` |
+| Estado de un recurso | `<HudInsignia tono>` (`exito`, `aviso`, `peligro`, `info`, `neutro`) | `src/hud/componentes/HudInsignia.vue` |
 | Cargando / vacío / error | `<HudEstado estado mensaje referencia @reintentar>` (slot: acción del vacío) | `src/hud/componentes/HudEstado.vue` |
 | Diálogo modal | `<HudDialogo v-model:abierto titulo>` (slot `acciones`) | `src/hud/componentes/HudDialogo.vue` |
 | Confirmar con motivo (anular, rechazar…) | `<ConfirmarConMotivo v-model:abierto titulo accion @confirmar>` | `src/hud/componentes/ConfirmarConMotivo.vue` |
