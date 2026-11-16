@@ -4,7 +4,7 @@
  * maqueta». Aquí no hay 3D. Cada módulo real (fase 3 en adelante) se monta en `modulos/` y
  * reemplaza el contenido provisional de la acción.
  */
-import { computed, ref, watch } from 'vue'
+import { computed, defineAsyncComponent, inject, ref, watch } from 'vue'
 import { type RouteLocationNamedRaw, useRoute } from 'vue-router'
 import { TEXTO_ESTADO } from '@/escena/mapa-modulos'
 import HudPanel from '@/hud/componentes/HudPanel.vue'
@@ -15,6 +15,7 @@ import BarraSuperior from './componentes/BarraSuperior.vue'
 import ModuloNoDisponible from './componentes/ModuloNoDisponible.vue'
 import { ICONOS } from './iconos'
 import { useNavegacion } from './navegacion'
+import { CLAVE_VISTAS_MODULO, claveVista } from './vistas-modulo'
 
 const route = useRoute()
 const nav = useNavegacion()
@@ -35,6 +36,13 @@ const zonaPre = computed(() => {
   return nav.zonas.value.find((x) => x.zona === z)?.nombre ?? z
 })
 const lateral = computed(() => nav.secciones.value)
+
+/** Vista real de la acción, si el módulo ya la tiene (si no, «en construcción»). */
+const vistas = inject(CLAVE_VISTAS_MODULO, {})
+const vistaAccion = computed(() => {
+  const cargar = accion.value ? vistas[claveVista(slug.value, accion.value.id)] : undefined
+  return cargar ? defineAsyncComponent(cargar) : null
+})
 
 /** Conserva `zona` y `origen` al pasar entre acciones de la misma sección. */
 function conConsulta(accionId: string): RouteLocationNamedRaw {
@@ -175,6 +183,12 @@ watch(() => route.fullPath, () => (menuAbierto.value = false))
             </li>
           </ul>
         </template>
+
+        <component
+          :is="vistaAccion"
+          v-else-if="vistaAccion"
+          :key="accion.id"
+        />
 
         <HudPanel
           v-else

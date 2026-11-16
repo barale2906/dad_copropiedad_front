@@ -37,6 +37,8 @@ export default defineConfig({
         'src/composables/**/*.ts',
         'src/formato/**/*.ts',
         'src/escena/mapa-modulos.ts',
+        'src/modulos/*/api.ts',
+        'src/modulos/*/usuarios.ts',
         'src/pantallas/navegacion.ts',
         'src/pantallas/textos-entidad.ts',
       ],

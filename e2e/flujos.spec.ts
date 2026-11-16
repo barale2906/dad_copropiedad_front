@@ -201,7 +201,7 @@ test.describe('módulo no disponible', () => {
   test('una acción sin permiso para el rol explica a quién pedirla', async ({ page }) => {
     await entrar(page, 'uno')
     await esperarMaqueta(page)
-    await page.goto(`${page.url()}/unidades/importar`)
+    await page.goto(`${page.url()}/unidades/libros`)
     await expect(page.getByText('Su rol no tiene permiso para esta función')).toBeVisible()
   })
 })

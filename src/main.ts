@@ -9,6 +9,7 @@ import './hud/estilos/base.css'
 import { createPinia } from 'pinia'
 import { createApp } from 'vue'
 import App from './App.vue'
+import { VISTAS_MODULOS } from './app/vistas-modulos'
 import { cargarConfig } from './app/config'
 import { router } from './app/router'
 import { iniciarCliente } from './api/cliente'
@@ -16,6 +17,7 @@ import { alCerrarSesion } from './api/tokens'
 import { useCuenta } from './stores/cuenta'
 import { useEntidad } from './stores/entidad'
 import { useSesion } from './stores/sesion'
+import { CLAVE_VISTAS_MODULO } from './pantallas/vistas-modulo'
 
 const cfg = await cargarConfig()
 if (cfg.modoDemo) {
@@ -25,7 +27,7 @@ if (cfg.modoDemo) {
   iniciarCliente(cfg.apiUrl)
 }
 
-const app = createApp(App).use(createPinia()).use(router)
+const app = createApp(App).use(createPinia()).use(router).provide(CLAVE_VISTAS_MODULO, VISTAS_MODULOS)
 
 // Sesión vencida, revocada o cerrada en otra pestaña → al inicio de sesión.
 alCerrarSesion(() => {

@@ -14,10 +14,11 @@
 import type { Capacidades, EntidadDeLaCuenta, FichaEntidad, Permiso, Tokens } from '@/api/tipos'
 import { archivos } from './archivos'
 import { cuenta, cuentaPublica, iniciarCuenta } from './cuenta'
+import { entidad, iniciarEntidad } from './entidad'
 import { error, json, type Manejador } from './http'
 
 /** Manejadores que exigen sesión, en orden; el primero que responda gana. */
-const CON_SESION: Manejador[] = [cuenta, archivos]
+const CON_SESION: Manejador[] = [cuenta, archivos, entidad]
 /** Manejadores sin sesión (además del inicio de sesión). */
 const SIN_SESION: Manejador[] = [cuentaPublica]
 
@@ -35,6 +36,7 @@ const TODOS: Permiso[] = [
   'tesoreria.conciliar', 'cartera.ver', 'cartera.liquidar', 'cartera.certificados.emitir',
   'presupuesto.gestionar', 'tributario.preparar', 'terceros.gestionar', 'facturacion.ver',
   'facturacion.facturas.gestionar', 'facturacion.emitir', 'directorio.ver', 'directorio.compartir',
+  'importaciones.ejecutar',
   'roles.asignar', 'proteccion_datos.gestionar', 'tributario.configurar',
 ]
 
@@ -137,6 +139,7 @@ export async function fetchDemo(req: Request): Promise<Response> {
     if (!p.identificador || !p.contrasena) return error(401, 'credenciales_invalidas', 'Usuario o contraseña incorrectos.')
     usuario = p.identificador.toLowerCase()
     iniciarCuenta(usuario)
+    iniciarEntidad()
     if (usuario.includes('2fa')) {
       return json({ resultado: 'segundo_factor', desafio: 'demo-desafio', desafio_expira_en: new Date(Date.now() + 300_000).toISOString() })
     }
@@ -151,6 +154,7 @@ export async function fetchDemo(req: Request): Promise<Response> {
     const p = (await req.json()) as { token_renovacion: string }
     usuario = p.token_renovacion.split('-')[2] ?? ''
     iniciarCuenta(usuario)
+    iniciarEntidad()
     return json(tokens())
   }
   if (m === 'POST' && ruta === '/auth/contrasena/recuperar') return new Response(null, { status: 202 })

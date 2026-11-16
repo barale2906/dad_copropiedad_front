@@ -103,3 +103,17 @@ test('módulo no contratado', async ({ page }) => {
   await expect(page.getByText('no está contratado')).toBeVisible()
   await revisar(page)
 })
+
+test('usuarios de la entidad, crear y gestionar', async ({ page }) => {
+  await entrar(page, 'uno')
+  await esperarMaqueta(page)
+  await page.goto(`${page.url()}/entidad/usuarios`)
+  await expect(page.getByRole('table', { name: 'Usuarios de la entidad' })).toBeVisible()
+  await revisar(page)
+  await page.getByRole('button', { name: 'Crear usuario' }).click()
+  await expect(page.getByRole('dialog')).toBeVisible()
+  await revisar(page)
+  await page.keyboard.press('Escape')
+  await page.getByRole('button', { name: 'Carga masiva' }).click()
+  await revisar(page)
+})
