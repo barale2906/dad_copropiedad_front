@@ -12,6 +12,7 @@ import IVolver from '~icons/tabler/arrow-left'
 import ICandado from '~icons/tabler/lock'
 import IMenu from '~icons/tabler/list'
 import BarraSuperior from './componentes/BarraSuperior.vue'
+import ModuloNoDisponible from './componentes/ModuloNoDisponible.vue'
 import { ICONOS } from './iconos'
 import { useNavegacion } from './navegacion'
 
@@ -21,6 +22,8 @@ const menuAbierto = ref(false)
 
 const slug = computed(() => String(route.params.seccion ?? ''))
 const vista = computed(() => nav.vistaSeccion(slug.value))
+/** Estado de la sección y, si hay acción en la ruta, de esa acción para el rol. */
+const estado = computed(() => nav.estadoDeAccion(slug.value, String(route.params.accion ?? '')))
 const accion = computed(() => {
   const id = String(route.params.accion ?? '')
   return vista.value?.acciones.find((a) => a.id === id) ?? null
@@ -140,26 +143,11 @@ watch(() => route.fullPath, () => (menuAbierto.value = false))
           <h1>Módulo no encontrado</h1>
         </HudPanel>
 
-        <HudPanel
-          v-else-if="vista.estado !== 'activa'"
-          :etiqueta="TEXTO_ESTADO[vista.estado]"
-        >
-          <h1>{{ vista.seccion.nombre }}</h1>
-          <p class="texto-2">
-            {{ vista.seccion.resumen }}
-          </p>
-          <p class="texto-2">
-            <template v-if="vista.estado === 'no_contratada'">
-              Este módulo no está contratado para la entidad.
-            </template>
-            <template v-else-if="vista.estado === 'proximamente'">
-              Estará disponible próximamente.
-            </template>
-            <template v-else>
-              Su rol no tiene permisos en este módulo.
-            </template>
-          </p>
-        </HudPanel>
+        <ModuloNoDisponible
+          v-else-if="estado && estado !== 'activa'"
+          :estado="estado"
+          :seccion="vista.seccion"
+        />
 
         <template v-else-if="!accion">
           <header class="encabezado">

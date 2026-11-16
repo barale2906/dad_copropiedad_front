@@ -1,4 +1,5 @@
 {
   "apiUrl": "http://localhost:8080",
-  "modoDemo": true
+  "modoDemo": true,
+  "contactoComercial": "comercial@demo.dad"
 }

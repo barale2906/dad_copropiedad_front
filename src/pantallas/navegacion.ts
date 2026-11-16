@@ -4,6 +4,7 @@ import type { RouteLocationRaw } from 'vue-router'
 import {
   accionesVisibles,
   type Consulta,
+  estadoAccion,
   type EstadoSeccion,
   estadoDeSecciones,
   estadoSeccion,
@@ -44,6 +45,12 @@ export function useNavegacion() {
     return { seccion: s, estado: estadoSeccion(s, consulta), acciones: accionesVisibles(s, consulta) }
   }
 
+  /** Estado de una acción de la ruta (sección no contratada, sin acceso o activa). */
+  function estadoDeAccion(slug: string, accionId: string): EstadoSeccion | null {
+    const s = SECCIONES[slug]
+    return s ? estadoAccion(s, accionId, consulta) : null
+  }
+
   const secciones = computed<SeccionVista[]>(() =>
     seccionesDe(plantilla.value)
       .map(vistaSeccion)
@@ -69,5 +76,5 @@ export function useNavegacion() {
     }
   }
 
-  return { plantilla, zonas, estadosZonas, secciones, vistaSeccion, rutaAccion, rutaMaqueta }
+  return { plantilla, zonas, estadosZonas, secciones, vistaSeccion, estadoDeAccion, rutaAccion, rutaMaqueta }
 }

@@ -12,11 +12,12 @@
  *  - que contenga `nuevo` → sin entidades (cuenta aún sin roles)
  */
 import type { Capacidades, EntidadDeLaCuenta, FichaEntidad, Permiso, Tokens } from '@/api/tipos'
+import { archivos } from './archivos'
 import { cuenta, cuentaPublica, iniciarCuenta } from './cuenta'
 import { error, json, type Manejador } from './http'
 
 /** Manejadores que exigen sesión, en orden; el primero que responda gana. */
-const CON_SESION: Manejador[] = [cuenta]
+const CON_SESION: Manejador[] = [cuenta, archivos]
 /** Manejadores sin sesión (además del inicio de sesión). */
 const SIN_SESION: Manejador[] = [cuentaPublica]
 

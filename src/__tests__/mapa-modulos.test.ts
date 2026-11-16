@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import type { Modulo, Permiso } from '@/api/tipos'
 import {
   accionesVisibles,
+  estadoAccion,
   estadoDeSecciones,
   estadoSeccion,
   SECCIONES,
@@ -92,6 +93,15 @@ describe('mapa de módulos', () => {
     expect(ids('directorio', consulta([], permisos, true))).toEqual(['inicio', 'ofertas', 'busco', 'enlace'])
     expect(ids('directorio', consulta([], permisos, false))).toEqual(['inicio', 'ofertas'])
     expect(ids('entidad', consulta([], permisos, false))).toEqual(['usuarios'])
+  })
+
+  it('una acción no visible para el rol queda sin acceso aunque la sección esté activa', () => {
+    const c = consulta([], ['censo.ver'])
+    const unidades = SECCIONES.unidades!
+    expect(estadoAccion(unidades, 'censo', c)).toBe('activa')
+    expect(estadoAccion(unidades, 'importar', c)).toBe('sin_acceso')
+    expect(estadoAccion(unidades, '', c)).toBe('activa')
+    expect(estadoAccion(SECCIONES['zonas-comunes']!, 'reservar', c)).toBe('no_contratada')
   })
 
   it('una zona está activa si alguna de sus secciones lo está', () => {

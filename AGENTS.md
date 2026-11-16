@@ -111,11 +111,12 @@ Se mantiene al día: quien crea una pieza reutilizable la agrega aquí.
 | Fechas en la zona de la entidad | `fecha`, `fechaHora`, `hora`, `aUtc` (con `useEntidad().zonaHoraria`) | `src/formato/fechas.ts` |
 | Montos, porcentajes, coeficientes, sumas | `moneda`, `porcentaje`, `coeficiente`, `sumar`, `restar`, `comparar`, `leerDecimal` | `src/formato/decimales.ts` |
 | Generar UUID (también en HTTP) | `uuid()` | `src/api/uuid.ts` |
+| Subir, abrir y descargar archivos | `subirArchivo`, `abrirArchivo` (enlace firmado justo antes), `descargar(api().GET(…, { parseAs: 'blob' }))` → nombre y `sha256`, `aBase64` | `src/api/archivos.ts` |
 | Sesión, login, 2FA, cierre, definir contraseña | `useSesion()` (`definirContrasena`, `recuperarContrasena`) | `src/stores/sesion.ts` |
 | Cuenta de la persona (perfil, 2FA, sesiones, dispositivos, permisos de plataforma) | `useCuenta()`: `asegurar`, `id`, `permisosPlataforma`, `segundoFactorActivo` | `src/stores/cuenta.ts` |
 | Entidad activa, ¿es PH?, permisos, módulos, roles, modo soporte, zona horaria | `useEntidad()`: `esPH`, `modoSoporte`, `zonaHoraria`, `ficha`, `tieneModulo`, `tienePermiso`, `tieneRol`, `refrescar` | `src/stores/entidad.ts` |
 | Preferencias del navegador | `usePreferencias()` (vista, calidad 3D) | `src/stores/preferencias.ts` |
-| Secciones, acciones y su estado (módulos «alguno de» / `requiereTodos`, módulo por acción, `soloPH`) | `SECCIONES`, `estadoSeccion`, `seccionContratada`, `accionesVisibles`, `TEXTO_ESTADO` | `src/escena/mapa-modulos.ts` |
+| Secciones, acciones y su estado (módulos «alguno de» / `requiereTodos`, módulo por acción, `soloPH`) | `SECCIONES`, `estadoSeccion`, `estadoAccion`, `seccionContratada`, `accionesVisibles`, `TEXTO_ESTADO` | `src/escena/mapa-modulos.ts` |
 | Zonas de la maqueta y rutas | `useNavegacion()`: `zonas`, `estadosZonas`, `secciones`, `rutaAccion`, `rutaMaqueta` | `src/pantallas/navegacion.ts` |
 | Nombre del tipo y del estado de una entidad, aviso si no está activa | `TIPO_ENTIDAD`, `ESTADO_ENTIDAD`, `avisoDeEstado()` | `src/pantallas/textos-entidad.ts` |
 | Icono de una sección | `ICONOS[slug]`; iconos sueltos: `~icons/tabler/<nombre>` | `src/pantallas/iconos.ts` |
@@ -133,6 +134,10 @@ Se mantiene al día: quien crea una pieza reutilizable la agrega aquí.
 | Estado de un recurso | `<HudInsignia tono>` (`exito`, `aviso`, `peligro`, `info`, `neutro`) | `src/hud/componentes/HudInsignia.vue` |
 | Cargando / vacío / error | `<HudEstado estado mensaje referencia @reintentar>` (slot: acción del vacío) | `src/hud/componentes/HudEstado.vue` |
 | Diálogo modal | `<HudDialogo v-model:abierto titulo>` (slot `acciones`) | `src/hud/componentes/HudDialogo.vue` |
+| Adjuntos (subir, abrir, quitar) | `<HudAdjuntos adjuntos acepta subiendo solo-lectura @subir @abrir @quitar>` | `src/hud/componentes/HudAdjuntos.vue` |
+| Vista previa → confirmar | `<FlujoDosPasos v-model:paso accion bloqueado @previsualizar @confirmar @reiniciar>` | `src/hud/componentes/FlujoDosPasos.vue` |
+| Consulta sensible auditada | `<AvisoAuditado v-model:abierto que @confirmar>` | `src/hud/componentes/AvisoAuditado.vue` |
+| Módulo no contratado / sin acceso / próximamente | `<ModuloNoDisponible estado seccion>` (contacto de `config.json`); `estadoAccion()` / `useNavegacion().estadoDeAccion()` | `src/pantallas/componentes/ModuloNoDisponible.vue` |
 | Secreto que se muestra una vez | `<SecretoUnaVez valor etiqueta aviso>` | `src/hud/componentes/SecretoUnaVez.vue` |
 | Código QR | `<HudCodigoQr texto descripcion>` | `src/hud/componentes/HudCodigoQr.vue` |
 | Confirmar con motivo (anular, rechazar…) | `<ConfirmarConMotivo v-model:abierto titulo accion @confirmar>` | `src/hud/componentes/ConfirmarConMotivo.vue` |
@@ -144,7 +149,7 @@ Se mantiene al día: quien crea una pieza reutilizable la agrega aquí.
 | Fondo ambiental HUD | clase `.fondo-hud`; rótulos: `.rotulo`; texto oculto accesible: `.solo-lector` | `src/hud/estilos/base.css` |
 | Transición entre vistas | `<Transition name="vista">` | `src/hud/estilos/base.css` |
 | Datos de prueba / demo | `fetchDemo` (usuarios `uno`, `empresa`, `2fa`, `nuevo` sin roles, `sinverificar`; códigos `123456`); un `Manejador` por área (`json`, `error`, `sinContenido`) | `src/mocks/demo.ts`, `src/mocks/http.ts`, `src/mocks/<area>.ts` |
-| Preparar pruebas | `prepararConDemo()`, `conCapacidades()` (`modo_soporte` opcional), `ENTIDAD_PH` | `src/__tests__/ayudantes.ts` |
+| Preparar pruebas | `prepararConDemo()`, `conCapacidades()` (`modo_soporte` opcional), `conConfig()`, `ENTIDAD_PH` | `src/__tests__/ayudantes.ts` |
 | Pasos E2E | `entrar()`, `esperarMaqueta()`, `elegirZona()` | `e2e/utilidades.ts` |
 
 ## 4. Tecnologías

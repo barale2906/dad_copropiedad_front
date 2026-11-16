@@ -286,6 +286,16 @@ export function estadoSeccion(s: Seccion, c: Consulta): EstadoSeccion {
   return accionesVisibles(s, c).length > 0 ? 'activa' : 'sin_acceso'
 }
 
+/**
+ * Estado de una acción concreta de la sección (la ruta `/:seccion/:accion`): el de la sección
+ * y, si está activa pero la acción no es visible para el rol, `sin_acceso`.
+ */
+export function estadoAccion(s: Seccion, accionId: string, c: Consulta): EstadoSeccion {
+  const estado = estadoSeccion(s, c)
+  if (estado !== 'activa' || !accionId) return estado
+  return accionesVisibles(s, c).some((a) => a.id === accionId) ? 'activa' : 'sin_acceso'
+}
+
 /** Estado de una zona: activa si al menos una de sus secciones lo está. */
 export function estadoDeSecciones(slugs: string[], c: Consulta): EstadoSeccion {
   const estados = slugs.map((s) => estadoSeccion(SECCIONES[s]!, c))

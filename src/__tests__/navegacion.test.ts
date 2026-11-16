@@ -60,6 +60,8 @@ describe('useNavegacion', () => {
   it('una sección desconocida no tiene vista', () => {
     conCapacidades({ tipo: 'propiedad_horizontal', modulos: [], permisos: [] })
     expect(useNavegacion().vistaSeccion('no-existe')).toBeNull()
+    expect(useNavegacion().estadoDeAccion('no-existe', '')).toBeNull()
+    expect(useNavegacion().estadoDeAccion('unidades', 'importar')).toBe('sin_acceso')
   })
 
   it('lista las secciones de la plantilla sin repetir', () => {

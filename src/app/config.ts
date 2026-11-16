@@ -12,9 +12,11 @@ export interface ConfigApp {
   apiUrl: string
   /** Sin backend: datos simulados con el formato del contrato. Nunca en producción. */
   modoDemo: boolean
+  /** Correo comercial que se ofrece cuando un módulo no está contratado (opcional). */
+  contactoComercial: string
 }
 
-const PREDETERMINADA: ConfigApp = { apiUrl: '', modoDemo: false }
+const PREDETERMINADA: ConfigApp = { apiUrl: '', modoDemo: false, contactoComercial: '' }
 
 let actual: ConfigApp = PREDETERMINADA
 

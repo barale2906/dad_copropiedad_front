@@ -51,8 +51,9 @@ empresa solo tiene `contabilidad`: así se ven las zonas apagadas.
 3. **Editar `config.json` en cada servidor** (no se recompila por ambiente). `apiUrl` es el
    origen del backend **sin** `/api/v1`; vacío si la API está en el mismo dominio:
    ```json
-   { "apiUrl": "https://api.dominio.co", "modoDemo": false }
+   { "apiUrl": "https://api.dominio.co", "modoDemo": false, "contactoComercial": "ventas@dominio.co" }
    ```
+   `contactoComercial` (opcional) es el correo que se ofrece cuando un módulo no está contratado.
 4. Nginx (HestiaCP): copiar las directivas de [`docker/nginx.conf`](docker/nginx.conf). Hacen
    falta el *fallback* a `index.html` (el router usa URLs limpias), la caché larga en
    `/assets/` y `no-store` en `config.json`.

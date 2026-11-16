@@ -1,5 +1,7 @@
 /** Ayudantes compartidos por las pruebas unitarias y de componentes. */
 import { createPinia, setActivePinia } from 'pinia'
+import { vi } from 'vitest'
+import { type ConfigApp, cargarConfig } from '@/app/config'
 import { iniciarCliente } from '@/api/cliente'
 import type { Capacidades, EntidadDeLaCuenta } from '@/api/tipos'
 import { fetchDemo } from '@/mocks/demo'
@@ -32,4 +34,14 @@ export function conCapacidades(cap: CapacidadesDePrueba, entidad: EntidadDeLaCue
   e.activa = entidad
   e.capacidades = { modo_soporte: false, ...cap }
   return e
+}
+
+/** Carga una configuración (`config.json`) simulada, como al arrancar la app. */
+export async function conConfig(parcial: Partial<ConfigApp>): Promise<void> {
+  vi.stubGlobal('fetch', () => Promise.resolve(new Response(JSON.stringify(parcial))))
+  try {
+    await cargarConfig()
+  } finally {
+    vi.unstubAllGlobals()
+  }
 }

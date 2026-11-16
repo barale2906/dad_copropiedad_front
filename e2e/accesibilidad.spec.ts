@@ -95,3 +95,11 @@ test('mi cuenta con el segundo factor en inscripción', async ({ page }) => {
   await expect(page.getByRole('dialog')).toBeVisible()
   await revisar(page)
 })
+
+test('módulo no contratado', async ({ page }) => {
+  await entrar(page, 'uno')
+  await esperarMaqueta(page)
+  await page.goto(`${page.url()}/porteria`)
+  await expect(page.getByText('no está contratado')).toBeVisible()
+  await revisar(page)
+})

@@ -187,3 +187,21 @@ test.describe('no encontrado y carga', () => {
     await expect(carga).toHaveCount(0)
   })
 })
+
+test.describe('módulo no disponible', () => {
+  test('un módulo no contratado ofrece el contacto comercial', async ({ page }) => {
+    await entrar(page, 'uno')
+    await esperarMaqueta(page)
+    await page.goto(`${page.url()}/porteria`)
+    await expect(page.getByRole('heading', { name: 'Portería' })).toBeVisible()
+    await expect(page.getByText('no está contratado')).toBeVisible()
+    await expect(page.getByRole('link', { name: 'comercial@demo.dad' })).toHaveAttribute('href', /^mailto:/)
+  })
+
+  test('una acción sin permiso para el rol explica a quién pedirla', async ({ page }) => {
+    await entrar(page, 'uno')
+    await esperarMaqueta(page)
+    await page.goto(`${page.url()}/unidades/importar`)
+    await expect(page.getByText('Su rol no tiene permiso para esta función')).toBeVisible()
+  })
+})
