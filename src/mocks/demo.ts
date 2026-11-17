@@ -16,10 +16,11 @@ import { archivos } from './archivos'
 import { cuenta, cuentaPublica, iniciarCuenta } from './cuenta'
 import { entidad, iniciarEntidad, permisos } from './entidad'
 import { ficha, iniciarFicha } from './ficha'
+import { iniciarProteccion, proteccion } from './proteccion'
 import { error, json, type Manejador } from './http'
 
 /** Manejadores que exigen sesión, en orden; el primero que responda gana. */
-const CON_SESION: Manejador[] = [cuenta, archivos, ficha, entidad, permisos]
+const CON_SESION: Manejador[] = [cuenta, archivos, ficha, proteccion, entidad, permisos]
 /** Manejadores sin sesión (además del inicio de sesión). */
 const SIN_SESION: Manejador[] = [cuentaPublica]
 
@@ -40,7 +41,7 @@ const TODOS: Permiso[] = [
   'importaciones.ejecutar',
   'roles.asignar', 'proteccion_datos.gestionar', 'tributario.configurar',
   'copropiedad.datos.editar', 'archivos.personales.ver', 'suscripcion.ver', 'organizaciones.crear',
-  'organizaciones.vincular', 'contratos.gestionar',
+  'organizaciones.vincular', 'contratos.gestionar', 'personas.datos_sensibles.ver',
 ]
 
 const ENTIDADES: (EntidadDeLaCuenta & { capacidades: Capacidades })[] = [
@@ -125,6 +126,7 @@ export async function fetchDemo(req: Request): Promise<Response> {
     iniciarCuenta(usuario)
     iniciarEntidad()
     iniciarFicha(ENTIDADES)
+    iniciarProteccion()
     if (usuario.includes('2fa')) {
       return json({ resultado: 'segundo_factor', desafio: 'demo-desafio', desafio_expira_en: new Date(Date.now() + 300_000).toISOString() })
     }
@@ -141,6 +143,7 @@ export async function fetchDemo(req: Request): Promise<Response> {
     iniciarCuenta(usuario)
     iniciarEntidad()
     iniciarFicha(ENTIDADES)
+    iniciarProteccion()
     return json(tokens())
   }
   if (m === 'POST' && ruta === '/auth/contrasena/recuperar') return new Response(null, { status: 202 })

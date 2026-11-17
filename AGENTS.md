@@ -149,13 +149,14 @@ Se mantiene al día: quien crea una pieza reutilizable la agrega aquí.
 | Marco de módulo (menú lateral, migas, volver) | `ModuloView.vue` (base del marco de módulos) | `src/pantallas/ModuloView.vue` |
 | Montar la vista real de una acción | registrar `'seccion/accion': () => import(…)` en `VISTAS_MODULOS` (sin registro: «en construcción»); el detalle llega en `route.params.id` | `src/app/vistas-modulos.ts`, `src/pantallas/vistas-modulo.ts` |
 | Horario semanal con excepciones (editar, validar, resumir) | `<EditorHorario v-model>`; `validarHorario`, `normalizarHorario`, `resumirHorario`, `DIAS` | `src/modulos/entidad/componentes/EditorHorario.vue`, `src/modulos/entidad/horario.ts` (subir a una capa compartida con el plan 02) |
+| Buscar una cuenta (usuario o correo exactos) / una persona de la PH | `<BuscarCuenta entidad-id @encontrada>`, `<BuscarPersona copropiedad-id @elegir>` | `src/modulos/entidad/componentes/` (subir a una capa compartida al reutilizarlos) |
 | Matriz de permisos de un rol (por módulo, búsqueda, «todos», no otorgables) | `<MatrizPermisos v-model grupos solo-lectura puede-otorgar>` con `agruparPermisos(catalogo, ambito)`, `etiquetaPermiso`, `diferencia`, `noOtorgables` | `src/modulos/entidad/componentes/MatrizPermisos.vue`, `src/modulos/entidad/permisos.ts` (subir a una capa compartida con el plan 15) |
 | Lienzo 3D | `<EscenaCanvas plantilla perfil estados enfocada holgura>` (siempre asíncrono) | `src/escena/EscenaCanvas.vue` |
 | Nivel de calidad 3D / movimiento reducido | `perfil()`, `soportaWebGL()`, `movimientoReducido()` | `src/escena/calidad.ts` |
 | Piezas 3D | `Kit` (`caja`, `losa`, `cilindro_`, `cono_`) y `torre`, `edificio`, `arbol`, `carro`, `escritorio` | `src/escena/piezas.ts` |
 | Fondo ambiental HUD | clase `.fondo-hud`; rótulos: `.rotulo`; texto oculto accesible: `.solo-lector` | `src/hud/estilos/base.css` |
 | Transición entre vistas | `<Transition name="vista">` | `src/hud/estilos/base.css` |
-| Datos de prueba / demo | `fetchDemo` (ficha, puntos de atención, suscripción y auditoría en `src/mocks/ficha.ts`) (usuarios `uno`, `empresa`, `2fa`, `nuevo` sin roles, `sinverificar`; códigos `123456`; correos `@otra.dad` simulan una cuenta existente); un `Manejador` por área (`json`, `error`, `sinContenido`) | `src/mocks/demo.ts`, `src/mocks/http.ts`, `src/mocks/<area>.ts` |
+| Datos de prueba / demo | `fetchDemo` (ficha, puntos de atención, suscripción y auditoría en `src/mocks/ficha.ts`; protección de datos, personas, organizaciones y cuentas en `src/mocks/proteccion.ts`: personas «Marta», «Pedro», «Lucía», cuenta `carlos`, NIT `900123456-8`) (usuarios `uno`, `empresa`, `2fa`, `nuevo` sin roles, `sinverificar`; códigos `123456`; correos `@otra.dad` simulan una cuenta existente); un `Manejador` por área (`json`, `error`, `sinContenido`) | `src/mocks/demo.ts`, `src/mocks/http.ts`, `src/mocks/<area>.ts` |
 | Preparar pruebas | `prepararConDemo()`, `conCapacidades()` (`modo_soporte` opcional), `conConfig()`, `conRespuesta(metodo, ruta, fn)`, `ENTIDAD_PH` | `src/__tests__/ayudantes.ts` |
 | Pasos E2E | `entrar()`, `esperarMaqueta()`, `elegirZona()` | `e2e/utilidades.ts` |
 
