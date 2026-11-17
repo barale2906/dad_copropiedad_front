@@ -32,6 +32,7 @@ const id = (n: number) => `01930000-0000-7000-8000-${String(n).padStart(12, '0')
 const MIN = 60_000
 const hace = (min: number) => new Date(Date.now() - min * MIN).toISOString()
 const ahora = () => new Date().toISOString()
+const sinTildes = (t: string) => t.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
 const T1_101 = id(7001)
 
 let visitas: Visita[] = []
@@ -347,6 +348,26 @@ export const porteria: Manejador = async (req, ruta) => {
       }
       return json({ credenciales_revocadas: n })
     }
+  }
+
+  // Búsquedas de la portería (lo mínimo, sin bienes_privados.ver ni personas.ver)
+  if (m === 'GET' && base === '/acceso/bienes') {
+    const texto = sinTildes(q.get('q') ?? '')
+    const lista = bienesDemo().filter((b) => b.activo && (!texto || sinTildes(b.codigo).includes(texto)))
+    const limite = Number(q.get('limite') ?? '50')
+    const desde = q.get('despues') ? lista.findIndex((b) => b.id === q.get('despues')) + 1 : 0
+    const pagina = lista.slice(desde, desde + limite)
+    const siguiente = desde + limite < lista.length ? (pagina.at(-1)?.id ?? null) : null
+    return json({ datos: pagina.map((b) => ({ id: b.id, codigo: b.codigo })), siguiente })
+  }
+  if (m === 'GET' && base === '/acceso/personas') {
+    const texto = sinTildes(q.get('q') ?? '').trim()
+    if (texto.length < 2) return error(422, 'validacion', 'Escriba al menos 2 caracteres del nombre o del documento.')
+    const lista = personasDemo().filter((p) => sinTildes(p.nombre).includes(texto) || (p.documento ?? '').includes(texto))
+    return json({
+      datos: lista.slice(0, 20).map((p) => ({ id: p.id, nombre: p.nombre, documento: p.documento ? `****${p.documento.slice(-4)}` : null })),
+      siguiente: null,
+    })
   }
 
   // Configuración

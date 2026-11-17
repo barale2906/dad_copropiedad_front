@@ -19,6 +19,7 @@ import IPaquete from '~icons/tabler/package'
 import { devolverCorrespondencia, listarCorrespondencia } from '../api'
 import DialogoEntregar from '../componentes/DialogoEntregar.vue'
 import DialogoRecibir from '../componentes/DialogoRecibir.vue'
+import { usePorteria } from '../store'
 
 const PESTANAS = [
   { id: 'pendientes', texto: 'Por entregar' },
@@ -33,6 +34,7 @@ const ESTADO: Record<EstadoCorrespondencia, { texto: string; tono: 'info' | 'exi
 
 const entidad = useEntidad()
 const bienes = useBienes()
+const porteria = usePorteria()
 const id = computed(() => entidad.activa?.entidad_id ?? '')
 const zona = computed(() => entidad.zonaHoraria)
 const pestana = usePestana(PESTANAS)
@@ -48,7 +50,7 @@ const filtros = computed(() => ({ estado: pestana.value === 'pendientes' ? 'reci
 const listado = useListado(
   async (despues, f: { estado: EstadoCorrespondencia }) => {
     const p = await listarCorrespondencia(id.value, f.estado, despues)
-    await bienes.resolver(p.datos.map((c) => c.bien_privado_id))
+    await porteria.asegurarCodigos(id.value)
     return p
   },
   { filtros, retardo: 0 },

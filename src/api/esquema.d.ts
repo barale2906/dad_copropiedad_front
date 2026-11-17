@@ -29841,6 +29841,176 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/copropiedades/{copropiedad_id}/acceso/bienes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Bienes privados activos por código, para anunciar visitas y recibir correspondencia. */
+        get: {
+            parameters: {
+                query?: {
+                    /**
+                     * @description Fragmento del código del bien, o del nombre (sin tildes ni mayúsculas) o el documento de
+                     *     la persona.
+                     */
+                    q?: string;
+                    /**
+                     * @description Elementos por página (1–200; 50 si se omite).
+                     * @example 50
+                     */
+                    limite?: number;
+                    /** @description Cursor: el valor `siguiente` de la página anterior. Se omite para la primera página. */
+                    despues?: string;
+                };
+                header?: never;
+                path: {
+                    /** @description Copropiedad */
+                    copropiedad_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Bienes (id y código) */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PaginaRespuesta_BienPorteriaRespuesta"];
+                    };
+                };
+                /** @description Sin sesión o token vencido (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Sin `acceso.registrar` (`sin_permiso`) o sin el módulo (`modulo_no_habilitado`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description La copropiedad no existe o la cuenta no tiene roles en ella (`no_encontrado`) */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/copropiedades/{copropiedad_id}/acceso/personas": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Personas por nombre o documento, para emitir credenciales o registrar el consentimiento
+         *     biométrico. Exige al menos 2 caracteres.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /**
+                     * @description Fragmento del código del bien, o del nombre (sin tildes ni mayúsculas) o el documento de
+                     *     la persona.
+                     */
+                    q?: string;
+                    /**
+                     * @description Elementos por página (1–200; 50 si se omite).
+                     * @example 50
+                     */
+                    limite?: number;
+                    /** @description Cursor: el valor `siguiente` de la página anterior. Se omite para la primera página. */
+                    despues?: string;
+                };
+                header?: never;
+                path: {
+                    /** @description Copropiedad */
+                    copropiedad_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Personas (nombre y documento enmascarado) */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PaginaRespuesta_PersonaPorteriaRespuesta"];
+                    };
+                };
+                /** @description Sin sesión o token vencido (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Sin `acceso.credenciales.gestionar` ni `acceso.biometria.enrolar` (`sin_permiso`) o sin el módulo (`modulo_no_habilitado`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description La copropiedad no existe o la cuenta no tiene roles en ella (`no_encontrado`) */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Menos de 2 caracteres (`validacion`) */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/copropiedades/{copropiedad_id}/puntos-acceso": {
         parameters: {
             query?: never;
@@ -45065,6 +45235,13 @@ export interface components {
             /** Format: uuid */
             reglas_archivo_id?: string | null;
         };
+        /** @description Bien privado para la portería: solo id y código. */
+        BienPorteriaRespuesta: {
+            /** Format: uuid */
+            id: string;
+            /** @example T1-101 */
+            codigo: string;
+        };
         /** @description Bien privado en un listado o en el árbol. */
         BienPrivadoRespuesta: {
             /** Format: uuid */
@@ -50608,6 +50785,21 @@ export interface components {
             siguiente?: string | null;
         };
         /** @description Página de resultados de un listado. */
+        PaginaRespuesta_BienPorteriaRespuesta: {
+            /** @description Elementos de esta página. */
+            datos: {
+                /** Format: uuid */
+                id: string;
+                /** @example T1-101 */
+                codigo: string;
+            }[];
+            /**
+             * Format: uuid
+             * @description Cursor para pedir la página siguiente (`despues=<siguiente>`); `null` si es la última.
+             */
+            siguiente?: string | null;
+        };
+        /** @description Página de resultados de un listado. */
         PaginaRespuesta_BienPrivadoRespuesta: {
             /** @description Elementos de esta página. */
             datos: {
@@ -51095,6 +51287,26 @@ export interface components {
                 verificada_por?: string | null;
                 /** Format: date-time */
                 creado_en: string;
+            }[];
+            /**
+             * Format: uuid
+             * @description Cursor para pedir la página siguiente (`despues=<siguiente>`); `null` si es la última.
+             */
+            siguiente?: string | null;
+        };
+        /** @description Página de resultados de un listado. */
+        PaginaRespuesta_PersonaPorteriaRespuesta: {
+            /** @description Elementos de esta página. */
+            datos: {
+                /** Format: uuid */
+                id: string;
+                /** @example Marta Gómez */
+                nombre: string;
+                /**
+                 * @description Últimos cuatro caracteres del documento; `null` si no tiene.
+                 * @example ****3456
+                 */
+                documento?: string | null;
             }[];
             /**
              * Format: uuid
@@ -51639,6 +51851,18 @@ export interface components {
              *     `propietario`.
              */
             cuenta_id?: string | null;
+        };
+        /** @description Persona para la portería: nombre y documento enmascarado. */
+        PersonaPorteriaRespuesta: {
+            /** Format: uuid */
+            id: string;
+            /** @example Marta Gómez */
+            nombre: string;
+            /**
+             * @description Últimos cuatro caracteres del documento; `null` si no tiene.
+             * @example ****3456
+             */
+            documento?: string | null;
         };
         /** @description Persona que recibió la factura o el bien. Solo viaja en el evento a la DIAN. */
         PersonaRecibePeticion: {

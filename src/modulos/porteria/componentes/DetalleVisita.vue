@@ -22,11 +22,13 @@ import { useEntidad } from '@/stores/entidad'
 import ITelefono from '~icons/tabler/phone'
 import { cancelarVisita, contactosVisita, detalleVisita, ingresoVisita, registrarLlamada, salidaVisita } from '../api'
 import { type AccionVisita, accionesDeVisita, ESTADO_VISITA, RESULTADO_LLAMADA, textoEvento, transcurrido } from '../reglas'
+import { usePorteria } from '../store'
 
 const props = defineProps<{ entidadId: string; visitaId: string }>()
 
 const entidad = useEntidad()
 const bienes = useBienes()
+const porteria = usePorteria()
 const zona = computed(() => entidad.zonaHoraria)
 
 const estado = ref<'cargando' | 'listo' | 'error'>('cargando')
@@ -92,7 +94,7 @@ async function hacer(que: 'ingreso' | 'salida' | 'cancelar') {
 async function cargar() {
   try {
     detalle.value = await detalleVisita(props.entidadId, props.visitaId)
-    await bienes.resolver([detalle.value.visita.bien_privado_id])
+    await porteria.asegurarCodigos(props.entidadId)
     estado.value = 'listo'
   } catch (e) {
     error.value = mensajeDeError(e)

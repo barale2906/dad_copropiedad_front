@@ -1,6 +1,5 @@
 /** Llamadas del módulo «Portería» (`/copropiedades/{id}/…`, módulo `control_acceso`). */
 import { api, exigir, idempotencia } from '@/api/cliente'
-import { buscarPersonas } from '@/api/personas'
 import type {
   AlertaAcceso,
   AutorizacionAcceso,
@@ -316,8 +315,27 @@ export function registrarDispositivo(id: string, datos: DispositivoAcceso, clave
   )
 }
 
-/** Opciones para `SelectorPersona`: nombre y documento de las personas de la PH. */
+// Búsquedas de la portería --------------------------------------------------------------------
+
+/**
+ * Bienes activos por código, con lo mínimo (id y código). Exige `acceso.registrar`, no
+ * `bienes_privados.ver`: así trabaja la plantilla «vigilante».
+ */
+export function bienesPorteria(id: string, q: string | undefined, despues?: string, limite = 20) {
+  return exigir(
+    api().GET('/api/v1/copropiedades/{copropiedad_id}/acceso/bienes', {
+      params: { ...ph(id), query: { q: q?.trim() || undefined, limite, despues } },
+    }),
+  )
+}
+
+/**
+ * Opciones para `SelectorPersona`: nombre y documento enmascarado (`****3456`). Exige
+ * `acceso.credenciales.gestionar` o `acceso.biometria.enrolar` y al menos 2 caracteres.
+ */
 export async function opcionesPersona(id: string, q: string) {
-  const { datos } = await buscarPersonas(id, q)
-  return datos.map((p) => ({ id: p.id, nombre: p.nombre, detalle: [p.tipo_documento, p.documento ?? 'Sin documento'].filter(Boolean).join(' ') }))
+  const { datos } = await exigir(
+    api().GET('/api/v1/copropiedades/{copropiedad_id}/acceso/personas', { params: { ...ph(id), query: { q: q.trim(), limite: 20 } } }),
+  )
+  return datos.map((p) => ({ id: p.id, nombre: p.nombre, detalle: p.documento ? `Documento ${p.documento}` : 'Sin documento' }))
 }

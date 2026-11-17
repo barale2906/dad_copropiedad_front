@@ -15,6 +15,9 @@ import {
   transicionesCredencial,
   visitaAbierta,
 } from '@/modulos/porteria/reglas'
+import { bienesDemo } from '@/mocks/unidades'
+import { usePorteria } from '@/modulos/porteria/store'
+import { useBienes } from '@/stores/bienes'
 import { useEntidad } from '@/stores/entidad'
 import { useSesion } from '@/stores/sesion'
 import { prepararConDemo } from '../ayudantes'
@@ -91,11 +94,32 @@ describe('portería contra el demo', { timeout: 20_000 }, () => {
     await useEntidad().entrar(PH)
   })
 
-  it('el usuario de portería tiene el control de acceso', () => {
+  it('el usuario de portería tiene el control de acceso, sin ver bienes ni personas', () => {
     const e = useEntidad()
     expect(e.tieneModulo('control_acceso')).toBe(true)
     expect(e.tienePermiso('acceso.registrar')).toBe(true)
-    expect(e.tienePermiso('reservas.aprobar')).toBe(false)
+    expect(e.tienePermiso('bienes_privados.ver')).toBe(false)
+    expect(e.tienePermiso('personas.ver')).toBe(false)
+  })
+
+  it('busca bienes con lo mínimo y pagina por cursor', async () => {
+    const { datos } = await p.bienesPorteria(PH, 't1-10')
+    expect(datos.map((b) => b.codigo)).toContain('T1-101')
+    expect(Object.keys(datos[0]!).sort()).toEqual(['codigo', 'id'])
+    const primera = await p.bienesPorteria(PH, undefined, undefined, 30)
+    expect(primera.datos).toHaveLength(30)
+    const segunda = await p.bienesPorteria(PH, undefined, primera.siguiente ?? undefined, 30)
+    expect(segunda.siguiente).toBeNull()
+    expect(primera.datos.length + segunda.datos.length).toBe(40)
+  })
+
+  it('carga los códigos de los bienes una vez para mostrar visitas y paquetes', async () => {
+    const porteria = usePorteria()
+    await Promise.all([porteria.asegurarCodigos(PH), porteria.asegurarCodigos(PH)])
+    expect(useBienes().codigo(T1_101)).toBe('T1-101')
+    const ultimo = bienesDemo().at(-1)!
+    expect(useBienes().codigo(ultimo.id)).toBe(ultimo.codigo)
+    expect(Object.keys(useBienes().codigos)).toHaveLength(40)
   })
 
   it('anunciar → llamada → ingreso → salida', async () => {
@@ -201,9 +225,10 @@ describe('portería contra el demo', { timeout: 20_000 }, () => {
     expect(await p.dispositivos(PH)).toHaveLength(2)
   })
 
-  it('opciones de persona para el selector', async () => {
+  it('opciones de persona con el documento enmascarado; pide al menos 2 caracteres', async () => {
     const [o] = await p.opcionesPersona(PH, 'marta')
-    expect(o).toMatchObject({ nombre: expect.stringContaining('Marta') })
+    expect(o).toEqual({ id: vid(5001), nombre: 'Marta Residente', detalle: 'Documento ****3456' })
+    await expect(p.opcionesPersona(PH, 'm')).rejects.toMatchObject({ estado: 422 })
   })
 })
 

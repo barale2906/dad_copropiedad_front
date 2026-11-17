@@ -12,7 +12,6 @@ import { useAccion } from '@/composables/useAccion'
 import { useRefresco } from '@/composables/useRefresco'
 import HudBoton from '@/hud/componentes/HudBoton.vue'
 import HudEstado from '@/hud/componentes/HudEstado.vue'
-import { useBienes } from '@/stores/bienes'
 import { useEntidad } from '@/stores/entidad'
 import { usePreferencias } from '@/stores/preferencias'
 import IMinuta from '~icons/tabler/notebook'
@@ -26,10 +25,11 @@ import DialogoQr from '../componentes/DialogoQr.vue'
 import DialogoRecibir from '../componentes/DialogoRecibir.vue'
 import ListaVisitas from '../componentes/ListaVisitas.vue'
 import { accionesDeVisita, ordenarTurno, visitaAbierta } from '../reglas'
+import { usePorteria } from '../store'
 
 const route = useRoute()
 const entidad = useEntidad()
-const bienes = useBienes()
+const porteria = usePorteria()
 const prefs = usePreferencias()
 const id = computed(() => entidad.activa?.entidad_id ?? '')
 
@@ -74,7 +74,7 @@ async function cargar() {
     ])
     visitas.value = v.datos
     porEntregar.value = p?.datos.length ?? 0
-    await bienes.resolver(v.datos.map((x) => x.bien_privado_id))
+    await porteria.asegurarCodigos(id.value)
     ahora.value = new Date()
     estado.value = 'listo'
   } catch (e) {

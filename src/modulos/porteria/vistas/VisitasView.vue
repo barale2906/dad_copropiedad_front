@@ -7,17 +7,17 @@ import { useListado } from '@/composables/useListado'
 import HudCargarMas from '@/hud/componentes/HudCargarMas.vue'
 import HudEstado from '@/hud/componentes/HudEstado.vue'
 import HudSelector from '@/hud/componentes/HudSelector.vue'
-import { useBienes } from '@/stores/bienes'
 import { useEntidad } from '@/stores/entidad'
 import IVolver from '~icons/tabler/arrow-left'
 import { listarVisitas } from '../api'
 import DetalleVisita from '../componentes/DetalleVisita.vue'
 import ListaVisitas from '../componentes/ListaVisitas.vue'
 import { ESTADO_VISITA } from '../reglas'
+import { usePorteria } from '../store'
 
 const route = useRoute()
 const entidad = useEntidad()
-const bienes = useBienes()
+const porteria = usePorteria()
 const id = computed(() => entidad.activa?.entidad_id ?? '')
 const visitaId = computed(() => (typeof route.params.id === 'string' ? route.params.id : ''))
 
@@ -30,7 +30,7 @@ const detalle = (v: Visita) => ruta(v.id)
 const listado = useListado(
   async (despues, f: { estado?: EstadoVisita }) => {
     const p = await listarVisitas(id.value, { estado: f.estado, despues })
-    await bienes.resolver(p.datos.map((v) => v.bien_privado_id))
+    await porteria.asegurarCodigos(id.value)
     return p
   },
   { filtros, retardo: 0 },

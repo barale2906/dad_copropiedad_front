@@ -118,13 +118,15 @@ const CAPACIDADES_RESIDENTE: Capacidades = {
   entidad_suspendida: false,
 }
 
-/** Capacidades de la portería en la PH demo: todo el control de acceso (turno y configuración). */
+/**
+ * Capacidades de la portería en la PH demo: todo el control de acceso (turno y configuración),
+ * sin `bienes_privados.ver` ni `personas.ver`, como las plantillas vigilante y supervisor.
+ */
 const CAPACIDADES_PORTERIA: Capacidades = {
   tipo: 'propiedad_horizontal',
   permisos: [
     'acceso.registrar', 'acceso.correspondencia.entregar', 'acceso.minuta.ver', 'acceso.minuta.registrar',
     'acceso.bitacora.ver', 'acceso.credenciales.gestionar', 'acceso.biometria.enrolar', 'acceso.configurar',
-    'personas.ver', 'bienes_privados.ver',
   ],
   modulos: ['control_acceso'],
   modo_soporte: false,

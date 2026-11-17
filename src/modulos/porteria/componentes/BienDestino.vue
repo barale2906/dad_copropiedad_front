@@ -1,30 +1,31 @@
 <script setup lang="ts">
 /**
- * Bien al que va la visita o el paquete: búsqueda por código (la portería no tiene «propios»).
- * La búsqueda exige `bienes_privados.ver`, que la plantilla «vigilante» no trae (solicitud S15).
+ * Bien al que va la visita o el paquete: búsqueda por código con `…/acceso/bienes`, que solo
+ * exige `acceso.registrar` (la plantilla «vigilante» no trae `bienes_privados.ver`).
  */
-import { computed, watch } from 'vue'
 import SelectorBien from '@/hud/componentes/SelectorBien.vue'
 import { useBienes } from '@/stores/bienes'
 import { useEntidad } from '@/stores/entidad'
+import { bienesPorteria } from '../api'
 
 withDefaults(defineProps<{ etiqueta?: string; error?: string | null }>(), { etiqueta: 'Apartamento o bien', error: null })
 const bienId = defineModel<string>({ required: true })
-const bienes = useBienes()
 const entidad = useEntidad()
-const puedeBuscar = computed(() => entidad.tienePermiso('bienes_privados.ver'))
-const buscar = async (q: string) => (await bienes.buscar(q)).datos
+const bienes = useBienes()
 
-watch(bienId, (b) => b && bienes.resolver([b]), { immediate: true })
+async function buscar(q: string) {
+  const { datos } = await bienesPorteria(entidad.activa?.entidad_id ?? '', q)
+  bienes.recordar(datos)
+  return datos
+}
 </script>
 
 <template>
   <SelectorBien
     v-model="bienId"
     :etiqueta="etiqueta"
-    :buscar="puedeBuscar ? buscar : undefined"
+    :buscar="buscar"
     :codigo-elegido="bienId ? bienes.codigo(bienId) : null"
     :error="error"
-    sin-bienes="Su rol no puede buscar apartamentos. Pida a la administración el permiso «Ver bienes privados»."
   />
 </template>
