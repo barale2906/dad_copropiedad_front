@@ -104,9 +104,9 @@ test.describe('maqueta del conjunto (PH)', () => {
 
   test('acción → módulo con la zona preseleccionada → volver a la misma zona', async ({ page }) => {
     await elegirZona(page, 'Piscina')
-    await page.getByRole('link', { name: /Reservar/ }).click()
-    await expect(page.getByRole('heading', { name: 'Reservar' })).toBeVisible()
-    await expect(page.getByText('Zona preseleccionada')).toContainText('Piscina')
+    await page.getByRole('link', { name: /^Reservar/ }).click()
+    // La zona llega preseleccionada: con un solo recurso de esa categoría se abre directo.
+    await expect(page.getByRole('heading', { name: 'Reservar: Piscina' })).toBeVisible()
     await page.getByRole('link', { name: /Volver a la maqueta/ }).click()
     await expect(page.getByRole('complementary', { name: 'Zona Piscina' })).toBeVisible()
   })

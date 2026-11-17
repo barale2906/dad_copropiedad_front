@@ -63,7 +63,7 @@ app/ (arranque y router) ──► todo lo anterior
 | `src/api/` | Cliente HTTP tipado, tokens, errores, tipos del contrato | Importar Vue, stores o vistas |
 | `src/stores/` | Estado compartido (sesión, entidad activa, preferencias, cuenta) | Importar componentes |
 | `src/composables/` | Lógica con estado que reutilizan los módulos (`useAccion`, `useListado`, `useRefresco`) y reglas puras comunes | Importar componentes |
-| `src/formato/` | Funciones puras de formato: fechas en la zona de la entidad, montos y coeficientes | Importar Vue, stores, API o componentes |
+| `src/formato/` | Funciones puras de formato y de tiempo: fechas en la zona de la entidad, horarios, franjas, montos y coeficientes | Importar Vue, stores, API o componentes |
 | `src/hud/` | Sistema visual: tokens, estilos base, componentes `Hud*` | Llamar a la API o leer stores de negocio |
 | `src/escena/` | Motor 3D, piezas, plantillas, calidad, `mapa-modulos.ts` | Importar stores, router o vistas (recibe todo por props/opciones) |
 | `src/pantallas/` | Pantallas transversales y su navegación | Contener lógica de un módulo funcional |
@@ -108,8 +108,8 @@ Se mantiene al día: quien crea una pieza reutilizable la agrega aquí.
 | Mostrar un error | `mensajeDeError(e)` | `src/api/errores.ts` |
 | Ejecutar una acción (idempotencia, errores por código, 429) | `useAccion((clave, …) => …, { alConflicto, alExito })`; `ejecutar()` → `{ ok, valor }` | `src/composables/useAccion.ts` |
 | Botones por estado del recurso / cuatro ojos | `accionesPermitidas(estado, mapa)`, `puedeAprobar(autores, cuentaId)` | `src/composables/reglas.ts` |
-| Fechas en la zona de la entidad | `fecha`, `fechaHora`, `hora`, `aUtc` (con `useEntidad().zonaHoraria`); fechas de calendario `YYYY-MM-DD`: `fechaCalendario`, `hoyEn(zona)` | `src/formato/fechas.ts` |
-| Montos, porcentajes, coeficientes, sumas | `moneda`, `porcentaje`, `coeficiente`, `sumar`, `restar`, `comparar`, `leerDecimal` | `src/formato/decimales.ts` |
+| Fechas en la zona de la entidad | `fecha`, `fechaHora`, `hora`, `aUtc` (con `useEntidad().zonaHoraria`); fechas de calendario `YYYY-MM-DD`: `fechaCalendario`, `hoyEn(zona)`, `sumarDias`; `horaEn`, `diaSemana` | `src/formato/fechas.ts` |
+| Montos, porcentajes, coeficientes, sumas | `moneda`, `porcentaje`, `coeficiente`, `sumar`, `restar`, `comparar`, `porcentajeDe`, `leerDecimal` | `src/formato/decimales.ts` |
 | Generar UUID (también en HTTP) | `uuid()` | `src/api/uuid.ts` |
 | Subir, abrir y descargar archivos | `subirArchivo`, `abrirArchivo` (enlace firmado justo antes), `descargar(api().GET(…, { parseAs: 'blob' }))` → nombre y `sha256`, `aBase64` | `src/api/archivos.ts` |
 | Sesión, login, 2FA, cierre, definir contraseña | `useSesion()` (`definirContrasena`, `recuperarContrasena`) | `src/stores/sesion.ts` |
@@ -148,7 +148,10 @@ Se mantiene al día: quien crea una pieza reutilizable la agrega aquí.
 | Barra superior de la entidad | `<BarraSuperior>` (slot para acciones) | `src/pantallas/componentes/BarraSuperior.vue` |
 | Marco de módulo (menú lateral, migas, volver) | `ModuloView.vue` (base del marco de módulos) | `src/pantallas/ModuloView.vue` |
 | Montar la vista real de una acción | registrar `'seccion/accion': () => import(…)` en `VISTAS_MODULOS` (sin registro: «en construcción»); el detalle llega en `route.params.id` | `src/app/vistas-modulos.ts`, `src/pantallas/vistas-modulo.ts` |
-| Horario semanal con excepciones (editar, validar, resumir) | `<EditorHorario v-model>`; `validarHorario`, `normalizarHorario`, `resumirHorario`, `DIAS` | `src/modulos/entidad/componentes/EditorHorario.vue`, `src/modulos/entidad/horario.ts` (subir a una capa compartida con el plan 02) |
+| Franjas para reservar (inicios posibles, duraciones, días, agrupar por día en la zona) | `iniciosPosibles`, `duraciones`, `textoDuracion`, `dias`, `porDia`, `sumarMinutos` | `src/formato/franjas.ts` |
+| Calendario de franjas libres (elegir inicio o solo lectura) | `<CalendarioFranjas v-model dias franjas zona paso duracion solo-lectura>` | `src/hud/componentes/CalendarioFranjas.vue` |
+| Pestañas por `?vista=` | `<HudPestanas pestanas etiqueta>` + `usePestana(PESTANAS)` | `src/hud/componentes/HudPestanas.vue`, `src/composables/usePestana.ts` |
+| Horario semanal con excepciones (editar, validar, resumir) | `<EditorHorario v-model>`; `validarHorario`, `normalizarHorario`, `resumirHorario`, `DIAS` | `src/hud/componentes/EditorHorario.vue`, `src/formato/horario.ts` |
 | Buscar una cuenta (usuario o correo exactos) / una persona de la PH | `<BuscarCuenta entidad-id @encontrada>`, `<BuscarPersona copropiedad-id @elegir>` | `src/modulos/entidad/componentes/` (subir a una capa compartida al reutilizarlos) |
 | Matriz de permisos de un rol (por módulo, búsqueda, «todos», no otorgables) | `<MatrizPermisos v-model grupos solo-lectura puede-otorgar>` con `agruparPermisos(catalogo, ambito)`, `etiquetaPermiso`, `diferencia`, `noOtorgables` | `src/modulos/entidad/componentes/MatrizPermisos.vue`, `src/modulos/entidad/permisos.ts` (subir a una capa compartida con el plan 15) |
 | Lienzo 3D | `<EscenaCanvas plantilla perfil estados enfocada holgura>` (siempre asíncrono) | `src/escena/EscenaCanvas.vue` |
@@ -156,7 +159,7 @@ Se mantiene al día: quien crea una pieza reutilizable la agrega aquí.
 | Piezas 3D | `Kit` (`caja`, `losa`, `cilindro_`, `cono_`) y `torre`, `edificio`, `arbol`, `carro`, `escritorio` | `src/escena/piezas.ts` |
 | Fondo ambiental HUD | clase `.fondo-hud`; rótulos: `.rotulo`; texto oculto accesible: `.solo-lector` | `src/hud/estilos/base.css` |
 | Transición entre vistas | `<Transition name="vista">` | `src/hud/estilos/base.css` |
-| Datos de prueba / demo | `fetchDemo` (ficha, puntos de atención, suscripción y auditoría en `src/mocks/ficha.ts`; protección de datos, personas, organizaciones y cuentas en `src/mocks/proteccion.ts`: personas «Marta», «Pedro», «Lucía», cuenta `carlos`, NIT `900123456-8`) (usuarios `uno`, `empresa`, `2fa`, `nuevo` sin roles, `sinverificar`; códigos `123456`; correos `@otra.dad` simulan una cuenta existente); un `Manejador` por área (`json`, `error`, `sinContenido`) | `src/mocks/demo.ts`, `src/mocks/http.ts`, `src/mocks/<area>.ts` |
+| Datos de prueba / demo | `fetchDemo` (ficha, puntos de atención, suscripción y auditoría en `src/mocks/ficha.ts`; protección de datos, personas, organizaciones y cuentas en `src/mocks/proteccion.ts`: personas «Marta», «Pedro», «Lucía», cuenta `carlos`, NIT `900123456-8`; zonas comunes en `src/mocks/zonas-comunes.ts`: bienes `T1-101` (propio) … `T2-302` (restringido)) (usuarios `uno`, `empresa`, `2fa`, `nuevo` sin roles, `sinverificar`; códigos `123456`; correos `@otra.dad` simulan una cuenta existente); un `Manejador` por área (`json`, `error`, `sinContenido`) | `src/mocks/demo.ts`, `src/mocks/http.ts`, `src/mocks/<area>.ts` |
 | Preparar pruebas | `prepararConDemo()`, `conCapacidades()` (`modo_soporte` opcional), `conConfig()`, `conRespuesta(metodo, ruta, fn)`, `ENTIDAD_PH` | `src/__tests__/ayudantes.ts` |
 | Pasos E2E | `entrar()`, `esperarMaqueta()`, `elegirZona()` | `e2e/utilidades.ts` |
 

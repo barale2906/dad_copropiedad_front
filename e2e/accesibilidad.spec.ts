@@ -182,3 +182,47 @@ test('protección de datos y organizaciones', async ({ page }) => {
   await expect(page.getByRole('dialog')).toBeVisible()
   await revisar(page)
 })
+
+/** Revisa con axe cada pantalla de Zonas comunes (título de nivel 1 → sin «Cargando» → axe). */
+async function revisarZonas(page: Page, pantallas: [string, string][]) {
+  await entrar(page, 'uno')
+  await esperarMaqueta(page)
+  const base = `${page.url()}/zonas-comunes`
+  for (const [ruta, titulo] of pantallas) {
+    await page.goto(`${base}/${ruta}`)
+    await expect(page.getByRole('heading', { name: titulo, exact: true, level: 1 })).toBeVisible()
+    await expect(page.getByText('Cargando')).toHaveCount(0)
+    await revisar(page)
+  }
+  return base
+}
+
+test('zonas comunes: residente', async ({ page }) => {
+  await revisarZonas(page, [
+    ['reservar', 'Reservar'],
+    ['reservar?zona=piscina', 'Reservar: Piscina'],
+    ['mis-reservas', 'Mis reservas'],
+    ['disponibilidad', 'Disponibilidad'],
+  ])
+})
+
+test('zonas comunes: administración', async ({ page }) => {
+  await revisarZonas(page, [
+    ['aprobaciones', 'Aprobar reservas'],
+    ['entregas', 'Entregas y recibos'],
+    ['restricciones', 'Restricciones'],
+  ])
+})
+
+test('zonas comunes: recursos, parqueaderos y sorteos', async ({ page }) => {
+  const base = await revisarZonas(page, [
+    ['recursos', 'Recursos y reglas'],
+    ['parqueaderos', 'Parqueaderos'],
+    ['sorteos', 'Sorteos de parqueaderos'],
+  ])
+  await page.goto(`${base}/recursos`)
+  await page.getByRole('link', { name: 'Ver ficha de Piscina' }).click()
+  await page.getByRole('link', { name: 'Horario' }).click()
+  await expect(page.getByRole('button', { name: 'Guardar horario' })).toBeVisible()
+  await revisar(page)
+})

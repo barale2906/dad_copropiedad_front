@@ -73,6 +73,7 @@ export const SECCIONES: Record<string, Seccion> = {
     soloPH: true,
     acciones: [
       a('reservar', 'Reservar', 'Solicitar una reserva de la zona.', ['reservas.crear']),
+      a('mis-reservas', 'Mis reservas', 'Sus reservas y cancelaciones.', ['reservas.crear']),
       a('disponibilidad', 'Disponibilidad', 'Calendario y franjas libres.', ['bienes_comunes.ver']),
       a('aprobaciones', 'Aprobar reservas', 'Solicitudes pendientes.', ['reservas.aprobar']),
       a('entregas', 'Entregas y recibos', 'Entrega y recibo de la zona reservada.', ['reservas.entregas.registrar']),

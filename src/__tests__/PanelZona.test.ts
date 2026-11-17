@@ -27,6 +27,7 @@ describe('PanelZona', () => {
     const enlaces = w.findAllComponents(RouterLinkStub)
     expect(enlaces.map((e) => e.text())).toEqual([
       expect.stringContaining('Reservar'),
+      expect.stringContaining('Mis reservas'),
       expect.stringContaining('Disponibilidad'),
       expect.stringContaining('Recursos y reglas'),
       expect.stringContaining('Sorteos'),
