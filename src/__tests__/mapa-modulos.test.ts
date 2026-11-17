@@ -92,7 +92,7 @@ describe('mapa de módulos', () => {
     const permisos: Permiso[] = ['directorio.ver', 'directorio.compartir', 'proteccion_datos.gestionar', 'roles.ver']
     expect(ids('directorio', consulta([], permisos, true))).toEqual(['inicio', 'ofertas', 'busco', 'enlace'])
     expect(ids('directorio', consulta([], permisos, false))).toEqual(['inicio', 'ofertas'])
-    expect(ids('entidad', consulta([], permisos, false))).toEqual(['usuarios'])
+    expect(ids('entidad', consulta([], permisos, false))).toEqual(['usuarios', 'roles'])
   })
 
   it('una acción no visible para el rol queda sin acceso aunque la sección esté activa', () => {

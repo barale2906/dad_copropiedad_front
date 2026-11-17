@@ -5,7 +5,7 @@ async function abrirUsuarios(page: Page) {
   await entrar(page, 'uno')
   await esperarMaqueta(page)
   await page.goto(`${page.url()}/entidad/usuarios`)
-  await expect(page.getByRole('heading', { name: 'Usuarios y roles' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Usuarios', exact: true })).toBeVisible()
   await expect(page.getByRole('table', { name: 'Usuarios de la entidad' })).toBeVisible()
 }
 

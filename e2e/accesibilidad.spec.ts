@@ -117,3 +117,18 @@ test('usuarios de la entidad, crear y gestionar', async ({ page }) => {
   await page.getByRole('button', { name: 'Carga masiva' }).click()
   await revisar(page)
 })
+
+test('roles y matriz de permisos', async ({ page }) => {
+  await entrar(page, 'uno')
+  await esperarMaqueta(page)
+  await page.goto(`${page.url()}/entidad/roles`)
+  await expect(page.getByRole('table', { name: 'Roles de la entidad' })).toBeVisible()
+  await revisar(page)
+  await page.getByRole('button', { name: 'Crear rol' }).click()
+  await expect(page.getByRole('dialog')).toBeVisible()
+  await revisar(page)
+  await page.keyboard.press('Escape')
+  await page.getByRole('link', { name: 'Editar permisos de Auxiliar de cartera' }).click()
+  await expect(page.getByRole('heading', { name: 'Permisos del rol' })).toBeVisible()
+  await revisar(page)
+})

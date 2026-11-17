@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * Usuarios y roles de la entidad: el equipo (roles, contraseña pendiente, último acceso),
+ * Usuarios de la entidad: el equipo (roles, contraseña pendiente, último acceso),
  * crear un usuario con su rol, gestionar sus roles y la carga masiva.
  */
 import { computed, onMounted, ref } from 'vue'
@@ -98,7 +98,7 @@ onMounted(cargarRoles)
     <header class="encabezado">
       <div>
         <h1 id="titulo-usuarios">
-          Usuarios y roles
+          Usuarios
         </h1>
         <p class="texto-2">
           Quién trabaja en la entidad y con qué rol.

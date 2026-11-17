@@ -14,11 +14,11 @@
 import type { Capacidades, EntidadDeLaCuenta, FichaEntidad, Permiso, Tokens } from '@/api/tipos'
 import { archivos } from './archivos'
 import { cuenta, cuentaPublica, iniciarCuenta } from './cuenta'
-import { entidad, iniciarEntidad } from './entidad'
+import { entidad, iniciarEntidad, permisos } from './entidad'
 import { error, json, type Manejador } from './http'
 
 /** Manejadores que exigen sesión, en orden; el primero que responda gana. */
-const CON_SESION: Manejador[] = [cuenta, archivos, entidad]
+const CON_SESION: Manejador[] = [cuenta, archivos, entidad, permisos]
 /** Manejadores sin sesión (además del inicio de sesión). */
 const SIN_SESION: Manejador[] = [cuentaPublica]
 
@@ -38,6 +38,8 @@ const TODOS: Permiso[] = [
   'facturacion.facturas.gestionar', 'facturacion.emitir', 'directorio.ver', 'directorio.compartir',
   'importaciones.ejecutar',
   'roles.asignar', 'proteccion_datos.gestionar', 'tributario.configurar',
+  'copropiedad.datos.editar', 'archivos.personales.ver', 'suscripcion.ver', 'organizaciones.crear',
+  'organizaciones.vincular', 'contratos.gestionar',
 ]
 
 const ENTIDADES: (EntidadDeLaCuenta & { capacidades: Capacidades })[] = [

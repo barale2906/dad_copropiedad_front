@@ -6,4 +6,5 @@ import type { VistasModulo } from '@/pantallas/vistas-modulo'
 
 export const VISTAS_MODULOS: VistasModulo = {
   'entidad/usuarios': () => import('@/modulos/entidad/vistas/UsuariosView.vue'),
+  'entidad/roles': () => import('@/modulos/entidad/vistas/RolesView.vue'),
 }

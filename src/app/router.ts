@@ -45,7 +45,8 @@ export const router = createRouter({
       meta: { entidad: true },
     },
     {
-      path: '/e/:entidadId/:seccion/:accion?',
+      // `:id` es el detalle de un recurso dentro de la acción (p. ej. `entidad/roles/:id`).
+      path: '/e/:entidadId/:seccion/:accion?/:id?',
       name: 'modulo',
       component: () => import('@/pantallas/ModuloView.vue'),
       meta: { entidad: true },

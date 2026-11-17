@@ -1,7 +1,17 @@
 /** Llamadas del módulo «Datos y usuarios» (`/entidades/{id}/…`). */
 import { descargar } from '@/api/archivos'
 import { api, exigir, idempotencia } from '@/api/cliente'
-import type { Asignacion, Importacion, NuevoUsuario, Rol, UsuarioCreado, VistaPreviaUsuarios } from '@/api/tipos'
+import type {
+  Asignacion,
+  Importacion,
+  NuevoRol,
+  NuevoUsuario,
+  Permiso,
+  PermisoDelCatalogo,
+  Rol,
+  UsuarioCreado,
+  VistaPreviaUsuarios,
+} from '@/api/tipos'
 
 const ruta = (entidadId: string) => ({ path: { entidad_id: entidadId } })
 
@@ -35,6 +45,32 @@ export async function reenviarCodigo(entidadId: string, cuentaId: string): Promi
 
 export function listarRoles(entidadId: string): Promise<Rol[]> {
   return exigir(api().GET('/api/v1/entidades/{entidad_id}/roles', { params: ruta(entidadId) }))
+}
+
+/** Catálogo completo de permisos (de la plataforma y de las entidades). */
+export function catalogoPermisos(): Promise<PermisoDelCatalogo[]> {
+  return exigir(api().GET('/api/v1/permisos'))
+}
+
+/** Crea un rol propio (403 si incluye permisos que quien lo crea no tiene; 409 si el código existe). */
+export function crearRol(entidadId: string, datos: NuevoRol, clave: string): Promise<Rol> {
+  return exigir(
+    api().POST('/api/v1/entidades/{entidad_id}/roles', {
+      params: ruta(entidadId),
+      body: datos,
+      headers: idempotencia(clave),
+    }),
+  )
+}
+
+/** Reemplaza los permisos de un rol propio (las plantillas responden 409). */
+export function cambiarPermisos(entidadId: string, rolId: string, permisos: Permiso[]): Promise<Rol> {
+  return exigir(
+    api().PUT('/api/v1/entidades/{entidad_id}/roles/{rol_id}/permisos', {
+      params: { path: { entidad_id: entidadId, rol_id: rolId } },
+      body: { permisos },
+    }),
+  )
 }
 
 /** Historial de asignaciones de una cuenta en la entidad (más recientes primero). */

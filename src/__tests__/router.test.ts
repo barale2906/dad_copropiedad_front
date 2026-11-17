@@ -9,6 +9,14 @@ describe('rutas de módulo', () => {
     expect(existeEnElMapa(router.resolve(`/e/${ID}/zonas-comunes/reservar`))).toBe(true)
   })
 
+  it('admite el detalle de un recurso dentro de la acción', () => {
+    const r = router.resolve(`/e/${ID}/entidad/roles/abc`)
+    expect(r.name).toBe('modulo')
+    expect(r.params).toMatchObject({ seccion: 'entidad', accion: 'roles', id: 'abc' })
+    expect(existeEnElMapa(r)).toBe(true)
+    expect(existeEnElMapa(router.resolve(`/e/${ID}/entidad/inventada/abc`))).toBe(false)
+  })
+
   it('rechaza una sección o una acción que no existen', () => {
     expect(existeEnElMapa(router.resolve(`/e/${ID}/inventado`))).toBe(false)
     expect(existeEnElMapa(router.resolve(`/e/${ID}/zonas-comunes/inventada`))).toBe(false)

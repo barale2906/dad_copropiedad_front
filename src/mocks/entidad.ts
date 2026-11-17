@@ -1,15 +1,65 @@
 /** Demo del módulo «Datos y usuarios»: usuarios, roles, asignaciones e importación. */
-import type { Asignacion, Importacion, NuevoUsuario, Rol, Usuario, UsuarioCreado } from '@/api/tipos'
+import type {
+  Asignacion,
+  Importacion,
+  NuevoRol,
+  NuevoUsuario,
+  Permiso,
+  PermisoDelCatalogo,
+  Rol,
+  Usuario,
+  UsuarioCreado,
+} from '@/api/tipos'
 import { cuerpo, error, json, type Manejador, sinContenido } from './http'
 
 const id = (n: number) => `01930000-0000-7000-8000-${String(n).padStart(12, '0')}`
 
-const ROLES: Rol[] = [
-  { id: id(901), codigo: 'administrador', nombre: 'Administrador', ambito: 'copropiedad', es_plantilla: true, permisos: [] },
-  { id: id(902), codigo: 'contador', nombre: 'Contador', ambito: 'copropiedad', es_plantilla: true, permisos: [] },
-  { id: id(903), codigo: 'porteria', nombre: 'Portería', ambito: 'copropiedad', es_plantilla: true, permisos: [] },
-  { id: id(904), codigo: 'residente', nombre: 'Residente', ambito: 'copropiedad', es_plantilla: true, permisos: [] },
+/** Catálogo del demo: una muestra de cada módulo (el real trae todos los del contrato). */
+const CATALOGO: PermisoDelCatalogo[] = [
+  ...(['plataforma.cuentas.ver', 'plataforma.entidades.usuarios', 'plataforma.soporte.ver'] satisfies Permiso[]).map(
+    (codigo) => ({ codigo, ambito: 'plataforma' as const }),
+  ),
+  ...([
+    'copropiedad.datos.ver', 'copropiedad.datos.editar', 'roles.ver', 'roles.gestionar', 'roles.asignar',
+    'auditoria.ver', 'archivos.subir', 'archivos.ver', 'archivos.personales.ver', 'suscripcion.ver',
+    'importaciones.ejecutar', 'personas.ver', 'personas.datos_sensibles.ver', 'proteccion_datos.gestionar',
+    'organizaciones.crear', 'organizaciones.vincular', 'contratos.gestionar', 'bienes_privados.ver',
+    'censo.ver', 'censo.editar', 'censo.aprobar', 'bienes_comunes.ver', 'reservas.crear', 'reservas.aprobar',
+    'tickets.crear', 'tickets.atender', 'comunicados.gestionar', 'asambleas.ver', 'asambleas.convocar',
+    'acceso.registrar', 'acceso.bitacora.ver', 'acceso.correspondencia.entregar', 'acceso.minuta.registrar',
+    'acceso.biometria.enrolar', 'contabilidad.ver', 'contabilidad.comprobantes.crear',
+    'contabilidad.periodos.cerrar', 'tesoreria.recibos.registrar', 'cartera.ver', 'cartera.liquidar',
+    'cartera.ajustar', 'facturacion.ver', 'directorio.ver',
+  ] satisfies Permiso[]).map((codigo) => ({ codigo, ambito: 'copropiedad' as const })),
 ]
+
+const PLANTILLAS: Rol[] = [
+  {
+    id: id(901), codigo: 'administrador', nombre: 'Administrador', ambito: 'copropiedad', es_plantilla: true,
+    permisos: ['copropiedad.datos.ver', 'copropiedad.datos.editar', 'roles.ver', 'roles.gestionar', 'roles.asignar',
+      'auditoria.ver', 'archivos.ver', 'archivos.subir', 'censo.ver', 'cartera.ver', 'contabilidad.ver'],
+  },
+  {
+    id: id(902), codigo: 'contador', nombre: 'Contador', ambito: 'copropiedad', es_plantilla: true,
+    descripcion: 'Contabilidad, tesorería y cartera.',
+    permisos: ['contabilidad.ver', 'contabilidad.comprobantes.crear', 'contabilidad.periodos.cerrar', 'cartera.ver'],
+  },
+  {
+    id: id(903), codigo: 'porteria', nombre: 'Portería', ambito: 'copropiedad', es_plantilla: true,
+    permisos: ['acceso.registrar', 'acceso.bitacora.ver', 'acceso.correspondencia.entregar', 'acceso.minuta.registrar'],
+  },
+  { id: id(904), codigo: 'residente', nombre: 'Residente', ambito: 'copropiedad', es_plantilla: true, permisos: ['reservas.crear', 'tickets.crear'] },
+]
+
+const rolesIniciales = (): Rol[] => [
+  ...PLANTILLAS.map((r) => ({ ...r, permisos: [...r.permisos] })),
+  {
+    id: id(905), codigo: 'auxiliar_cartera', nombre: 'Auxiliar de cartera', ambito: 'copropiedad',
+    es_plantilla: false, descripcion: 'Apoya el recaudo.', permisos: ['cartera.ver', 'censo.ver'],
+  },
+]
+
+let ROLES = rolesIniciales()
 const rolPorCodigo = (c: string) => ROLES.find((r) => r.codigo === c)
 
 let usuarios: Usuario[] = []
@@ -44,6 +94,7 @@ const conRoles = (u: Usuario): Usuario => ({ ...u, roles: rolesDe(u.cuenta_id) }
 /** Datos iniciales de la entidad demo (se reinician en cada inicio de sesión). */
 export function iniciarEntidad(): void {
   consecutivo = 1000
+  ROLES = rolesIniciales()
   importaciones = new Map()
   asignaciones = []
   usuarios = [
@@ -122,12 +173,34 @@ function validar(texto: string, nombre: string): Response {
   return json({ importacion, filas: validas.map((v) => ({ fila: v.fila, rol: v.rol })) }, 201)
 }
 
+function crearRol(datos: NuevoRol): Response {
+  if (!/^[a-z0-9_]{2,60}$/.test(datos.codigo)) return error(422, 'validacion', 'El código no es válido.')
+  if (rolPorCodigo(datos.codigo)) return error(409, 'conflicto', `Ya existe un rol con el código «${datos.codigo}».`)
+  const rol: Rol = { id: id(++consecutivo), ambito: 'copropiedad', es_plantilla: false, ...datos }
+  ROLES.push(rol)
+  return json(rol, 201)
+}
+
+/** Catálogo de permisos (no depende de la entidad). */
+export const permisos: Manejador = (req, ruta) =>
+  req.method === 'GET' && ruta === '/permisos' ? json(CATALOGO) : null
+
 export const entidad: Manejador = async (req, ruta) => {
   const m = req.method
   const base = ruta.match(/^\/entidades\/[^/]+(\/.*)$/)?.[1]
   if (!base) return null
 
   if (m === 'GET' && base === '/roles') return json(ROLES)
+  if (m === 'POST' && base === '/roles') return crearRol(await cuerpo<NuevoRol>(req))
+  const permisosRol = base.match(/^\/roles\/([^/]+)\/permisos$/)
+  if (m === 'PUT' && permisosRol) {
+    const rol = ROLES.find((r) => r.id === permisosRol[1])
+    if (!rol) return error(404, 'no_encontrado', 'El rol no existe en la entidad.')
+    if (rol.es_plantilla) return error(409, 'conflicto', 'Los roles del sistema no se editan.')
+    const { permisos } = await cuerpo<{ permisos: Permiso[] }>(req)
+    rol.permisos = permisos
+    return json(rol)
+  }
 
   if (m === 'GET' && base === '/usuarios') {
     const url = new URL(req.url)

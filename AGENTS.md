@@ -147,7 +147,8 @@ Se mantiene al día: quien crea una pieza reutilizable la agrega aquí.
 | Confirmar con motivo (anular, rechazar…) | `<ConfirmarConMotivo v-model:abierto titulo accion @confirmar>` | `src/hud/componentes/ConfirmarConMotivo.vue` |
 | Barra superior de la entidad | `<BarraSuperior>` (slot para acciones) | `src/pantallas/componentes/BarraSuperior.vue` |
 | Marco de módulo (menú lateral, migas, volver) | `ModuloView.vue` (base del marco de módulos) | `src/pantallas/ModuloView.vue` |
-| Montar la vista real de una acción | registrar `'seccion/accion': () => import(…)` en `VISTAS_MODULOS` (sin registro: «en construcción») | `src/app/vistas-modulos.ts`, `src/pantallas/vistas-modulo.ts` |
+| Montar la vista real de una acción | registrar `'seccion/accion': () => import(…)` en `VISTAS_MODULOS` (sin registro: «en construcción»); el detalle llega en `route.params.id` | `src/app/vistas-modulos.ts`, `src/pantallas/vistas-modulo.ts` |
+| Matriz de permisos de un rol (por módulo, búsqueda, «todos», no otorgables) | `<MatrizPermisos v-model grupos solo-lectura puede-otorgar>` con `agruparPermisos(catalogo, ambito)`, `etiquetaPermiso`, `diferencia`, `noOtorgables` | `src/modulos/entidad/componentes/MatrizPermisos.vue`, `src/modulos/entidad/permisos.ts` (subir a una capa compartida con el plan 15) |
 | Lienzo 3D | `<EscenaCanvas plantilla perfil estados enfocada holgura>` (siempre asíncrono) | `src/escena/EscenaCanvas.vue` |
 | Nivel de calidad 3D / movimiento reducido | `perfil()`, `soportaWebGL()`, `movimientoReducido()` | `src/escena/calidad.ts` |
 | Piezas 3D | `Kit` (`caja`, `losa`, `cilindro_`, `cono_`) y `torre`, `edificio`, `arbol`, `carro`, `escritorio` | `src/escena/piezas.ts` |
@@ -233,7 +234,7 @@ Reglas de dependencias:
 - `src/escena/mapa-modulos.ts` es el **único** lugar que relaciona secciones, acciones, módulos
   contratables y permisos. La maqueta, el menú alterno y el menú lateral salen de ahí.
 - Una zona sin módulo contratado se muestra **apagada** (no se oculta); sin permisos, "sin acceso".
-- Ruta de un módulo: `/e/:entidadId/:seccion/:accion?`. Se conservan `?zona=` (bien común
+- Ruta de un módulo: `/e/:entidadId/:seccion/:accion?/:id?` (`:id` = detalle de un recurso). Se conservan `?zona=` (bien común
   preseleccionado) y `?origen=` (zona a la que vuelve "Volver a la maqueta").
 - La vista de cada acción se registra en `src/app/vistas-modulos.ts` (`seccion/accion` → import
   diferido); `ModuloView` la monta dentro del marco. `pantallas/` nunca importa `modulos/`.

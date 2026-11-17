@@ -39,6 +39,7 @@ export default defineConfig({
         'src/escena/mapa-modulos.ts',
         'src/modulos/*/api.ts',
         'src/modulos/*/usuarios.ts',
+        'src/modulos/*/permisos.ts',
         'src/pantallas/navegacion.ts',
         'src/pantallas/textos-entidad.ts',
       ],
