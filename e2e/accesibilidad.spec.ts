@@ -226,3 +226,47 @@ test('zonas comunes: recursos, parqueaderos y sorteos', async ({ page }) => {
   await expect(page.getByRole('button', { name: 'Guardar horario' })).toBeVisible()
   await revisar(page)
 })
+
+/** Revisa con axe pantallas de Unidades (título de nivel 1 → sin «Cargando» → axe). */
+async function revisarUnidades(page: Page, pantallas: [string, string][]) {
+  await entrar(page, 'uno')
+  await esperarMaqueta(page)
+  const base = `${page.url()}/unidades`
+  for (const [ruta, titulo] of pantallas) {
+    await page.goto(`${base}/${ruta}`)
+    await expect(page.getByRole('heading', { name: titulo, exact: true, level: 1 })).toBeVisible()
+    await expect(page.getByText('Cargando')).toHaveCount(0)
+    await revisar(page)
+  }
+  return base
+}
+
+test('unidades: bienes, propietarios y coeficientes', async ({ page }) => {
+  const base = await revisarUnidades(page, [
+    ['bienes', 'Bienes privados'],
+    ['bienes/01930000-0000-7000-8000-000000007001', 'Bienes privados'],
+    ['titulares?bien=01930000-0000-7000-8000-000000007001', 'Propietarios'],
+    ['coeficientes', 'Coeficientes'],
+  ])
+  await page.goto(`${base}/coeficientes`)
+  await page.getByRole('link', { name: 'Editar el cuadro 2' }).click()
+  await expect(page.getByText('Sobra 0,0001')).toBeVisible()
+  await revisar(page)
+})
+
+test('unidades: censo, cambios y personas', async ({ page }) => {
+  await revisarUnidades(page, [
+    ['censo', 'Censo'],
+    ['censo?vista=alertas', 'Censo'],
+    ['censo?vista=campanas', 'Censo'],
+    ['cambios-censo', 'Aprobar cambios del censo'],
+    ['personas', 'Personas'],
+  ])
+})
+
+test('unidades: importar y libros', async ({ page }) => {
+  await revisarUnidades(page, [
+    ['importar', 'Importar planilla'],
+    ['libros', 'Libros art. 51'],
+  ])
+})

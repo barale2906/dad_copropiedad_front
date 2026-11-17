@@ -1,5 +1,5 @@
-import { flushPromises, mount, RouterLinkStub } from '@vue/test-utils'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { flushPromises, mount, RouterLinkStub, type VueWrapper } from '@vue/test-utils'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import { limpiar } from '@/api/tokens'
 import ReservarView from '@/modulos/zonas-comunes/vistas/ReservarView.vue'
@@ -8,6 +8,9 @@ import { useSesion } from '@/stores/sesion'
 import { conRespuesta, prepararConDemo } from '../ayudantes'
 
 const PH = '01930000-0000-7000-8000-000000000001'
+/** Vistas montadas: se desmontan al final de cada prueba para que su trabajo pendiente no
+ * reactive el Pinia de la prueba anterior. */
+const montadas: VueWrapper[] = []
 
 async function montar(consulta: string) {
   const router = createRouter({
@@ -16,6 +19,7 @@ async function montar(consulta: string) {
   })
   await router.push(`/e/${PH}/zonas-comunes/reservar${consulta}`)
   const w = mount(ReservarView, { global: { plugins: [router], stubs: { RouterLink: RouterLinkStub } }, attachTo: document.body })
+  montadas.push(w)
   await vi.waitFor(() => expect(w.text()).not.toContain('Cargando'))
   return { w, router }
 }
@@ -29,6 +33,11 @@ async function listoParaReservar(w: Awaited<ReturnType<typeof montar>>['w']) {
 }
 
 describe('ReservarView', () => {
+  afterEach(async () => {
+    montadas.splice(0).forEach((w) => w.unmount())
+    await flushPromises()
+  })
+
   beforeEach(async () => {
     limpiar(false)
     prepararConDemo()

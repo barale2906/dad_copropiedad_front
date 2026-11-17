@@ -17,6 +17,7 @@ import HudCampoMonto from '@/hud/componentes/HudCampoMonto.vue'
 import HudDialogo from '@/hud/componentes/HudDialogo.vue'
 import HudEstado from '@/hud/componentes/HudEstado.vue'
 import HudFecha from '@/hud/componentes/HudFecha.vue'
+import { useBienes } from '@/stores/bienes'
 import { useEntidad } from '@/stores/entidad'
 import { entregarReserva, listarReservas, noAsistio, recibirReserva } from '../api'
 import ListaReservas from '../componentes/ListaReservas.vue'
@@ -27,6 +28,7 @@ type Paso = 'entregar' | 'recibir' | 'no_asistio'
 
 const entidad = useEntidad()
 const zonas = useZonasComunes()
+const bienes = useBienes()
 const id = computed(() => entidad.activa?.entidad_id ?? '')
 const zona = computed(() => entidad.zonaHoraria)
 
@@ -200,7 +202,7 @@ onMounted(cargar)
         @submit.prevent="confirmar"
       >
         <p v-if="elegida">
-          {{ zonas.nombreRecurso(elegida.recurso_id) }} · {{ zonas.codigoBien(elegida.bien_privado_id) }}
+          {{ zonas.nombreRecurso(elegida.recurso_id) }} · {{ bienes.codigo(elegida.bien_privado_id) }}
         </p>
         <template v-if="paso !== 'no_asistio'">
           <HudCampo

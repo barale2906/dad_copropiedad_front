@@ -15,14 +15,14 @@ import HudDialogo from '@/hud/componentes/HudDialogo.vue'
 import HudEstado from '@/hud/componentes/HudEstado.vue'
 import HudFecha from '@/hud/componentes/HudFecha.vue'
 import HudTabla from '@/hud/componentes/HudTabla.vue'
+import { useBienes } from '@/stores/bienes'
 import { useEntidad } from '@/stores/entidad'
 import IMas from '~icons/tabler/plus'
 import { crearRestriccion, levantarRestriccion, listarRestricciones } from '../api'
 import ElegirBien from '../componentes/ElegirBien.vue'
-import { useZonasComunes } from '../store'
 
 const entidad = useEntidad()
-const zonas = useZonasComunes()
+const bienes = useBienes()
 const id = computed(() => entidad.activa?.entidad_id ?? '')
 const zona = computed(() => entidad.zonaHoraria)
 const conCartera = computed(() => entidad.tieneModulo('contabilidad_ph'))
@@ -67,7 +67,7 @@ async function enviar() {
   if (!r.ok) return
   creando.value = false
   lista.value = [r.valor, ...lista.value]
-  resultado.value = `${zonas.codigoBien(r.valor.bien_privado_id)} ya no puede reservar.`
+  resultado.value = `${bienes.codigo(r.valor.bien_privado_id)} ya no puede reservar.`
 }
 
 // Levantar
@@ -86,10 +86,10 @@ async function confirmarLevantar() {
   if (!r || !(await levantar.ejecutar()).ok) return
   levantando.value = false
   lista.value = lista.value.filter((x) => x.id !== r.id)
-  resultado.value = `Se levantó la restricción de ${zonas.codigoBien(r.bien_privado_id)}.`
+  resultado.value = `Se levantó la restricción de ${bienes.codigo(r.bien_privado_id)}.`
 }
 
-watch(lista, (l) => zonas.resolverBienes(id.value, l.map((r) => r.bien_privado_id), entidad.tienePermiso('bienes_privados.ver')))
+watch(lista, (l) => bienes.resolver(l.map((r) => r.bien_privado_id)))
 
 async function cargar() {
   estado.value = 'cargando'
@@ -164,7 +164,7 @@ onMounted(cargar)
       titulo="Bienes con reservas restringidas"
     >
       <template #celda-bien="{ fila }">
-        <strong>{{ zonas.codigoBien(fila.bien_privado_id) }}</strong>
+        <strong>{{ bienes.codigo(fila.bien_privado_id) }}</strong>
       </template>
       <template #celda-vigencia="{ fila }">
         Desde {{ fecha(fila.desde, zona) }}{{ fila.hasta ? ` hasta ${fecha(fila.hasta, zona)}` : ' (indefinida)' }}
@@ -174,7 +174,7 @@ onMounted(cargar)
           variante="fantasma"
           @click="abrirLevantar(fila)"
         >
-          Levantar<span class="solo-lector"> la restricción de {{ zonas.codigoBien(fila.bien_privado_id) }}</span>
+          Levantar<span class="solo-lector"> la restricción de {{ bienes.codigo(fila.bien_privado_id) }}</span>
         </HudBoton>
       </template>
     </HudTabla>
@@ -238,7 +238,7 @@ onMounted(cargar)
       titulo="Levantar la restricción"
     >
       <p>
-        {{ elegida ? zonas.codigoBien(elegida.bien_privado_id) : '' }} podrá volver a reservar desde ahora.
+        {{ elegida ? bienes.codigo(elegida.bien_privado_id) : '' }} podrá volver a reservar desde ahora.
       </p>
       <p
         v-if="levantar.error.value"

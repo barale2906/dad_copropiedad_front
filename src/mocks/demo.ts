@@ -17,11 +17,12 @@ import { cuenta, cuentaPublica, iniciarCuenta } from './cuenta'
 import { entidad, iniciarEntidad, permisos } from './entidad'
 import { ficha, iniciarFicha } from './ficha'
 import { iniciarProteccion, proteccion } from './proteccion'
+import { iniciarUnidades, unidades } from './unidades'
 import { iniciarZonasComunes, zonasComunes } from './zonas-comunes'
 import { error, json, type Manejador } from './http'
 
 /** Manejadores que exigen sesión, en orden; el primero que responda gana. */
-const CON_SESION: Manejador[] = [cuenta, archivos, ficha, proteccion, zonasComunes, entidad, permisos]
+const CON_SESION: Manejador[] = [cuenta, archivos, ficha, unidades, proteccion, zonasComunes, entidad, permisos]
 /** Manejadores sin sesión (además del inicio de sesión). */
 const SIN_SESION: Manejador[] = [cuentaPublica]
 
@@ -45,6 +46,8 @@ const TODOS: Permiso[] = [
   'organizaciones.vincular', 'contratos.gestionar', 'personas.datos_sensibles.ver',
   'reservas.entregas.registrar', 'reservas.cancelar_cualquiera', 'reservas.restringir',
   'parqueaderos.asignar', 'cartera.configurar',
+  'agrupaciones.editar', 'titulares.editar', 'bienes_privados.coeficientes.editar',
+  'bienes_privados.coeficientes.activar', 'censo.aprobar', 'censo.exportar', 'personas.editar',
 ]
 
 const ENTIDADES: (EntidadDeLaCuenta & { capacidades: Capacidades })[] = [
@@ -128,6 +131,7 @@ export async function fetchDemo(req: Request): Promise<Response> {
     usuario = p.identificador.toLowerCase()
     iniciarCuenta(usuario)
     iniciarEntidad()
+    iniciarUnidades()
     iniciarFicha(ENTIDADES)
     iniciarProteccion()
     iniciarZonasComunes()
@@ -146,6 +150,7 @@ export async function fetchDemo(req: Request): Promise<Response> {
     usuario = p.token_renovacion.split('-')[2] ?? ''
     iniciarCuenta(usuario)
     iniciarEntidad()
+    iniciarUnidades()
     iniciarFicha(ENTIDADES)
     iniciarProteccion()
     iniciarZonasComunes()

@@ -10,6 +10,7 @@ import { comparar, moneda } from '@/formato/decimales'
 import { fecha, horaEn } from '@/formato/fechas'
 import HudInsignia from '@/hud/componentes/HudInsignia.vue'
 import HudTabla from '@/hud/componentes/HudTabla.vue'
+import { useBienes } from '@/stores/bienes'
 import { useEntidad } from '@/stores/entidad'
 import { ESTADO_PAGO, ESTADO_RESERVA } from '../reservas'
 import { useZonasComunes } from '../store'
@@ -19,6 +20,7 @@ defineSlots<{ acciones?: (p: { fila: Reserva }) => unknown }>()
 
 const entidad = useEntidad()
 const zonas = useZonasComunes()
+const bienes = useBienes()
 const zona = computed(() => entidad.zonaHoraria)
 
 const columnas = computed(() => [
@@ -33,7 +35,7 @@ watch(
   () => props.reservas,
   (lista) => {
     if (props.mostrarBien) {
-      zonas.resolverBienes(entidad.activa?.entidad_id ?? '', lista.map((r) => r.bien_privado_id), entidad.tienePermiso('bienes_privados.ver'))
+      bienes.resolver(lista.map((r) => r.bien_privado_id))
     }
   },
   { immediate: true },
@@ -60,7 +62,7 @@ watch(
       </span>
     </template>
     <template #celda-bien="{ fila }">
-      {{ zonas.codigoBien(fila.bien_privado_id) }}
+      {{ bienes.codigo(fila.bien_privado_id) }}
     </template>
     <template #celda-estado="{ fila }">
       <span class="insignias">

@@ -6,7 +6,6 @@
  */
 import type {
   AsignacionParqueadero,
-  BienPrivado,
   CambiosRecurso,
   CobroRecurso,
   EntregaReserva,
@@ -25,6 +24,7 @@ import type {
   Sorteo,
 } from '@/api/tipos'
 import { cuerpo, error, json, type Manejador, sinContenido } from './http'
+import { bienesDemo, PROPIOS } from './unidades'
 
 const id = (n: number) => `01930000-0000-7000-8000-${String(n).padStart(12, '0')}`
 const DESFASE_H = 5
@@ -82,11 +82,6 @@ function bienComun(
   }
 }
 
-const BIENES: BienPrivado[] = ['T1-101', 'T1-102', 'T1-201', 'T2-301', 'T2-302'].map((codigo, i) => ({
-  id: id(7001 + i), codigo, tipo: 'apartamento', agrupacion_id: null, numero: codigo.slice(3), uso: 'residencial', activo: true,
-}))
-const PROPIOS = [BIENES[0]!.id]
-
 let recursos: Recurso[] = []
 let reservas: Reserva[] = []
 let cobros = new Map<string, CobroRecurso>()
@@ -100,7 +95,7 @@ let consecutivo = 8000
 function reservaDemo(n: number, recursoId: string, dias: number, desde: string, hasta: string, estado: EstadoReserva, bien = 0, valor = '0'): Reserva {
   const dia = diaLocal(dias)
   return {
-    id: id(n), recurso_id: recursoId, bien_privado_id: BIENES[bien]!.id, inicio: aUtc(dia, desde), fin: aUtc(dia, hasta),
+    id: id(n), recurso_id: recursoId, bien_privado_id: bienesDemo()[bien]!.id, inicio: aUtc(dia, desde), fin: aUtc(dia, hasta),
     invitados: 0, estado, valor, deposito: '0', penalidad: '0', estado_pago: valor === '0' ? 'no_aplica' : 'pendiente',
     canal: 'web', creada_en: new Date(Date.now() - 2 * DIA).toISOString(),
   }
@@ -144,7 +139,7 @@ export function iniciarZonasComunes(): void {
   ]
   cobros = new Map(recursos.map((r) => [r.id, { destino: r.id === id(6005) ? 'cartera' : 'manual', item_facturacion_id: null }]))
   restricciones = [
-    { id: id(6301), bien_privado_id: BIENES[4]!.id, motivo: 'Mora en las cuotas de administración', desde: new Date(Date.now() - 20 * DIA).toISOString(), hasta: null },
+    { id: id(6301), bien_privado_id: bienesDemo()[4]!.id, motivo: 'Mora en las cuotas de administración', desde: new Date(Date.now() - 20 * DIA).toISOString(), hasta: null },
   ]
   asignaciones = []
   semillas = new Map([[id(6401), '7d1e5c3a9b8f0e2d4c6a8b1f3e5d7c9a']])
@@ -154,7 +149,7 @@ export function iniciarZonasComunes(): void {
       vigencia_desde: `${diaLocal(30)}T05:00:00Z`, vigencia_hasta: `${diaLocal(395)}T05:00:00Z`, estado: 'abierto',
       compromiso: 'a3f1c9e07b2d4e58a1c6f0e9d8b7a6c5b4a3f2e1d0c9b8a7f6e5d4c3b2a1f0e9', semilla: null,
       criterios: { puntos_discapacidad: 3, puntos_no_favorecido: 2 },
-      resultado: [], inscritos: [BIENES[1]!.id, BIENES[2]!.id], ejecutado_en: null,
+      resultado: [], inscritos: [bienesDemo()[1]!.id, bienesDemo()[2]!.id], ejecutado_en: null,
     },
   ]
 }
@@ -280,17 +275,6 @@ export const zonasComunes: Manejador = async (req, ruta) => {
   const m = req.method
   const base = ruta.match(/^\/copropiedades\/[^/]+(\/.*)$/)?.[1]
   if (!base) return null
-
-  if (m === 'GET' && base === '/mis-bienes-privados') return json(BIENES.filter((b) => PROPIOS.includes(b.id)))
-  if (m === 'GET' && base === '/bienes-privados') {
-    const q = (new URL(req.url).searchParams.get('q') ?? '').toLowerCase()
-    return json({ datos: BIENES.filter((b) => b.codigo.toLowerCase().includes(q)), siguiente: null })
-  }
-  const bien = base.match(/^\/bienes-privados\/([^/]+)$/)
-  if (m === 'GET' && bien) {
-    const b = BIENES.find((x) => x.id === bien[1])
-    return b ? json({ bien_privado: b, anexos: [], usos_exclusivos: [], titulares: [] }) : error(404, 'no_encontrado', 'No existe.')
-  }
 
   if (base === '/recursos') {
     if (m === 'GET') {

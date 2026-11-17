@@ -17,6 +17,7 @@ import HudCampo from '@/hud/componentes/HudCampo.vue'
 import HudEstado from '@/hud/componentes/HudEstado.vue'
 import HudPanel from '@/hud/componentes/HudPanel.vue'
 import HudSelector from '@/hud/componentes/HudSelector.vue'
+import { useBienes } from '@/stores/bienes'
 import { useEntidad } from '@/stores/entidad'
 import IAnterior from '~icons/tabler/chevron-left'
 import ISiguiente from '~icons/tabler/chevron-right'
@@ -30,6 +31,7 @@ const route = useRoute()
 const router = useRouter()
 const entidad = useEntidad()
 const zonas = useZonasComunes()
+const bienes = useBienes()
 const id = computed(() => entidad.activa?.entidad_id ?? '')
 const zona = computed(() => entidad.zonaHoraria)
 
@@ -391,7 +393,7 @@ onMounted(cargar)
             {{ recurso.nombre }}: {{ fechaHora(inicio, zona) }} – {{ horaEn(fin, zona) }}
             ({{ textoDuracion(Number.parseInt(duracion, 10)) }})
             <template v-if="bienId">
-              · a nombre de {{ zonas.codigoBien(bienId) }}
+              · a nombre de {{ bienes.codigo(bienId) }}
             </template>
           </p>
           <p class="texto-2">

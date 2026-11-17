@@ -5,11 +5,9 @@ import { limpiar } from '@/api/tokens'
 import {
   aprobarReserva,
   asignarParqueadero,
-  buscarBienes,
   cambiarCobro,
   cambiarEstadoRecurso,
   cancelarReserva,
-  codigoDeBien,
   crearParqueadero,
   crearRecurso,
   crearRestriccion,
@@ -28,7 +26,6 @@ import {
   listarReservas,
   listarRestricciones,
   listarSorteos,
-  misBienes,
   noAsistio,
   obtenerCobro,
   obtenerRecurso,
@@ -48,6 +45,8 @@ import {
 } from '@/modulos/zonas-comunes/recursos'
 import { accionesDeReserva, admiteFactura, admitePagoManual, ordenarReservas, penalidadAlCancelar } from '@/modulos/zonas-comunes/reservas'
 import { useZonasComunes } from '@/modulos/zonas-comunes/store'
+import { useBienes } from '@/stores/bienes'
+import { useEntidad } from '@/stores/entidad'
 import { useSesion } from '@/stores/sesion'
 import { prepararConDemo } from '../ayudantes'
 
@@ -130,6 +129,7 @@ describe('api de zonas comunes (demo)', () => {
     limpiar(false)
     prepararConDemo()
     await useSesion().iniciar('admin', 'x')
+    await useEntidad().entrar(PH)
   })
 
   it('lista recursos por categoría y tipo, y calcula la disponibilidad', async () => {
@@ -148,7 +148,7 @@ describe('api de zonas comunes (demo)', () => {
     const [piscina] = await listarRecursos(PH, { categoria: 'piscina' })
     const manana = new Date(Date.now() + 86_400_000).toISOString().slice(0, 10)
     const [franja] = await disponibilidad(PH, piscina!.id, manana, manana)
-    const [bien] = await misBienes(PH)
+    const [bien] = await useBienes().asegurarPropios()
     const datos = { recurso_id: piscina!.id, bien_privado_id: bien!.id, inicio: franja!.inicio, fin: new Date(Date.parse(franja!.inicio) + 3_600_000).toISOString() }
     const a = await reservar(PH, datos, 'clave-1')
     expect(a.estado).toBe('aprobada')
@@ -205,9 +205,8 @@ describe('api de zonas comunes (demo)', () => {
   })
 
   it('restringe un bien y levanta la restricción', async () => {
-    const bienes = (await buscarBienes(PH, 't1')).datos
-    expect(bienes.map((b) => b.codigo)).toEqual(['T1-101', 'T1-102', 'T1-201'])
-    expect(await codigoDeBien(PH, bienes[0]!.id)).toBe('T1-101')
+    const bienes = (await useBienes().buscar('t1-10')).datos
+    expect(bienes.map((b) => b.codigo)).toEqual(['T1-101', 'T1-102', 'T1-103', 'T1-104'])
     const nueva = await crearRestriccion(PH, { bien_privado_id: bienes[1]!.id, motivo: 'Sanción' }, 'k1')
     expect((await listarRestricciones(PH)).length).toBe(2)
     await levantarRestriccion(PH, nueva.id)
@@ -215,7 +214,7 @@ describe('api de zonas comunes (demo)', () => {
   })
 
   it('crea un cupo, lo asigna sin duplicar y lo libera', async () => {
-    const bienes = (await buscarBienes(PH, 't1')).datos
+    const bienes = (await useBienes().buscar('t1')).datos
     const cupo = await crearParqueadero(PH, { codigo: 'C-09', tipo_vehiculo: 'carro', naturaleza: 'comunal' }, 'k2')
     await expect(crearParqueadero(PH, { codigo: 'C-09', tipo_vehiculo: 'carro', naturaleza: 'comunal' }, 'k3')).rejects.toMatchObject({ estado: 409 })
     const a = await asignarParqueadero(PH, cupo.id, { bien_privado_id: bienes[0]!.id, origen: 'manual' }, 'k4')
@@ -226,7 +225,7 @@ describe('api de zonas comunes (demo)', () => {
   })
 
   it('el sorteo publica el compromiso, inscribe sin repetir y revela la semilla al ejecutar', async () => {
-    const bienes = (await buscarBienes(PH, 't1')).datos
+    const bienes = (await useBienes().buscar('t1')).datos
     const [sorteo] = await listarSorteos(PH)
     expect(sorteo!.semilla).toBeNull()
     await inscribirEnSorteo(PH, sorteo!.id, bienes[0]!.id, true)
@@ -257,25 +256,6 @@ describe('store de zonas comunes', () => {
     z.recordarRecurso({ ...lista[0]!, nombre: 'Renombrado' })
     expect(z.recurso(lista[0]!.id)?.nombre).toBe('Renombrado')
     expect(await z.asegurarRecursos(PH)).toBe(z.recursos)
-  })
-
-  it('resuelve códigos de bienes solo con permiso y recuerda los propios', async () => {
-    const z = useZonasComunes()
-    const [propio] = await z.asegurarPropios(PH)
-    expect(z.codigoBien(propio!.id)).toBe('T1-101')
-    const otro = '01930000-0000-7000-8000-000000007003'
-    await z.resolverBienes(PH, [otro], false)
-    expect(z.codigoBien(otro)).toBe('Bien')
-    await z.resolverBienes(PH, [otro, 'no-existe'], true)
-    expect(z.codigoBien(otro)).toBe('T1-201')
-    expect(z.codigoBien('no-existe')).toBe('Bien')
-  })
-
-  it('resuelve varios bienes en paralelo sin perder ninguno', async () => {
-    const z = useZonasComunes()
-    const ids = [7002, 7003, 7004, 7005].map((n) => `01930000-0000-7000-8000-00000000${n}`)
-    await z.resolverBienes(PH, ids, true)
-    expect(ids.map((b) => z.codigoBien(b))).toEqual(['T1-102', 'T1-201', 'T2-301', 'T2-302'])
   })
 
   it('guarda cómo se cobra cada recurso y cambia de entidad sin mezclar datos', async () => {

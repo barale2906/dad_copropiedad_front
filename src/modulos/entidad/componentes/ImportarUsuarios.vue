@@ -9,6 +9,7 @@ import type { Importacion, VistaPreviaUsuarios } from '@/api/tipos'
 import { useAccion } from '@/composables/useAccion'
 import FlujoDosPasos, { type PasoFlujo } from '@/hud/componentes/FlujoDosPasos.vue'
 import HudBoton from '@/hud/componentes/HudBoton.vue'
+import TablaErroresImportacion from '@/hud/componentes/TablaErroresImportacion.vue'
 import IDescargar from '~icons/tabler/download'
 import { confirmarImportacion, descargarPlantilla, importarUsuarios } from '../api'
 
@@ -121,23 +122,10 @@ function reiniciar() {
           {{ previa.importacion.filas_validas }} de {{ previa.importacion.total_filas }} filas son
           válidas.
         </p>
-        <section
+        <TablaErroresImportacion
           v-if="previa.importacion.errores.length"
-          class="errores"
-          aria-labelledby="titulo-errores"
-        >
-          <h3 id="titulo-errores">
-            Corrija estas filas y vuelva a subir la planilla
-          </h3>
-          <ul>
-            <li
-              v-for="e in previa.importacion.errores"
-              :key="`${e.fila}-${e.mensaje}`"
-            >
-              Fila {{ e.fila }}: {{ e.mensaje }}
-            </li>
-          </ul>
-        </section>
+          :errores="previa.importacion.errores"
+        />
         <section
           v-if="previa.filas.length"
           aria-labelledby="titulo-validas"
@@ -193,11 +181,6 @@ h3 {
   font-size: 16px;
 }
 
-.errores {
-  padding: 12px;
-  border-left: 3px solid var(--magenta);
-  background: color-mix(in srgb, var(--magenta) 8%, transparent);
-}
 
 ul {
   margin: 0;

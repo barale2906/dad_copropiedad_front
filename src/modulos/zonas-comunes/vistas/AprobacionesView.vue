@@ -14,6 +14,7 @@ import HudBoton from '@/hud/componentes/HudBoton.vue'
 import HudDialogo from '@/hud/componentes/HudDialogo.vue'
 import HudEstado from '@/hud/componentes/HudEstado.vue'
 import HudPestanas from '@/hud/componentes/HudPestanas.vue'
+import { useBienes } from '@/stores/bienes'
 import { useEntidad } from '@/stores/entidad'
 import { aprobarReserva, facturarReserva, listarReservas, rechazarReserva, registrarPago } from '../api'
 import ListaReservas from '../componentes/ListaReservas.vue'
@@ -22,6 +23,7 @@ import { useZonasComunes } from '../store'
 
 const entidad = useEntidad()
 const zonas = useZonasComunes()
+const bienes = useBienes()
 const id = computed(() => entidad.activa?.entidad_id ?? '')
 const puedeFacturar = computed(() => entidad.tienePermiso('facturacion.facturas.gestionar'))
 
@@ -188,13 +190,13 @@ onMounted(cargar)
             :cargando="aprobar.cargando.value && elegida?.id === fila.id"
             @click="ejecutarAprobar(fila)"
           >
-            Aprobar<span class="solo-lector"> la reserva de {{ zonas.codigoBien(fila.bien_privado_id) }}</span>
+            Aprobar<span class="solo-lector"> la reserva de {{ bienes.codigo(fila.bien_privado_id) }}</span>
           </HudBoton>
           <HudBoton
             variante="fantasma"
             @click="abrirRechazo(fila)"
           >
-            Rechazar<span class="solo-lector"> la reserva de {{ zonas.codigoBien(fila.bien_privado_id) }}</span>
+            Rechazar<span class="solo-lector"> la reserva de {{ bienes.codigo(fila.bien_privado_id) }}</span>
           </HudBoton>
         </template>
         <template v-else>
@@ -203,7 +205,7 @@ onMounted(cargar)
             variante="secundario"
             @click="abrirPago(fila)"
           >
-            Registrar pago<span class="solo-lector"> de {{ zonas.codigoBien(fila.bien_privado_id) }}</span>
+            Registrar pago<span class="solo-lector"> de {{ bienes.codigo(fila.bien_privado_id) }}</span>
           </HudBoton>
           <HudBoton
             v-if="puedeFacturar && admiteFactura(fila, destinos[fila.recurso_id])"
@@ -211,7 +213,7 @@ onMounted(cargar)
             :cargando="facturar.cargando.value && elegida?.id === fila.id"
             @click="ejecutarFactura(fila)"
           >
-            Facturar<span class="solo-lector"> la reserva de {{ zonas.codigoBien(fila.bien_privado_id) }}</span>
+            Facturar<span class="solo-lector"> la reserva de {{ bienes.codigo(fila.bien_privado_id) }}</span>
           </HudBoton>
         </template>
       </template>

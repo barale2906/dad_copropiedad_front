@@ -1,0 +1,52 @@
+/* Estilos comunes de los paneles del censo (residentes, vehículos, mascotas). */
+.panel-censo,
+.campos {
+  display: grid;
+  gap: 14px;
+}
+
+.barra {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.celda {
+  display: grid;
+  gap: 2px;
+  justify-items: start;
+  text-align: left;
+}
+
+small {
+  color: var(--texto-3);
+}
+
+.casilla {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+}
+
+.casilla input {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--cian);
+}
+
+.ok,
+.error {
+  margin: 0;
+}
+
+.ok {
+  padding: 10px 14px;
+  border-left: 3px solid var(--verde);
+  background: color-mix(in srgb, var(--verde) 10%, transparent);
+}
+
+.error {
+  color: var(--magenta);
+}

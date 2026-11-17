@@ -12,6 +12,7 @@ import HudBoton from '@/hud/componentes/HudBoton.vue'
 import HudDialogo from '@/hud/componentes/HudDialogo.vue'
 import HudInsignia from '@/hud/componentes/HudInsignia.vue'
 import HudPanel from '@/hud/componentes/HudPanel.vue'
+import { useBienes } from '@/stores/bienes'
 import { useEntidad } from '@/stores/entidad'
 import { ejecutarSorteo, inscribirEnSorteo } from '../api'
 import { useZonasComunes } from '../store'
@@ -22,6 +23,7 @@ const emit = defineEmits<{ cambio: [sorteo: Sorteo] }>()
 
 const entidad = useEntidad()
 const zonas = useZonasComunes()
+const bienes = useBienes()
 const id = computed(() => entidad.activa?.entidad_id ?? '')
 const zona = computed(() => entidad.zonaHoraria)
 const gestiona = computed(() => entidad.tienePermiso('sorteos.gestionar'))
@@ -49,7 +51,7 @@ async function enviarInscripcion() {
   if (!bienId.value || !(await inscribir.ejecutar()).ok) return
   inscribiendo.value = false
   emit('cambio', { ...props.sorteo, inscritos: [...props.sorteo.inscritos, bienId.value] })
-  resultado.value = `${zonas.codigoBien(bienId.value)} quedó inscrito.`
+  resultado.value = `${bienes.codigo(bienId.value)} quedó inscrito.`
 }
 
 // Ejecutar
@@ -72,7 +74,7 @@ async function confirmarEjecucion() {
 
 watch(
   () => [...props.sorteo.inscritos, ...(props.sorteo.resultado ?? [])],
-  (ids) => zonas.resolverBienes(id.value, ids, entidad.tienePermiso('bienes_privados.ver')),
+  (ids) => bienes.resolver(ids),
   { immediate: true },
 )
 </script>
@@ -140,7 +142,7 @@ watch(
           v-for="b in sorteo.inscritos"
           :key="b"
         >
-          {{ zonas.codigoBien(b) }}
+          {{ bienes.codigo(b) }}
         </li>
       </ul>
       <div
@@ -175,7 +177,7 @@ watch(
           v-for="a in asignaciones"
           :key="a.id"
         >
-          <strong>{{ codigoParqueadero(a.recurso_id) }}</strong> → {{ zonas.codigoBien(a.bien_privado_id) }}
+          <strong>{{ codigoParqueadero(a.recurso_id) }}</strong> → {{ bienes.codigo(a.bien_privado_id) }}
         </li>
       </ul>
       <ol
@@ -187,7 +189,7 @@ watch(
           v-for="b in sorteo.resultado ?? []"
           :key="b"
         >
-          {{ zonas.codigoBien(b) }}
+          {{ bienes.codigo(b) }}
         </li>
       </ol>
     </HudPanel>

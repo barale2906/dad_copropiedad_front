@@ -12,25 +12,15 @@ import type {
   NuevaOrganizacion,
   NuevaPolitica,
   NuevoContrato,
-  Persona,
   Politica,
   SolicitudTitular,
   TipoSolicitudTitular,
 } from '@/api/tipos'
 import { cuerpo, error, json, type Manejador } from './http'
+import { personasDemo } from './unidades'
 
 const id = (n: number) => `01930000-0000-7000-8000-${String(n).padStart(12, '0')}`
 
-const persona = (n: number, nombre: string, documento: string): Persona => ({
-  id: id(n), tipo: 'natural', nombre, tipo_documento: 'CC', documento, telefono: '300 000 0000',
-  correo: null, cuenta_id: null, movilidad_reducida: false, datos_sensibles_ocultos: false,
-})
-
-const PERSONAS: Persona[] = [
-  persona(5001, 'Marta Residente', '52123456'),
-  persona(5002, 'Pedro Pérez', '79876543'),
-  persona(5003, 'Lucía Gómez', '1020304050'),
-]
 
 /** Cuentas que encuentra la búsqueda exacta por usuario o correo. */
 const CUENTAS = [
@@ -78,7 +68,6 @@ function pagina<T extends { id: string }>(req: Request, lista: T[]) {
   return json({ datos, siguiente: inicio + limite < lista.length ? (datos.at(-1)?.id ?? null) : null })
 }
 
-const sinTildes = (t: string) => t.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
 
 function vigente(): Politica | null {
   return politicas.find((p) => Date.parse(p.vigente_desde) <= Date.now()) ?? null
@@ -154,17 +143,12 @@ export const proteccion: Manejador = async (req, ruta) => {
   }
 
   // Personas y autorizaciones
-  if (m === 'GET' && base === '/personas') {
-    const q = sinTildes(new URL(req.url).searchParams.get('q') ?? '')
-    return pagina(req, PERSONAS.filter((p) => !q || sinTildes(p.nombre).includes(q) || (p.documento ?? '').includes(q)))
-  }
-  const per = base.match(/^\/personas\/([^/]+)(\/.*)?$/)
+  const per = base.match(/^\/personas\/([^/]+)(\/.+)$/)
   if (per) {
-    const p = PERSONAS.find((x) => x.id === per[1])
+    const p = personasDemo().find((x) => x.id === per[1])
     if (!p) return error(404, 'no_encontrado', 'La persona no existe.')
     const resto = per[2] ?? ''
     const suyas = () => autorizaciones.filter((a) => a.persona_id === p.id)
-    if (m === 'GET' && resto === '') return json(p)
     if (m === 'GET' && resto === '/autorizaciones-tratamiento') return json(suyas())
     if (m === 'POST' && resto === '/autorizaciones-tratamiento') {
       const pol = vigente()

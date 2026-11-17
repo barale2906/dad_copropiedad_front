@@ -201,7 +201,8 @@ test.describe('módulo no disponible', () => {
   test('una acción sin permiso para el rol explica a quién pedirla', async ({ page }) => {
     await entrar(page, 'uno')
     await esperarMaqueta(page)
-    await page.goto(`${page.url()}/unidades/libros`)
+    // El administrador demo no tiene `asambleas.registrar` (y el módulo sí está contratado).
+    await page.goto(`${page.url()}/asambleas/registro`)
     await expect(page.getByText('Su rol no tiene permiso para esta función')).toBeVisible()
   })
 })

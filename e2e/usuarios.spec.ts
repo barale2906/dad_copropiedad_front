@@ -78,7 +78,8 @@ test.describe('usuarios de la entidad', () => {
       buffer: Buffer.from('nombre,correo,rol\nAna,ana@x.co,contador\nBeto,beto@x.co,piloto\n'),
     })
     await page.getByRole('button', { name: 'Ver vista previa' }).click()
-    await expect(page.getByText('Fila 3: El rol «piloto» no existe')).toBeVisible()
+    const errores = page.getByRole('table', { name: /errores en la planilla/ })
+    await expect(errores.getByRole('row').filter({ hasText: 'El rol «piloto» no existe' })).toContainText('3')
     await expect(page.getByRole('button', { name: 'Crear los usuarios' })).toBeDisabled()
     await page.getByRole('button', { name: 'Volver a editar' }).click()
     await page.getByLabel('Planilla (CSV o XLSX)').setInputFiles({

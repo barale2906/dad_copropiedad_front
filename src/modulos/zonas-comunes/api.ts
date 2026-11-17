@@ -2,7 +2,6 @@
 import { api, exigir, idempotencia } from '@/api/cliente'
 import type {
   AsignacionParqueadero,
-  BienPrivado,
   CambiosRecurso,
   CategoriaBienComun,
   CobroRecurso,
@@ -272,30 +271,3 @@ export function ejecutarSorteo(id: string, sorteoId: string): Promise<ResultadoS
     }),
   )
 }
-
-// Bienes privados (para elegir a nombre de qué bien) ----------------------------------------
-
-/** Bienes de los que la cuenta es titular vigente (no exige permisos). */
-export function misBienes(id: string): Promise<BienPrivado[]> {
-  return exigir(api().GET('/api/v1/copropiedades/{copropiedad_id}/mis-bienes-privados', { params: ph(id) }))
-}
-
-/** Bienes por fragmento del código (`bienes_privados.ver`). */
-export function buscarBienes(id: string, q: string, despues?: string) {
-  return exigir(
-    api().GET('/api/v1/copropiedades/{copropiedad_id}/bienes-privados', {
-      params: { ...ph(id), query: { q: q.trim() || undefined, limite: 20, despues } },
-    }),
-  )
-}
-
-/** Código de un bien (para mostrar el de una reserva o restricción). */
-export async function codigoDeBien(id: string, bienId: string): Promise<string> {
-  const f = await exigir(
-    api().GET('/api/v1/copropiedades/{copropiedad_id}/bienes-privados/{bien_privado_id}', {
-      params: { path: { copropiedad_id: id, bien_privado_id: bienId } },
-    }),
-  )
-  return f.bien_privado.codigo
-}
-

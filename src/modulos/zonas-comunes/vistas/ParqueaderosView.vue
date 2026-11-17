@@ -16,6 +16,7 @@ import HudFecha from '@/hud/componentes/HudFecha.vue'
 import HudInsignia from '@/hud/componentes/HudInsignia.vue'
 import HudSelector from '@/hud/componentes/HudSelector.vue'
 import HudTabla from '@/hud/componentes/HudTabla.vue'
+import { useBienes } from '@/stores/bienes'
 import { useEntidad } from '@/stores/entidad'
 import IMas from '~icons/tabler/plus'
 import { asignarParqueadero, crearParqueadero, liberarParqueadero, listarParqueaderos } from '../api'
@@ -25,6 +26,7 @@ import { useZonasComunes } from '../store'
 
 const entidad = useEntidad()
 const zonas = useZonasComunes()
+const bienes = useBienes()
 const id = computed(() => entidad.activa?.entidad_id ?? '')
 const zona = computed(() => entidad.zonaHoraria)
 const puedeAsignar = computed(() => entidad.tienePermiso('parqueaderos.asignar'))
@@ -116,7 +118,7 @@ async function enviarAsignar() {
   if (!r.ok) return
   asignando.value = false
   lista.value = lista.value.map((p) => (p.recurso.id === r.valor.recurso_id ? { ...p, asignacion: r.valor } : p))
-  resultado.value = `Parqueadero asignado a ${zonas.codigoBien(r.valor.bien_privado_id)}.`
+  resultado.value = `Parqueadero asignado a ${bienes.codigo(r.valor.bien_privado_id)}.`
 }
 
 // Liberar
@@ -138,7 +140,7 @@ async function confirmarLiberar() {
 }
 
 watch(lista, (l) =>
-  zonas.resolverBienes(id.value, l.flatMap((p) => (p.asignacion ? [p.asignacion.bien_privado_id] : [])), entidad.tienePermiso('bienes_privados.ver')),
+  bienes.resolver(l.flatMap((p) => (p.asignacion ? [p.asignacion.bien_privado_id] : []))),
 )
 
 async function cargar() {
@@ -216,7 +218,7 @@ onMounted(cargar)
           v-if="fila.asignacion"
           class="celda"
         >
-          <strong>{{ zonas.codigoBien(fila.asignacion.bien_privado_id) }}</strong>
+          <strong>{{ bienes.codigo(fila.asignacion.bien_privado_id) }}</strong>
           <small>
             {{ ORIGEN_ASIGNACION[fila.asignacion.origen] }} · desde {{ fecha(fila.asignacion.desde, zona) }}{{ fila.asignacion.hasta ? ` hasta ${fecha(fila.asignacion.hasta, zona)}` : '' }}
           </small>

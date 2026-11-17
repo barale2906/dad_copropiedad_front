@@ -63,6 +63,7 @@ export const SECCIONES: Record<string, Seccion> = {
       a('coeficientes', 'Coeficientes', 'Cuadros de coeficientes y su activación.', ['bienes_privados.ver']),
       a('importar', 'Importar planilla', 'Carga masiva de bienes y personas.', ['importaciones.ejecutar']),
       a('libros', 'Libros art. 51', 'Libro de propietarios y residentes.', ['censo.exportar']),
+      a('personas', 'Personas', 'Datos de contacto y vínculos de cada persona.', ['personas.ver']),
     ],
   },
   'zonas-comunes': {
