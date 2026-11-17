@@ -5,6 +5,8 @@ description: Revisión de un cambio de dad_copropiedad_front contra AGENTS.md an
 
 # Revisión de calidad
 
+> **Responde siempre en español** (avisos, preguntas y resúmenes), según `AGENTS.md` §5.
+
 Revisa el cambio (`git diff` y archivos nuevos) contra `AGENTS.md`. Reporta cada hallazgo con
 archivo y línea, y corrige lo que esté dentro del alcance de la tarea.
 

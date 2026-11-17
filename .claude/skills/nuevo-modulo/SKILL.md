@@ -5,6 +5,8 @@ description: Pasos para construir un módulo funcional (zonas comunes, portería
 
 # Nuevo módulo funcional
 
+> **Responde siempre en español** (avisos, preguntas y resúmenes), según `AGENTS.md` §5.
+
 Sigue primero la skill `nueva-funcionalidad` y `AGENTS.md` (§2, §6, §10). Esto agrega lo propio
 de un módulo.
 

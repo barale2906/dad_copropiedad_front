@@ -195,6 +195,8 @@ Reglas de dependencias:
 ## 5. Convenciones de código
 
 ### Generales
+- **Responder siempre en español** a quien trabaja en el repositorio: mensajes, avisos entre
+  pasos, preguntas, resúmenes y cierres de tarea, sin excepción (también en sesiones largas).
 - **Español** en nombres de archivos, variables, funciones, tipos, comentarios y textos (igual que
   el backend y su contrato). Términos técnicos sin traducción forzada (`store`, `props`, `slot`).
 - Textos para el usuario: claros, en **usted**, sin jerga técnica; los errores dicen qué hacer.

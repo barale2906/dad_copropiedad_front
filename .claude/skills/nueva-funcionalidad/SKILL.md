@@ -5,6 +5,8 @@ description: Procedimiento para diseñar e implementar cualquier funcionalidad o
 
 # Nueva funcionalidad en dad_copropiedad_front
 
+> **Responde siempre en español** (avisos, preguntas y resúmenes), según `AGENTS.md` §5.
+
 `AGENTS.md` es la fuente única de verdad; esta skill solo ordena los pasos. Léelo primero.
 
 1. **Requisito.** Resume qué se pide, qué endpoint del contrato usa (busca en
