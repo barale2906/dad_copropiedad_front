@@ -18,7 +18,7 @@ export interface ZonaInfo {
 
 export const ZONAS: Record<IdPlantilla, ZonaInfo[]> = {
   conjunto: [
-    { id: 'torres', nombre: 'Torres', secciones: ['unidades'] },
+    { id: 'torres', nombre: 'Torres', secciones: ['mi', 'unidades'] },
     {
       id: 'administracion',
       nombre: 'Administración',

@@ -25,6 +25,7 @@ export function useNavegacion() {
   const consulta: Consulta = {
     tieneModulo: (m) => entidad.tieneModulo(m),
     tienePermiso: (p) => entidad.tienePermiso(p),
+    tieneRol: (r) => entidad.tieneRol(r),
     get esPH() {
       return entidad.esPH
     },

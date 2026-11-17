@@ -270,3 +270,24 @@ test('unidades: importar y libros', async ({ page }) => {
     ['libros', 'Libros art. 51'],
   ])
 })
+
+test('portal del residente', async ({ page }) => {
+  await entrar(page, 'residente')
+  await expect(page).toHaveURL(/\/e\//)
+  const PH = '01930000-0000-7000-8000-000000000001'
+  const pantallas: [string, string][] = [
+    ['inicio', 'Mi hogar'],
+    ['bienes', 'Mis bienes'],
+    ['cartera/01930000-0000-7000-8000-000000007001', 'Mi cartera: T1-101'],
+    ['comunicados', 'Mis comunicados'],
+    ['pqrs', 'Mis solicitudes'],
+    ['visitas', 'Mis visitas y paquetes'],
+    ['privacidad', 'Mis datos y privacidad'],
+  ]
+  for (const [ruta, titulo] of pantallas) {
+    await page.goto(`/e/${PH}/mi/${ruta}`)
+    await expect(page.getByRole('heading', { name: titulo, exact: true, level: 1 })).toBeVisible()
+    await expect(page.getByText('Cargando')).toHaveCount(0)
+    await revisar(page)
+  }
+})

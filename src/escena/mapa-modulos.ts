@@ -18,7 +18,15 @@ export interface Accion {
   modulos?: Modulo[]
   /** Solo existe en la propiedad horizontal. */
   soloPH?: boolean
+  /**
+   * Acción personal: se muestra por el **vínculo** con un bien (roles derivados `propietario` o
+   * `residente`), no por permisos de administración. Con vínculo, `permisos` se ignora.
+   */
+  vinculo?: Vinculo[]
 }
+
+/** Roles derivados del vínculo con un bien privado. */
+export type Vinculo = 'propietario' | 'residente'
 
 export interface Seccion {
   /** Segmento de la ruta: `/e/:entidad/:seccion/:accion`. */
@@ -41,14 +49,34 @@ const a = (
   etiqueta: string,
   descripcion: string,
   permisos: Permiso[],
-  extra: Pick<Accion, 'modulos' | 'soloPH'> = {},
+  extra: Pick<Accion, 'modulos' | 'soloPH' | 'vinculo'> = {},
 ): Accion => ({ id, etiqueta, descripcion, permisos, ...extra })
+
+/** Acción personal de propietarios y residentes (por vínculo, no por permisos). */
+const mia = (id: string, etiqueta: string, descripcion: string, modulos?: Modulo[]): Accion =>
+  a(id, etiqueta, descripcion, [], { vinculo: ['propietario', 'residente'], soloPH: true, ...(modulos ? { modulos } : {}) })
 
 const SOLO_FE = { modulos: ['facturacion_electronica'] } satisfies Pick<Accion, 'modulos'>
 const SOLO_CONTABILIDAD = { modulos: ['contabilidad'] } satisfies Pick<Accion, 'modulos'>
 const SOLO_PH = { soloPH: true }
 
 export const SECCIONES: Record<string, Seccion> = {
+  mi: {
+    slug: 'mi',
+    nombre: 'Mi hogar',
+    resumen: 'Sus bienes, saldo, comunicados, solicitudes y visitas.',
+    modulos: [],
+    soloPH: true,
+    acciones: [
+      mia('inicio', 'Mi hogar', 'Resumen de su bien en un vistazo.'),
+      mia('bienes', 'Mis bienes', 'Sus bienes, residentes y cambios del censo.'),
+      mia('cartera', 'Mi cartera', 'Saldo, cuentas de cobro y paz y salvo.', ['contabilidad_ph']),
+      mia('comunicados', 'Mis comunicados', 'Avisos de la administración.', ['gestion_administrativa']),
+      mia('pqrs', 'Mis solicitudes', 'Peticiones, quejas y reclamos.', ['gestion_administrativa']),
+      mia('visitas', 'Mis visitas y paquetes', 'Autorizar visitas y ver lo que llegó.', ['control_acceso']),
+      mia('privacidad', 'Mis datos y privacidad', 'Sus autorizaciones y la publicidad.'),
+    ],
+  },
   unidades: {
     slug: 'unidades',
     nombre: 'Unidades y residentes',
@@ -265,6 +293,8 @@ export interface Consulta {
   tieneModulo: (m: Modulo) => boolean
   tienePermiso: (p: Permiso) => boolean
   esPH: boolean
+  /** Roles de la cuenta en la entidad (para las acciones por vínculo). */
+  tieneRol?: (rol: string) => boolean
 }
 
 const algunoDe = (modulos: Modulo[] | undefined, c: Consulta) =>
@@ -280,7 +310,7 @@ export function accionesVisibles(s: Seccion, c: Consulta): Accion[] {
     (x) =>
       (!x.soloPH || c.esPH) &&
       algunoDe(x.modulos, c) &&
-      x.permisos.some((p) => c.tienePermiso(p)),
+      (x.vinculo ? x.vinculo.some((r) => c.tieneRol?.(r)) : x.permisos.some((p) => c.tienePermiso(p))),
   )
 }
 

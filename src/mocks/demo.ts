@@ -10,6 +10,7 @@
  *  - que contenga `uno` → una sola entidad (entra directo)
  *  - que contenga `empresa` → solo la empresa (maqueta de oficina)
  *  - que contenga `nuevo` → sin entidades (cuenta aún sin roles)
+ *  - que contenga `residente` → propietario y residente de la PH (portal «Mi hogar», plan 05)
  */
 import type { Capacidades, EntidadDeLaCuenta, Permiso, Tokens } from '@/api/tipos'
 import { archivos } from './archivos'
@@ -17,12 +18,13 @@ import { cuenta, cuentaPublica, iniciarCuenta } from './cuenta'
 import { entidad, iniciarEntidad, permisos } from './entidad'
 import { ficha, iniciarFicha } from './ficha'
 import { iniciarProteccion, proteccion } from './proteccion'
+import { iniciarMi, mi } from './mi'
 import { iniciarUnidades, unidades } from './unidades'
 import { iniciarZonasComunes, zonasComunes } from './zonas-comunes'
 import { error, json, type Manejador } from './http'
 
 /** Manejadores que exigen sesión, en orden; el primero que responda gana. */
-const CON_SESION: Manejador[] = [cuenta, archivos, ficha, unidades, proteccion, zonasComunes, entidad, permisos]
+const CON_SESION: Manejador[] = [cuenta, archivos, ficha, unidades, mi, proteccion, zonasComunes, entidad, permisos]
 /** Manejadores sin sesión (además del inicio de sesión). */
 const SIN_SESION: Manejador[] = [cuentaPublica]
 
@@ -101,8 +103,25 @@ function tokens(): Tokens {
   }
 }
 
+/**
+ * Capacidades del propietario residente en la PH demo: solo autoservicio. Ve la portería
+ * contratada para probar visitas y paquetes (licencia del demo: al administrador se le muestra
+ * apagada).
+ */
+const CAPACIDADES_RESIDENTE: Capacidades = {
+  tipo: 'propiedad_horizontal',
+  permisos: ['reservas.crear', 'bienes_comunes.ver', 'tickets.crear', 'acceso.visitantes.autorizar', 'directorio.ver', 'asambleas.ver'],
+  modulos: ['bienes_comunes', 'asambleas', 'gestion_administrativa', 'contabilidad', 'contabilidad_ph', 'control_acceso'],
+  modo_soporte: false,
+  entidad_suspendida: false,
+}
+
 function entidadesDe(u: string): EntidadDeLaCuenta[] {
   if (u.includes('nuevo')) return []
+  if (u.includes('residente')) {
+    const e = ENTIDADES[0]!
+    return [{ entidad_id: e.entidad_id, nombre: e.nombre, nit: e.nit, tipo: e.tipo, estado: e.estado, roles: ['propietario', 'residente'] }]
+  }
   const lista = u.includes('empresa')
     ? ENTIDADES.filter((e) => e.tipo === 'empresa')
     : u.includes('uno')
@@ -132,6 +151,7 @@ export async function fetchDemo(req: Request): Promise<Response> {
     iniciarCuenta(usuario)
     iniciarEntidad()
     iniciarUnidades()
+    iniciarMi()
     iniciarFicha(ENTIDADES)
     iniciarProteccion()
     iniciarZonasComunes()
@@ -151,6 +171,7 @@ export async function fetchDemo(req: Request): Promise<Response> {
     iniciarCuenta(usuario)
     iniciarEntidad()
     iniciarUnidades()
+    iniciarMi()
     iniciarFicha(ENTIDADES)
     iniciarProteccion()
     iniciarZonasComunes()
@@ -169,6 +190,7 @@ export async function fetchDemo(req: Request): Promise<Response> {
   const cap = ruta.match(/^\/entidades\/([^/]+)\/capacidades$/)
   if (m === 'GET' && cap) {
     const e = ENTIDADES.find((x) => x.entidad_id === cap[1])
+    if (e && usuario.includes('residente')) return json(CAPACIDADES_RESIDENTE)
     return e ? json(e.capacidades) : error(404, 'no_encontrado', 'No encontrada.')
   }
   for (const atender of CON_SESION) {

@@ -18,6 +18,8 @@ import {
 import { useRoute, useRouter } from 'vue-router'
 import { perfil } from '@/escena/calidad'
 import type { EtiquetaPos, Holgura } from '@/escena/motor'
+import { useBienes } from '@/stores/bienes'
+import { useEntidad } from '@/stores/entidad'
 import { usePreferencias } from '@/stores/preferencias'
 import ICubo from '~icons/tabler/cube-3d-sphere'
 import ICandado from '~icons/tabler/lock'
@@ -43,6 +45,8 @@ const route = useRoute()
 const router = useRouter()
 const prefs = usePreferencias()
 const nav = useNavegacion()
+const entidad = useEntidad()
+const bienes = useBienes()
 
 const calidad = perfil(prefs.calidad)
 const lista3D = ref(false)
@@ -54,6 +58,18 @@ const medidaPanel = ref({ ancho: 0, alto: 0 })
 const anchoVentana = ref(window.innerWidth)
 const alRedimensionar = () => (anchoVentana.value = window.innerWidth)
 onMounted(() => window.addEventListener('resize', alRedimensionar, { passive: true }))
+
+/**
+ * Quien solo tiene vínculo con bienes entra en móvil a «Mi hogar» (la maqueta queda a un toque,
+ * con `?ver=maqueta`). Para todos, se cargan sus bienes para marcarlos en la maqueta.
+ */
+onMounted(() => {
+  if (entidad.soloVinculo && window.innerWidth <= 760 && route.query.ver !== 'maqueta' && !route.query.zona) {
+    void router.replace({ name: 'modulo', params: { entidadId: route.params.entidadId, seccion: 'mi', accion: 'inicio' } })
+    return
+  }
+  if (entidad.esPH && (entidad.tieneRol('propietario') || entidad.tieneRol('residente'))) bienes.asegurarPropios().catch(() => undefined)
+})
 onBeforeUnmount(() => window.removeEventListener('resize', alRedimensionar))
 
 const usar3D = computed(() => prefs.vista === 'maqueta' && calidad.nivel !== 'lista' && !fallo.value)
@@ -89,6 +105,20 @@ const etiquetasVisibles = computed(() => {
 const limitarX = (x: number) => Math.min(Math.max(x, 70), anchoVentana.value - 70)
 
 const nombre = (id: string) => nav.zonas.value.find((z) => z.id === id)?.nombre ?? id
+
+/**
+ * Marcas de los bienes del propietario sobre las zonas: su apartamento en Torres y el número de
+ * su parqueadero en Parqueaderos (plan 05).
+ */
+const marcas = computed<Record<string, string>>(() => {
+  const propios = bienes.propios ?? []
+  const parqueaderos = propios.filter((b) => b.tipo === 'parqueadero').map((b) => b.numero ?? b.codigo)
+  const otros = propios.filter((b) => b.tipo !== 'parqueadero' && b.tipo !== 'deposito' && b.tipo !== 'bodega').map((b) => b.codigo)
+  return {
+    ...(otros.length ? { torres: otros.join(', ') } : {}),
+    ...(parqueaderos.length ? { parqueadero: parqueaderos.join(', ') } : {}),
+  }
+})
 
 function elegir(id: string | null) {
   elegida.value = id
@@ -172,6 +202,10 @@ onDeactivated(() => (activa.value = false))
               aria-hidden="true"
             />
             {{ nombre(e.id) }}
+            <small
+              v-if="marcas[e.id]"
+              class="marca"
+            ><span class="solo-lector">: su bien </span>{{ marcas[e.id] }}</small>
           </button>
         </li>
       </ul>
@@ -275,6 +309,14 @@ onDeactivated(() => (activa.value = false))
   width: 1px;
   height: 10px;
   background: var(--linea-fuerte);
+}
+
+.marca {
+  margin-left: 6px;
+  padding: 0 6px;
+  border: 1px solid currentcolor;
+  color: var(--ambar);
+  font-size: 12px;
 }
 
 .etiqueta i {

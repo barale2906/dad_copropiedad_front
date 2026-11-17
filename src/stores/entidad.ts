@@ -32,6 +32,14 @@ export const useEntidad = defineStore('entidad', () => {
   const suspendida = computed(
     () => (capacidades.value?.entidad_suspendida ?? false) || activa.value?.estado === 'suspendida',
   )
+  /**
+   * La cuenta solo tiene vínculo con bienes (propietario o residente), sin roles de
+   * administración: en móvil entra a «Mi hogar» en lugar de la maqueta.
+   */
+  const soloVinculo = computed(() => {
+    const roles = activa.value?.roles ?? []
+    return roles.length > 0 && roles.every((r) => r === 'propietario' || r === 'residente')
+  })
   /** Zona IANA en que se muestran las fechas de la entidad (nunca la del navegador). */
   const zonaHoraria = computed(() => ficha.value?.zona_horaria ?? ZONA_HORARIA_PREDETERMINADA)
 
@@ -121,6 +129,7 @@ export const useEntidad = defineStore('entidad', () => {
     esPH,
     modoSoporte,
     suspendida,
+    soloVinculo,
     zonaHoraria,
     tieneModulo,
     tienePermiso,

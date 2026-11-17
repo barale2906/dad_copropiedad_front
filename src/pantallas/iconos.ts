@@ -9,6 +9,7 @@ import IFactura from '~icons/tabler/file-invoice'
 import IGrafica from '~icons/tabler/chart-bar'
 import IFicha from '~icons/tabler/id-badge-2'
 import IGrupo from '~icons/tabler/users-group'
+import IHogar from '~icons/tabler/home-heart'
 import IImpuesto from '~icons/tabler/receipt-tax'
 import ILista from '~icons/tabler/clipboard-list'
 import IPiscina from '~icons/tabler/pool'
@@ -17,6 +18,7 @@ import IUsuarios from '~icons/tabler/users'
 import IBilletera from '~icons/tabler/wallet'
 
 export const ICONOS: Record<string, Component> = {
+  mi: IHogar,
   unidades: IEdificio,
   'zonas-comunes': IPiscina,
   porteria: IEscudo,

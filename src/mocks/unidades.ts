@@ -523,7 +523,20 @@ export const unidades: Manejador = async (req, ruta) => {
   }
 
   // Cambios propuestos
-  if (m === 'GET' && base === '/cambios-censo') return json(cambios.filter((c) => !q.get('estado') || c.estado === q.get('estado')))
+  if (base === '/cambios-censo') {
+    if (m === 'GET') {
+      // `mias=true`: las que propuso la cuenta demo (cuenta 801).
+      const mias = q.get('mias') === 'true'
+      return json(cambios.filter((c) => (!q.get('estado') || c.estado === q.get('estado')) && (!mias || c.propuesto_por === id(801))))
+    }
+    if (m === 'POST') {
+      const d = await cuerpo<{ bien_privado_id: string; tipo: CambioCenso['tipo']; datos: CambioCenso['datos'] }>(req)
+      if (!PROPIOS.includes(d.bien_privado_id)) return error(422, 'validacion', 'Solo puede proponer cambios de sus bienes.')
+      const c: CambioCenso = { id: id(++consecutivo), bien_privado_id: d.bien_privado_id, tipo: d.tipo, datos: d.datos, estado: 'pendiente', propuesto_por: id(801), propuesto_en: ahora() }
+      cambios = [c, ...cambios]
+      return json(c, 201)
+    }
+  }
   const cam = base.match(/^\/cambios-censo\/([^/]+)\/(aprobar|rechazar)$/)
   if (m === 'POST' && cam) {
     const c = cambios.find((x) => x.id === cam[1])
