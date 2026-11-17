@@ -10,4 +10,5 @@ export const VISTAS_MODULOS: VistasModulo = {
   'entidad/ficha': () => import('@/modulos/entidad/vistas/FichaView.vue'),
   'entidad/suscripcion': () => import('@/modulos/entidad/vistas/SuscripcionView.vue'),
   'entidad/auditoria': () => import('@/modulos/entidad/vistas/AuditoriaView.vue'),
+  'archivo/documentos': () => import('@/modulos/archivo/vistas/DocumentosView.vue'),
 }

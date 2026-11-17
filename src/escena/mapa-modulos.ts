@@ -244,7 +244,7 @@ export const SECCIONES: Record<string, Seccion> = {
     nombre: 'Archivo',
     resumen: 'Documentos y soportes de la entidad.',
     modulos: [],
-    acciones: [a('documentos', 'Documentos', 'Archivos cargados y sus enlaces.', ['archivos.ver'])],
+    acciones: [a('documentos', 'Documentos', 'Subir archivos y abrirlos con enlace seguro.', ['archivos.ver', 'archivos.subir'])],
   },
   nomina: {
     slug: 'nomina',

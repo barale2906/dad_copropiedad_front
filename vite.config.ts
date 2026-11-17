@@ -41,6 +41,7 @@ export default defineConfig({
         'src/modulos/*/usuarios.ts',
         'src/modulos/*/permisos.ts',
         'src/modulos/entidad/{horario,ficha,suscripcion,auditoria}.ts',
+        'src/modulos/archivo/{archivo,store}.ts',
         'src/pantallas/navegacion.ts',
         'src/pantallas/textos-entidad.ts',
       ],

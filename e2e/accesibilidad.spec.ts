@@ -151,3 +151,11 @@ test('ficha, suscripción y auditoría', async ({ page }) => {
   await expect(page.getByRole('table', { name: 'Eventos de la auditoría' })).toBeVisible()
   await revisar(page)
 })
+
+test('archivo de la entidad', async ({ page }) => {
+  await entrar(page, 'uno')
+  await esperarMaqueta(page)
+  await page.goto(`${page.url()}/archivo/documentos`)
+  await expect(page.getByRole('heading', { name: 'Documentos' })).toBeVisible()
+  await revisar(page)
+})
