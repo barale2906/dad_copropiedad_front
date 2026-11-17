@@ -115,11 +115,16 @@ Se mantiene al día: quien crea una pieza reutilizable la agrega aquí.
 | Sesión, login, 2FA, cierre, definir contraseña | `useSesion()` (`definirContrasena`, `recuperarContrasena`) | `src/stores/sesion.ts` |
 | Cuenta de la persona (perfil, 2FA, sesiones, dispositivos, permisos de plataforma) | `useCuenta()`: `asegurar`, `id`, `permisosPlataforma`, `segundoFactorActivo` | `src/stores/cuenta.ts` |
 | Entidad activa, ¿es PH?, permisos, módulos, roles, modo soporte, zona horaria | `useEntidad()`: `esPH`, `modoSoporte`, `suspendida`, `soloVinculo`, `zonaHoraria`, `ficha`, `tieneModulo`, `tienePermiso`, `tieneRol`, `refrescar` | `src/stores/entidad.ts` |
-| Preferencias del navegador | `usePreferencias()` (vista, calidad 3D) | `src/stores/preferencias.ts` |
+| Preferencias del navegador | `usePreferencias()` (vista, calidad 3D, `turnoAlEntrar` en un equipo de portería) | `src/stores/preferencias.ts` |
 | Bienes privados de la PH (propios, buscar por código, código por id en paralelo) | `useBienes()`: `asegurarPropios`, `buscar`, `resolver(ids)`, `codigo(id)`, `recordar` | `src/stores/bienes.ts` |
 | Elegir un bien privado (propios y búsqueda con retardo) | `<SelectorBien v-model propios buscar codigo-elegido>` (alimentado por `useBienes`) | `src/hud/componentes/SelectorBien.vue` |
 | Comunicados sin leer (aviso de la barra superior) | `useComunicadosPendientes()`: `cantidad`, `aplica()`, `actualizar()`; `<AvisoComunicados>` ya está en `BarraSuperior` | `src/stores/comunicados.ts`, `src/pantallas/componentes/AvisoComunicados.vue` |
 | Tarjeta de resumen para tableros | `<TarjetaResumen titulo valor detalle tono a cargando>` (slot `icono`) | `src/hud/componentes/TarjetaResumen.vue` |
+| Firma en pantalla (dedo, mouse o lápiz → PNG Base64) | `<CapturaFirma v-model etiqueta>` | `src/hud/componentes/CapturaFirma.vue` |
+| Foto con la cámara (respaldo `<input capture>`) → Base64 | `<CapturaFoto v-model etiqueta>` | `src/hud/componentes/CapturaFoto.vue` |
+| Leer un QR (lector físico/teclado y cámara con `BarcodeDetector`, sin librerías) | `<LectorQr etiqueta cargando @leido>` | `src/hud/componentes/LectorQr.vue` |
+| Buscar y elegir una persona (búsqueda con retardo, genérico) | `<SelectorPersona buscar etiqueta @elegir>`; búsqueda en la PH: `buscarPersonas(copropiedadId, q, despues, limite)` | `src/hud/componentes/SelectorPersona.vue`, `src/api/personas.ts` |
+| Textos del control de acceso y opciones de un selector | `TIPO_VISITA`, `TIPO_PAQUETE`, `opcionesDe(textos)` | `src/composables/textos-acceso.ts` |
 | QR para compartir (Web Share con imagen, WhatsApp de respaldo) | `<QrCompartir texto mensaje nombre-archivo>` | `src/hud/componentes/QrCompartir.vue` |
 | Errores de una planilla importada | `<TablaErroresImportacion errores titulo>` | `src/hud/componentes/TablaErroresImportacion.vue` |
 | Secciones, acciones y su estado (módulos «alguno de» / `requiereTodos`, módulo por acción, `soloPH`, acciones personales por `vinculo`) | `SECCIONES`, `estadoSeccion`, `estadoAccion`, `seccionContratada`, `accionesVisibles`, `TEXTO_ESTADO` | `src/escena/mapa-modulos.ts` |
@@ -158,14 +163,14 @@ Se mantiene al día: quien crea una pieza reutilizable la agrega aquí.
 | Calendario de franjas libres (elegir inicio o solo lectura) | `<CalendarioFranjas v-model dias franjas zona paso duracion solo-lectura>` | `src/hud/componentes/CalendarioFranjas.vue` |
 | Pestañas por `?vista=` | `<HudPestanas pestanas etiqueta>` + `usePestana(PESTANAS)` | `src/hud/componentes/HudPestanas.vue`, `src/composables/usePestana.ts` |
 | Horario semanal con excepciones (editar, validar, resumir) | `<EditorHorario v-model>`; `validarHorario`, `normalizarHorario`, `resumirHorario`, `DIAS` | `src/hud/componentes/EditorHorario.vue`, `src/formato/horario.ts` |
-| Buscar una cuenta (usuario o correo exactos) / una persona de la PH | `<BuscarCuenta entidad-id @encontrada>`, `<BuscarPersona copropiedad-id @elegir>` | `src/modulos/entidad/componentes/` (subir a una capa compartida al reutilizarlos) |
+| Buscar una cuenta (usuario o correo exactos) / una persona de la PH | `<BuscarCuenta entidad-id @encontrada>`, `<BuscarPersona copropiedad-id @elegir>` (sobre `SelectorPersona`) | `src/modulos/entidad/componentes/` |
 | Matriz de permisos de un rol (por módulo, búsqueda, «todos», no otorgables) | `<MatrizPermisos v-model grupos solo-lectura puede-otorgar>` con `agruparPermisos(catalogo, ambito)`, `etiquetaPermiso`, `diferencia`, `noOtorgables` | `src/modulos/entidad/componentes/MatrizPermisos.vue`, `src/modulos/entidad/permisos.ts` (subir a una capa compartida con el plan 15) |
 | Lienzo 3D | `<EscenaCanvas plantilla perfil estados enfocada holgura>` (siempre asíncrono) | `src/escena/EscenaCanvas.vue` |
 | Nivel de calidad 3D / movimiento reducido | `perfil()`, `soportaWebGL()`, `movimientoReducido()` | `src/escena/calidad.ts` |
 | Piezas 3D | `Kit` (`caja`, `losa`, `cilindro_`, `cono_`) y `torre`, `edificio`, `arbol`, `carro`, `escritorio` | `src/escena/piezas.ts` |
 | Fondo ambiental HUD | clase `.fondo-hud`; rótulos: `.rotulo`; texto oculto accesible: `.solo-lector` | `src/hud/estilos/base.css` |
 | Transición entre vistas | `<Transition name="vista">` | `src/hud/estilos/base.css` |
-| Datos de prueba / demo | `fetchDemo` (ficha, puntos de atención, suscripción y auditoría en `src/mocks/ficha.ts`; protección de datos, personas, organizaciones y cuentas en `src/mocks/proteccion.ts`: personas «Marta», «Pedro», «Lucía», cuenta `carlos`, NIT `900123456-8`; zonas comunes en `src/mocks/zonas-comunes.ts`; portal del residente en `src/mocks/mi.ts` (usuario `residente`: propietario y residente con autoservicio); bienes, personas, coeficientes y censo en `src/mocks/unidades.ts` —fuente única de bienes y personas—: 2 torres × 20 bienes, `T1-101` propio, `T2-302` restringido) (usuarios `uno`, `empresa`, `2fa`, `residente` (portal), `nuevo` sin roles, `sinverificar`; códigos `123456`; correos `@otra.dad` simulan una cuenta existente); un `Manejador` por área (`json`, `error`, `sinContenido`) | `src/mocks/demo.ts`, `src/mocks/http.ts`, `src/mocks/<area>.ts` |
+| Datos de prueba / demo | `fetchDemo` (ficha, puntos de atención, suscripción y auditoría en `src/mocks/ficha.ts`; protección de datos, personas, organizaciones y cuentas en `src/mocks/proteccion.ts`: personas «Marta», «Pedro», «Lucía», cuenta `carlos`, NIT `900123456-8`; zonas comunes en `src/mocks/zonas-comunes.ts`; portal del residente en `src/mocks/mi.ts` (usuario `residente`: propietario y residente con autoservicio); portería en `src/mocks/porteria.ts` (usuario `porteria`: control de acceso completo; visitas en cada estado, «Técnico de internet» espera llamada, QR `DAD1.<id de Jardinero>.firma`, PIN demo `482915`; al residente le filtra visitas y paquetes de su bien); bienes, personas, coeficientes y censo en `src/mocks/unidades.ts` —fuente única de bienes y personas—: 2 torres × 20 bienes, `T1-101` propio, `T2-302` restringido) (usuarios `uno`, `empresa`, `2fa`, `residente` (portal), `porteria`, `nuevo` sin roles, `sinverificar`; códigos `123456`; correos `@otra.dad` simulan una cuenta existente); un `Manejador` por área (`json`, `error`, `sinContenido`) | `src/mocks/demo.ts`, `src/mocks/http.ts`, `src/mocks/<area>.ts` |
 | Preparar pruebas | `prepararConDemo()`, `conCapacidades()` (`modo_soporte` opcional), `conConfig()`, `conRespuesta(metodo, ruta, fn)`, `ENTIDAD_PH` | `src/__tests__/ayudantes.ts` |
 | Pasos E2E | `entrar()`, `esperarMaqueta()`, `elegirZona()` | `e2e/utilidades.ts` |
 
@@ -339,7 +344,8 @@ Buenas prácticas:
   Pinia nueva).
 - Sin esperas fijas (`waitForTimeout`) en E2E: esperar condiciones (`expect(...).toBeVisible()`).
 - Una prueba inestable se arregla o se elimina; nunca se reintenta hasta que pase. Para detectar
-  inestabilidad: `make e2e ARGS="--repeat-each=3"`. Playwright corre con 2 workers: la maqueta
+  inestabilidad: `make e2e ARGS="--repeat-each=3"`. Proyectos: `escritorio` (1440×900), `movil`
+  (Pixel 7) y `tableta` (768×1024 táctil, solo `e2e/porteria.spec.ts`). Playwright corre con 2 workers: la maqueta
   se dibuja por software y más navegadores en paralelo saturan la CPU.
 
 ## 11. Seguridad

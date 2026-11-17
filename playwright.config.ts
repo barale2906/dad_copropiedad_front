@@ -23,5 +23,11 @@ export default defineConfig({
   projects: [
     { name: 'escritorio', use: { ...devices['Desktop Chrome'], viewport: { width: 1440, height: 900 } } },
     { name: 'movil', use: { ...devices['Pixel 7'] } },
+    // Portería: tableta de pie (768×1024, táctil). Chromium, como los demás proyectos.
+    {
+      name: 'tableta',
+      testMatch: /porteria\.spec\.ts/,
+      use: { ...devices['Desktop Chrome'], viewport: { width: 768, height: 1024 }, isMobile: true, hasTouch: true },
+    },
   ],
 })

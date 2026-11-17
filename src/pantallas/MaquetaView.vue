@@ -60,12 +60,18 @@ const alRedimensionar = () => (anchoVentana.value = window.innerWidth)
 onMounted(() => window.addEventListener('resize', alRedimensionar, { passive: true }))
 
 /**
- * Quien solo tiene vínculo con bienes entra en móvil a «Mi hogar» (la maqueta queda a un toque,
- * con `?ver=maqueta`). Para todos, se cargan sus bienes para marcarlos en la maqueta.
+ * Quien solo tiene vínculo con bienes entra en móvil a «Mi hogar», y en un equipo marcado como
+ * de portería se entra al turno (la maqueta queda a un toque, con `?ver=maqueta`). Para todos,
+ * se cargan sus bienes para marcarlos en la maqueta.
  */
 onMounted(() => {
-  if (entidad.soloVinculo && window.innerWidth <= 760 && route.query.ver !== 'maqueta' && !route.query.zona) {
-    void router.replace({ name: 'modulo', params: { entidadId: route.params.entidadId, seccion: 'mi', accion: 'inicio' } })
+  const directo = route.query.ver !== 'maqueta' && !route.query.zona
+  const entrada =
+    entidad.soloVinculo && window.innerWidth <= 760 ? { seccion: 'mi', accion: 'inicio' }
+      : prefs.turnoAlEntrar && nav.estadoDeAccion('porteria', 'turno') === 'activa' ? { seccion: 'porteria', accion: 'turno' }
+        : null
+  if (directo && entrada) {
+    void router.replace({ name: 'modulo', params: { entidadId: route.params.entidadId, ...entrada } })
     return
   }
   if (entidad.esPH && (entidad.tieneRol('propietario') || entidad.tieneRol('residente'))) bienes.asegurarPropios().catch(() => undefined)

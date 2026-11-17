@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest'
+import { buscarPersonas } from '@/api/personas'
 import { limpiar } from '@/api/tokens'
 import * as u from '@/modulos/unidades/api'
 import { useEntidad } from '@/stores/entidad'
@@ -135,12 +136,12 @@ describe('censo (demo)', () => {
 
 describe('personas, libros e importación (demo)', () => {
   it('busca y edita personas; un documento repetido da 409', async () => {
-    const { datos } = await u.listarPersonas(PH, undefined, 'pedro')
+    const { datos } = await buscarPersonas(PH, 'pedro', undefined, 50)
     expect(datos[0]?.nombre).toBe('Pedro Pérez')
     expect((await u.editarPersona(PH, datos[0]!.id, { telefono: '301' })).telefono).toBe('301')
     await expect(u.editarPersona(PH, datos[0]!.id, { documento: '52123456' })).rejects.toMatchObject({ estado: 409 })
     expect((await u.persona(PH, datos[0]!.id)).nombre).toBe('Pedro Pérez')
-    const pagina = await u.listarPersonas(PH, undefined)
+    const pagina = await buscarPersonas(PH, undefined, undefined, 50)
     expect(pagina.datos).toHaveLength(43)
     expect(pagina.siguiente).toBeNull()
   })

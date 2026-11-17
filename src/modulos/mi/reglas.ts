@@ -4,9 +4,7 @@ import type {
   EstadoTicket,
   EstadoVisita,
   Ticket,
-  TipoCorrespondencia,
   TipoTicket,
-  TipoVisita,
   Visita,
 } from '@/api/tipos'
 import { comparar } from '@/formato/decimales'
@@ -62,14 +60,6 @@ export function accionesDelSolicitante(t: Pick<Ticket, 'estado' | 'encuesta' | '
   }
 }
 
-export const TIPO_VISITA: Record<TipoVisita, string> = {
-  visita: 'Visita',
-  domicilio: 'Domicilio',
-  proveedor: 'Proveedor',
-  trasteo: 'Trasteo',
-  servicio_domestico: 'Servicio doméstico',
-}
-
 export const ESTADO_VISITA: Record<EstadoVisita, { texto: string; tono: Tono }> = {
   anunciada: { texto: 'Espera su respuesta', tono: 'peligro' },
   requiere_llamada: { texto: 'La portería lo llamará', tono: 'aviso' },
@@ -94,13 +84,6 @@ export function qrVigente(v: Pick<Visita, 'origen' | 'estado' | 'ventana_hasta' 
     v.usos < v.usos_permitidos &&
     (!v.ventana_hasta || Date.parse(v.ventana_hasta) > ahora.getTime())
   )
-}
-
-export const TIPO_PAQUETE: Record<TipoCorrespondencia, string> = {
-  paquete: 'Paquete',
-  sobre: 'Sobre',
-  recibo: 'Recibo',
-  otro: 'Otro',
 }
 
 /** Situación del bien en la cartera para la tarjeta y el encabezado. */

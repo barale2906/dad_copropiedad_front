@@ -69,11 +69,12 @@ export function useNavegacion() {
     }
   }
 
+  /** La maqueta (o una zona). `?ver=maqueta` evita la entrada directa a «Mi hogar» o al turno. */
   function rutaMaqueta(zonaId?: string): RouteLocationRaw {
     return {
       name: 'maqueta',
       params: { entidadId: entidad.activa?.entidad_id ?? '' },
-      query: zonaId ? { zona: zonaId } : {},
+      query: zonaId ? { zona: zonaId } : { ver: 'maqueta' },
     }
   }
 

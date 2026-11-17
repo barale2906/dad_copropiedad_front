@@ -7,6 +7,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { mensajeDeError } from '@/api/errores'
 import type { BienPrivado, Correspondencia, TipoVisita, Visita } from '@/api/tipos'
+import { TIPO_PAQUETE, TIPO_VISITA } from '@/composables/textos-acceso'
 import { useAccion } from '@/composables/useAccion'
 import { usePestana } from '@/composables/usePestana'
 import { aUtc, fechaHora } from '@/formato/fechas'
@@ -24,7 +25,7 @@ import { useBienes } from '@/stores/bienes'
 import { useEntidad } from '@/stores/entidad'
 import IMas from '~icons/tabler/plus'
 import { misPaquetes, misVisitas, preautorizar, qrDeVisita, responderVisita } from '../api'
-import { ESTADO_VISITA, esperaRespuesta, qrVigente, TIPO_PAQUETE, TIPO_VISITA } from '../reglas'
+import { ESTADO_VISITA, esperaRespuesta, qrVigente } from '../reglas'
 
 const PESTANAS = [
   { id: 'visitas', texto: 'Visitas' },

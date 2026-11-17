@@ -10,6 +10,7 @@
  *  - que contenga `uno` → una sola entidad (entra directo)
  *  - que contenga `empresa` → solo la empresa (maqueta de oficina)
  *  - que contenga `nuevo` → sin entidades (cuenta aún sin roles)
+ *  - que contenga `porteria` → guarda y jefe de seguridad de la PH (portería, plan 06)
  *  - que contenga `residente` → propietario y residente de la PH (portal «Mi hogar», plan 05)
  */
 import type { Capacidades, EntidadDeLaCuenta, Permiso, Tokens } from '@/api/tipos'
@@ -19,12 +20,13 @@ import { entidad, iniciarEntidad, permisos } from './entidad'
 import { ficha, iniciarFicha } from './ficha'
 import { iniciarProteccion, proteccion } from './proteccion'
 import { iniciarMi, mi } from './mi'
+import { iniciarPorteria, porteria } from './porteria'
 import { iniciarUnidades, unidades } from './unidades'
 import { iniciarZonasComunes, zonasComunes } from './zonas-comunes'
 import { error, json, type Manejador } from './http'
 
 /** Manejadores que exigen sesión, en orden; el primero que responda gana. */
-const CON_SESION: Manejador[] = [cuenta, archivos, ficha, unidades, mi, proteccion, zonasComunes, entidad, permisos]
+const CON_SESION: Manejador[] = [cuenta, archivos, ficha, unidades, mi, porteria, proteccion, zonasComunes, entidad, permisos]
 /** Manejadores sin sesión (además del inicio de sesión). */
 const SIN_SESION: Manejador[] = [cuentaPublica]
 
@@ -116,11 +118,32 @@ const CAPACIDADES_RESIDENTE: Capacidades = {
   entidad_suspendida: false,
 }
 
+/** Capacidades de la portería en la PH demo: todo el control de acceso (turno y configuración). */
+const CAPACIDADES_PORTERIA: Capacidades = {
+  tipo: 'propiedad_horizontal',
+  permisos: [
+    'acceso.registrar', 'acceso.correspondencia.entregar', 'acceso.minuta.ver', 'acceso.minuta.registrar',
+    'acceso.bitacora.ver', 'acceso.credenciales.gestionar', 'acceso.biometria.enrolar', 'acceso.configurar',
+    'personas.ver', 'bienes_privados.ver',
+  ],
+  modulos: ['control_acceso'],
+  modo_soporte: false,
+  entidad_suspendida: false,
+}
+
+/** Capacidades fijas por usuario demo en la primera PH (o `null` para las de la entidad). */
+function capacidadesDe(u: string): Capacidades | null {
+  if (u.includes('residente')) return CAPACIDADES_RESIDENTE
+  if (u.includes('porteria')) return CAPACIDADES_PORTERIA
+  return null
+}
+
 function entidadesDe(u: string): EntidadDeLaCuenta[] {
   if (u.includes('nuevo')) return []
-  if (u.includes('residente')) {
+  const roles = u.includes('residente') ? ['propietario', 'residente'] : u.includes('porteria') ? ['portero'] : null
+  if (roles) {
     const e = ENTIDADES[0]!
-    return [{ entidad_id: e.entidad_id, nombre: e.nombre, nit: e.nit, tipo: e.tipo, estado: e.estado, roles: ['propietario', 'residente'] }]
+    return [{ entidad_id: e.entidad_id, nombre: e.nombre, nit: e.nit, tipo: e.tipo, estado: e.estado, roles }]
   }
   const lista = u.includes('empresa')
     ? ENTIDADES.filter((e) => e.tipo === 'empresa')
@@ -152,6 +175,7 @@ export async function fetchDemo(req: Request): Promise<Response> {
     iniciarEntidad()
     iniciarUnidades()
     iniciarMi()
+    iniciarPorteria(usuario.includes('residente'))
     iniciarFicha(ENTIDADES)
     iniciarProteccion()
     iniciarZonasComunes()
@@ -172,6 +196,7 @@ export async function fetchDemo(req: Request): Promise<Response> {
     iniciarEntidad()
     iniciarUnidades()
     iniciarMi()
+    iniciarPorteria(usuario.includes('residente'))
     iniciarFicha(ENTIDADES)
     iniciarProteccion()
     iniciarZonasComunes()
@@ -190,7 +215,8 @@ export async function fetchDemo(req: Request): Promise<Response> {
   const cap = ruta.match(/^\/entidades\/([^/]+)\/capacidades$/)
   if (m === 'GET' && cap) {
     const e = ENTIDADES.find((x) => x.entidad_id === cap[1])
-    if (e && usuario.includes('residente')) return json(CAPACIDADES_RESIDENTE)
+    const fijas = capacidadesDe(usuario)
+    if (e && fijas) return json(fijas)
     return e ? json(e.capacidades) : error(404, 'no_encontrado', 'No encontrada.')
   }
   for (const atender of CON_SESION) {

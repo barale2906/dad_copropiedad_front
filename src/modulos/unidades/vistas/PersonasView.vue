@@ -7,6 +7,7 @@
 import { computed, ref, watch } from 'vue'
 import { type RouteLocationRaw, useRoute } from 'vue-router'
 import { mensajeDeError } from '@/api/errores'
+import { buscarPersonas } from '@/api/personas'
 import type { Persona, Residencia, TipoDocumento } from '@/api/tipos'
 import { useAccion } from '@/composables/useAccion'
 import { useListado } from '@/composables/useListado'
@@ -22,7 +23,7 @@ import HudTabla from '@/hud/componentes/HudTabla.vue'
 import { useBienes } from '@/stores/bienes'
 import { useEntidad } from '@/stores/entidad'
 import IVolver from '~icons/tabler/arrow-left'
-import { editarPersona, listarPersonas, persona as obtenerPersona, residencias } from '../api'
+import { editarPersona, persona as obtenerPersona, residencias } from '../api'
 import { CALIDAD } from '../censo'
 
 const route = useRoute()
@@ -36,7 +37,7 @@ const personaId = computed(() => (typeof route.params.id === 'string' ? route.pa
 const ruta = (p = ''): RouteLocationRaw => ({ name: 'modulo', params: { ...route.params, id: p }, query: {} })
 
 const filtros = ref({ q: '' })
-const listado = useListado((despues, f: { q: string }) => listarPersonas(id.value, despues, f.q), { filtros, inmediato: false })
+const listado = useListado((despues, f: { q: string }) => buscarPersonas(id.value, f.q, despues, 50), { filtros, inmediato: false })
 const COLUMNAS = [
   { clave: 'nombre', titulo: 'Persona' },
   { clave: 'contacto', titulo: 'Contacto' },

@@ -1,17 +1,14 @@
 /**
  * Demo del portal del propietario y residente: mi cartera (un bien en mora y otro al día), mis
- * comunicados, mis PQRS, visitas (una anunciada que espera respuesta y otra que ya respondió otro
- * residente), paquetes, mis datos y la autorización de publicidad. Se reinicia en cada sesión.
+ * comunicados, mis PQRS, mis datos y la autorización de publicidad (las visitas y los paquetes
+ * los atiende `porteria.ts`). Se reinicia en cada sesión.
  */
 import type {
   ComunicadoRecibido,
-  Correspondencia,
   CuentaCobro,
   DetalleTicket,
   Obligacion,
-  Preautorizacion,
   Ticket,
-  Visita,
 } from '@/api/tipos'
 import { cuerpo, error, json, type Manejador, sinContenido } from './http'
 import { bienesDemo, personasDemo } from './unidades'
@@ -28,8 +25,6 @@ const PERSONA = id(5100)
 let obligaciones: Obligacion[] = []
 let comunicados: ComunicadoRecibido[] = []
 let tickets: DetalleTicket[] = []
-let visitas: Visita[] = []
-let paquetes: Correspondencia[] = []
 let publicidad = false
 let consecutivo = 9500
 
@@ -70,13 +65,6 @@ function ticket(n: number, asunto: string, estado: Ticket['estado'], extra: Part
   }
 }
 
-function visita(n: number, nombre: string, estado: Visita['estado'], extra: Partial<Visita> = {}): Visita {
-  return {
-    id: id(n), bien_privado_id: T1_101, origen: 'anuncio_porteria', tipo: 'visita', estado, visitante_nombre: nombre,
-    usos_permitidos: 1, usos: 0, avisos_enviados: 1, creada_en: hace(0), ...extra,
-  }
-}
-
 export function iniciarMi(): void {
   consecutivo = 9500
   obligaciones = [
@@ -92,16 +80,6 @@ export function iniciarMi(): void {
   tickets = [
     ticket(9301, 'Filtración en el techo del baño', 'en_espera_solicitante'),
     ticket(9311, 'Bombillo del pasillo fundido', 'resuelto', { resuelto_en: hace(1), reabrible_hasta: new Date(Date.now() + 5 * DIA).toISOString() }),
-  ]
-  visitas = [
-    visita(9401, 'Carlos Domicilio', 'anunciada', { tipo: 'domicilio' }),
-    visita(9402, 'María Visita', 'anunciada'),
-    visita(9403, 'Jardinero', 'autorizada', { origen: 'preautorizada', tipo: 'servicio_domestico', usos_permitidos: 4, usos: 1, ventana_desde: hace(1), ventana_hasta: new Date(Date.now() + 6 * DIA).toISOString() }),
-    visita(9404, 'Tía Rosa', 'finalizada', { creada_en: hace(3), ingreso_en: hace(3), salida_en: hace(3) }),
-  ]
-  paquetes = [
-    { id: id(9451), bien_privado_id: T1_101, tipo: 'paquete', estado: 'recibida', remitente: 'Mercado Libre', ubicacion: 'Casillero 4', recibida_en: hace(0), avisos_enviados: 1 },
-    { id: id(9452), bien_privado_id: T1_101, tipo: 'sobre', estado: 'entregada', remitente: 'Banco', recibida_en: hace(6), avisos_enviados: 1, cerrada_en: hace(5) },
   ]
   publicidad = false
 }
@@ -234,41 +212,6 @@ export const mi: Manejador = async (req, ruta) => {
       return json(t.ticket)
     }
   }
-
-  // Visitas y paquetes
-  if (m === 'GET' && base === '/visitas') return json({ datos: visitas, siguiente: null })
-  if (m === 'POST' && base === '/visitas/preautorizaciones') {
-    const d = await cuerpo<Preautorizacion>(req)
-    if (Date.parse(d.hasta) <= Date.parse(d.desde)) return error(422, 'validacion', 'La ventana no es válida.')
-    const v = visita(++consecutivo, d.visitante_nombre, 'autorizada', {
-      origen: 'preautorizada', tipo: d.tipo, bien_privado_id: d.bien_privado_id, placa: d.placa, ventana_desde: d.desde, ventana_hasta: d.hasta,
-      usos_permitidos: d.usos, avisos_enviados: 0,
-    })
-    visitas = [v, ...visitas]
-    return json({ visita: v, qr: `DAD1.${v.id}.${btoa(d.visitante_nombre).slice(0, 12)}.firma` }, 201)
-  }
-  const vis = base.match(/^\/visitas\/([^/]+)\/(qr|respuesta)$/)
-  if (vis) {
-    const v = visitas.find((x) => x.id === vis[1])
-    if (!v) return error(404, 'no_encontrado', 'No existe.')
-    if (m === 'GET' && vis[2] === 'qr') {
-      if (v.origen !== 'preautorizada' || v.estado !== 'autorizada') return error(409, 'conflicto', 'No es una pre-autorización vigente.')
-      return json({ qr: `DAD1.${v.id}.firma` })
-    }
-    if (m === 'POST' && vis[2] === 'respuesta') {
-      // «María Visita» la respondió otro residente un instante antes: gana la primera decisión.
-      if (v.id === id(9402) && v.estado === 'anunciada') {
-        v.estado = 'autorizada'
-        return json({ decidida_ahora: false, visita: v })
-      }
-      if (!['anunciada', 'requiere_llamada'].includes(v.estado)) return json({ decidida_ahora: false, visita: v })
-      const { autorizar } = await cuerpo<{ autorizar: boolean }>(req)
-      v.estado = autorizar ? 'autorizada' : 'rechazada'
-      v.decidida_en = new Date().toISOString()
-      return json({ decidida_ahora: true, visita: v })
-    }
-  }
-  if (m === 'GET' && base === '/correspondencia') return json({ datos: paquetes, siguiente: null })
 
   // Mis datos (la persona de la cuenta demo)
   if (m === 'GET' && base === '/proteccion-datos/mis-datos') {

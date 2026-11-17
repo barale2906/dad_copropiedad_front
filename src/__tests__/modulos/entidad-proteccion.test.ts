@@ -1,5 +1,6 @@
 import { createPinia, setActivePinia } from 'pinia'
 import { beforeEach, describe, expect, it } from 'vitest'
+import { buscarPersonas } from '@/api/personas'
 import type { AutorizacionTratamiento } from '@/api/tipos'
 import { limpiar } from '@/api/tokens'
 import {
@@ -13,7 +14,6 @@ import {
 } from '@/modulos/entidad/api-organizaciones'
 import {
   autorizacionesDe,
-  buscarPersonas,
   datosTratados,
   listarSolicitudes,
   otorgarAutorizacion,

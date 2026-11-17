@@ -344,14 +344,6 @@ export function rechazarCambio(id: string, cambioId: string, motivo: string): Pr
 
 // Personas ----------------------------------------------------------------------------------
 
-export function listarPersonas(id: string, despues: string | undefined, q?: string) {
-  return exigir(
-    api().GET('/api/v1/copropiedades/{copropiedad_id}/personas', {
-      params: { ...ph(id), query: { q: q?.trim() || undefined, limite: 50, despues } },
-    }),
-  )
-}
-
 export function persona(id: string, personaId: string): Promise<Persona> {
   return exigir(
     api().GET('/api/v1/copropiedades/{copropiedad_id}/personas/{persona_id}', { params: { path: { copropiedad_id: id, persona_id: personaId } } }),

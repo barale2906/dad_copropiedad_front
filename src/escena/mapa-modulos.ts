@@ -119,7 +119,8 @@ export const SECCIONES: Record<string, Seccion> = {
     modulos: ['control_acceso'],
     soloPH: true,
     acciones: [
-      a('visitas', 'Visitas', 'Anunciar y autorizar visitantes.', ['acceso.registrar', 'acceso.visitantes.autorizar']),
+      a('turno', 'Turno', 'Visitas, ingreso con QR y paquetes, a un toque.', ['acceso.registrar']),
+      a('visitas', 'Visitas', 'Historial y detalle de cada visita.', ['acceso.registrar', 'acceso.bitacora.ver']),
       a('correspondencia', 'Correspondencia', 'Paquetes recibidos y entregas.', ['acceso.correspondencia.entregar', 'acceso.registrar']),
       a('bitacora', 'Bitácora', 'Entradas y salidas registradas.', ['acceso.bitacora.ver']),
       a('minuta', 'Minuta', 'Novedades del turno.', ['acceso.minuta.ver', 'acceso.minuta.registrar']),

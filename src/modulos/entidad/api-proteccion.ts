@@ -102,14 +102,6 @@ export function responderSolicitud(
 }
 
 /** Personas de la PH por nombre (sin tildes) o documento (`personas.ver`). */
-export function buscarPersonas(id: string, q: string, despues?: string) {
-  return exigir(
-    api().GET('/api/v1/copropiedades/{copropiedad_id}/personas', {
-      params: { ...ph(id), query: { q: q.trim() || undefined, limite: 20, despues } },
-    }),
-  )
-}
-
 export function personaPorId(id: string, personaId: string): Promise<Persona> {
   return exigir(api().GET('/api/v1/copropiedades/{copropiedad_id}/personas/{persona_id}', { params: persona(id, personaId) }))
 }

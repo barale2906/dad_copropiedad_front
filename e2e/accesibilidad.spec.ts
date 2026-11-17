@@ -291,3 +291,63 @@ test('portal del residente', async ({ page }) => {
     await revisar(page)
   }
 })
+
+/** Entra como guarda y abre una pantalla de la portería; devuelve la base `/e/<id>`. */
+async function entrarAPorteria(page: Page, accion?: string) {
+  await entrar(page, 'porteria')
+  await expect(page).toHaveURL(/\/e\/[^/]+$/)
+  const base = new URL(page.url()).pathname
+  if (accion) await page.goto(`${base}/porteria/${accion}`)
+  return base
+}
+
+test('portería: turno y detalle de visita', async ({ page }) => {
+  await entrarAPorteria(page, 'turno')
+  await expect(page.getByRole('list', { name: 'Visitas abiertas' })).toBeVisible()
+  await revisar(page)
+  await page.getByRole('button', { name: 'Anunciar visita' }).click()
+  await expect(page.getByRole('dialog', { name: 'Anunciar visita' })).toBeVisible()
+  await revisar(page)
+  await page.keyboard.press('Escape')
+  await page.getByRole('link', { name: 'Llamar por Técnico de internet' }).click()
+  await expect(page.getByRole('list', { name: 'Línea de tiempo de la visita' })).toBeVisible()
+  await revisar(page)
+})
+
+test('portería: correspondencia y entrega con firma', async ({ page }) => {
+  await entrarAPorteria(page, 'correspondencia')
+  await expect(page.getByRole('list', { name: 'Correspondencia' })).toBeVisible()
+  await revisar(page)
+  await page.getByRole('button', { name: /^Entregar Paquete/ }).first().click()
+  await expect(page.getByRole('img', { name: 'Firma de quien recibe' })).toBeVisible()
+  await revisar(page)
+})
+
+test('portería: minuta, bitácora y credenciales', async ({ page }) => {
+  const base = await entrarAPorteria(page)
+  for (const [accion, lista] of [['minuta', 'Novedades de la minuta'], ['bitacora', 'Eventos de acceso']] as const) {
+    await page.goto(`${base}/porteria/${accion}`)
+    await expect(page.getByRole('list', { name: lista })).toBeVisible()
+    await revisar(page)
+  }
+  await page.goto(`${base}/porteria/credenciales`)
+  await page.getByLabel('Buscar persona').fill('marta')
+  await page.getByRole('button', { name: /Marta Residente/ }).click()
+  await expect(page.getByRole('list', { name: 'Credenciales' })).toBeVisible()
+  await revisar(page)
+})
+
+test('portería: biometría y configuración', async ({ page }) => {
+  const base = await entrarAPorteria(page)
+  await page.goto(`${base}/porteria/biometria`)
+  await page.getByLabel('Buscar persona').fill('marta')
+  await page.getByRole('button', { name: /Marta Residente/ }).click()
+  await expect(page.getByRole('button', { name: 'Registrar consentimiento' })).toBeVisible()
+  await revisar(page)
+  await page.goto(`${base}/porteria/configuracion`)
+  await expect(page.getByLabel('Días avisando un paquete sin recoger')).toHaveValue('5')
+  await revisar(page)
+  await page.goto(`${base}/porteria/configuracion?vista=equipos`)
+  await expect(page.getByRole('list', { name: 'Dispositivos' })).toBeVisible()
+  await revisar(page)
+})

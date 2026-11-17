@@ -40,7 +40,9 @@ describe('useNavegacion', () => {
       params: { entidadId: ENTIDAD_PH.entidad_id },
       query: { zona: 'piscina' },
     })
+    expect(nav.rutaMaqueta()).toMatchObject({ query: { ver: 'maqueta' } })
   })
+
 
   it('la plataforma usa la maqueta de oficina', () => {
     conCapacidades({ tipo: 'plataforma', modulos: [], permisos: [] }, { ...ENTIDAD_PH, tipo: 'plataforma' })
