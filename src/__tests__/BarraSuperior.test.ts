@@ -37,4 +37,11 @@ describe('BarraSuperior', () => {
     expect(w.get('.aviso-estado').attributes('data-estado')).toBe('suspendida')
     expect(w.text()).toContain('Comuníquese con DAD')
   })
+
+  it('avisa la suspensión que informan las capacidades aunque el listado diga activa', () => {
+    conCapacidades({ tipo: 'propiedad_horizontal', modulos: [], permisos: [], entidad_suspendida: true })
+    const w = mount(BarraSuperior, { global: { stubs: { RouterLink: RouterLinkStub } } })
+    expect(w.get('.aviso-estado').attributes('data-estado')).toBe('suspendida')
+    expect(w.text()).toContain('solo puede consultar')
+  })
 })

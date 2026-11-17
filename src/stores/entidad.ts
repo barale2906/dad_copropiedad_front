@@ -25,6 +25,13 @@ export const useEntidad = defineStore('entidad', () => {
   )
   /** Acceso de soporte de la plataforma: la entidad se ve en solo lectura (plan 15). */
   const modoSoporte = computed(() => capacidades.value?.modo_soporte ?? false)
+  /**
+   * Suspendida por la plataforma (p. ej. por mora): los permisos ya llegan recortados a lecturas,
+   * portería y atención a titulares; un 403 `sin_permiso` se debe a la suspensión.
+   */
+  const suspendida = computed(
+    () => (capacidades.value?.entidad_suspendida ?? false) || activa.value?.estado === 'suspendida',
+  )
   /** Zona IANA en que se muestran las fechas de la entidad (nunca la del navegador). */
   const zonaHoraria = computed(() => ficha.value?.zona_horaria ?? ZONA_HORARIA_PREDETERMINADA)
 
@@ -102,6 +109,7 @@ export const useEntidad = defineStore('entidad', () => {
     ficha,
     esPH,
     modoSoporte,
+    suspendida,
     zonaHoraria,
     tieneModulo,
     tienePermiso,

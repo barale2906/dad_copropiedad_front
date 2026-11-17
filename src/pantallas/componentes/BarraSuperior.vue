@@ -15,7 +15,8 @@ const sesion = useSesion()
 const router = useRouter()
 
 const tipo = computed(() => entidad.capacidades?.tipo ?? entidad.activa?.tipo ?? 'empresa')
-const estado = computed(() => entidad.activa?.estado ?? 'activa')
+// Las capacidades avisan la suspensión aunque el listado de entidades aún no la refleje.
+const estado = computed(() => (entidad.suspendida ? 'suspendida' : (entidad.activa?.estado ?? 'activa')))
 const aviso = computed(() => avisoDeEstado(estado.value))
 
 async function salir() {

@@ -55,7 +55,7 @@ const ENTIDADES: (EntidadDeLaCuenta & { capacidades: Capacidades })[] = [
       // acciones propias no se ofrecen).
       modulos: ['bienes_comunes', 'asambleas', 'gestion_administrativa',
         'contabilidad', 'contabilidad_ph'],
-      modo_soporte: false,
+      modo_soporte: false, entidad_suspendida: false,
     },
   },
   {
@@ -65,7 +65,7 @@ const ENTIDADES: (EntidadDeLaCuenta & { capacidades: Capacidades })[] = [
     tipo: 'propiedad_horizontal',
     estado: 'en_configuracion',
     roles: ['consejero'],
-    capacidades: { tipo: 'propiedad_horizontal', permisos: ['asambleas.ver', 'censo.ver'], modulos: ['asambleas'], modo_soporte: false },
+    capacidades: { tipo: 'propiedad_horizontal', permisos: ['asambleas.ver', 'censo.ver'], modulos: ['asambleas'], modo_soporte: false, entidad_suspendida: false },
   },
   {
     entidad_id: '01930000-0000-7000-8000-000000000003',
@@ -74,7 +74,7 @@ const ENTIDADES: (EntidadDeLaCuenta & { capacidades: Capacidades })[] = [
     tipo: 'empresa',
     estado: 'activa',
     roles: ['contador'],
-    capacidades: { tipo: 'empresa', permisos: TODOS, modulos: ['contabilidad'], modo_soporte: false },
+    capacidades: { tipo: 'empresa', permisos: TODOS, modulos: ['contabilidad'], modo_soporte: false, entidad_suspendida: false },
   },
 ]
 

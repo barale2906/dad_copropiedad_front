@@ -25,7 +25,7 @@ export function avisoDeEstado(estado: EstadoEntidad): string | null {
     case 'en_configuracion':
       return 'Esta entidad aún está en configuración.'
     case 'suspendida':
-      return 'Esta entidad está suspendida. Comuníquese con DAD para reactivarla.'
+      return 'Esta entidad está suspendida: solo puede consultar. Comuníquese con DAD para reactivarla.'
     case 'retirada':
       return 'Esta entidad fue retirada del servicio.'
   }

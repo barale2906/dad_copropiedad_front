@@ -25,14 +25,17 @@ export const ENTIDAD_PH: EntidadDeLaCuenta = {
   roles: ['administrador'],
 }
 
-/** Capacidades de prueba: `modo_soporte` es opcional (por defecto, sin soporte). */
-export type CapacidadesDePrueba = Omit<Capacidades, 'modo_soporte'> & { modo_soporte?: boolean }
+/** Capacidades de prueba: `modo_soporte` y `entidad_suspendida` son opcionales (por defecto, `false`). */
+export type CapacidadesDePrueba = Omit<Capacidades, 'modo_soporte' | 'entidad_suspendida'> & {
+  modo_soporte?: boolean
+  entidad_suspendida?: boolean
+}
 
 /** Deja una entidad activa con las capacidades dadas, sin pasar por la API. */
 export function conCapacidades(cap: CapacidadesDePrueba, entidad: EntidadDeLaCuenta = ENTIDAD_PH) {
   const e = useEntidad()
   e.activa = entidad
-  e.capacidades = { modo_soporte: false, ...cap }
+  e.capacidades = { modo_soporte: false, entidad_suspendida: false, ...cap }
   return e
 }
 

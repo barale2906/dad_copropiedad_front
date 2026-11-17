@@ -30,6 +30,15 @@ describe('useEntidad', () => {
     expect(e.modoSoporte).toBe(false)
   })
 
+  it('sabe si la entidad está suspendida por las capacidades o por su estado', () => {
+    const e = conCapacidades({ tipo: 'propiedad_horizontal', modulos: [], permisos: [] })
+    expect(e.suspendida).toBe(false)
+    conCapacidades({ tipo: 'propiedad_horizontal', modulos: [], permisos: [], entidad_suspendida: true })
+    expect(e.suspendida).toBe(true)
+    conCapacidades({ tipo: 'propiedad_horizontal', modulos: [], permisos: [] }, { ...ENTIDAD_PH, estado: 'suspendida' })
+    expect(e.suspendida).toBe(true)
+  })
+
   it('distingue la PH de la empresa y de la plataforma', () => {
     const e = conCapacidades({ tipo: 'propiedad_horizontal', modulos: [], permisos: [] })
     expect(e.esPH).toBe(true)

@@ -5854,6 +5854,1359 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/plataforma/cobros/productos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Catálogo comercial con las tarifas de cada producto. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Productos */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProductoRespuesta"][];
+                    };
+                };
+                /** @description Sin sesión o token vencido (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Sin `plataforma.comercial.gestionar` ni `plataforma.cobros.aprobar` (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /** Crea un producto del catálogo comercial. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["ProductoPeticion"];
+                };
+            };
+            responses: {
+                /** @description Producto creado */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProductoRespuesta"];
+                    };
+                };
+                /** @description Sin sesión o token vencido (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Sin `plataforma.comercial.gestionar` (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Código repetido (`conflicto`) */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Datos inválidos (`validacion`) */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plataforma/cobros/productos/{producto_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Edita un producto (el código no cambia). */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Producto */
+                    producto_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["ProductoPeticion"];
+                };
+            };
+            responses: {
+                /** @description Producto editado */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProductoRespuesta"];
+                    };
+                };
+                /** @description Sin sesión o token vencido (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Sin `plataforma.comercial.gestionar` (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description No existe */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plataforma/cobros/productos/{producto_id}/tarifas": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Fija la tarifa del producto desde una fecha (versionada: nunca se edita). */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Producto */
+                    producto_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["TarifaDto"];
+                };
+            };
+            responses: {
+                /** @description Tarifa fijada */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["TarifaDto"];
+                    };
+                };
+                /** @description Sin sesión o token vencido (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Sin `plataforma.comercial.gestionar` (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description No existe */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Ya hay una tarifa desde ese día (`conflicto`) */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Tarifa incoherente con su modelo (`dominio`) */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plataforma/cobros/suscripciones": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Suscripciones vigentes. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Suscripciones */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SuscripcionRespuesta"][];
+                    };
+                };
+                /** @description Sin sesión o token vencido (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Sin `plataforma.comercial.gestionar` ni `plataforma.cobros.aprobar` (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /** Crea la suscripción de una entidad (una vigente por entidad). */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["SuscripcionPeticion"];
+                };
+            };
+            responses: {
+                /** @description Suscripción creada */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SuscripcionRespuesta"];
+                    };
+                };
+                /** @description Sin sesión o token vencido (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Sin `plataforma.comercial.gestionar` (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description La entidad o el pagador no existen */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Ya tiene una suscripción vigente (`conflicto`) */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Ciclo, prueba, plazo o pagador inválidos (`validacion`, `dominio`) */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plataforma/cobros/suscripciones/{suscripcion_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Suscripción con sus líneas y los módulos habilitados sin cobro. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Suscripción */
+                    suscripcion_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Suscripción */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["DetalleSuscripcionRespuesta"];
+                    };
+                };
+                /** @description Sin sesión o token vencido (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Sin `plataforma.comercial.gestionar` ni `plataforma.cobros.aprobar` (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description No existe */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Cambia el correo o el plazo de pago, o termina la suscripción. */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Suscripción */
+                    suscripcion_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["CambiosSuscripcionPeticion"];
+                };
+            };
+            responses: {
+                /** @description Suscripción */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SuscripcionRespuesta"];
+                    };
+                };
+                /** @description Sin sesión o token vencido (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Sin `plataforma.comercial.gestionar` (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description No existe */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Terminada o datos inválidos (`validacion`) */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/api/v1/plataforma/cobros/suscripciones/{suscripcion_id}/lineas": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Agrega un producto a la suscripción. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Suscripción */
+                    suscripcion_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["LineaPeticion"];
+                };
+            };
+            responses: {
+                /** @description Línea agregada */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["LineaRespuesta"];
+                    };
+                };
+                /** @description Sin sesión o token vencido (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Sin `plataforma.comercial.gestionar` (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Suscripción o producto inexistentes */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Producto inactivo o sin tarifa, suscripción terminada o precio sin motivo (`validacion`) */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plataforma/cobros/lineas/{linea_id}/fin": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Termina una línea (deja de cobrarse desde `hasta`). */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Línea */
+                    linea_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["FinLineaPeticion"];
+                };
+            };
+            responses: {
+                /** @description Terminada */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Sin sesión o token vencido (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Sin `plataforma.comercial.gestionar` (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description No existe */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Termina antes de empezar (`validacion`) */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plataforma/cobros/cortes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Cortes (los más recientes primero), con filtro por estado o suscripción. */
+        get: {
+            parameters: {
+                query?: {
+                    estado?: components["schemas"]["EstadoCorte"];
+                    suscripcion_id?: string;
+                    /**
+                     * @description Elementos por página (1–200; 50 si se omite).
+                     * @example 50
+                     */
+                    limite?: number;
+                    /** @description Cursor: el valor `siguiente` de la página anterior. Se omite para la primera página. */
+                    despues?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Cortes */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PaginaRespuesta_CorteRespuesta"];
+                    };
+                };
+                /** @description Sin sesión o token vencido (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Sin `plataforma.cobros.aprobar` ni `plataforma.cobros.facturar` (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Calcula (o recalcula, si sigue en borrador) el corte de un periodo. Si cobra lo mismo que el
+         *     anterior queda aprobado solo.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["CalcularPeticion"];
+                };
+            };
+            responses: {
+                /** @description Corte */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["CorteRespuesta"];
+                    };
+                };
+                /** @description Sin sesión o token vencido (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Sin `plataforma.cobros.aprobar` (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description La suscripción no existe */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Falta `hasta` en un ciclo por evento, producto sin tarifa o métrica desconocida (`validacion`) */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plataforma/cobros/cortes/{corte_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Un corte. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Corte */
+                    corte_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Corte */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["CorteRespuesta"];
+                    };
+                };
+                /** @description Sin sesión o token vencido (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Sin `plataforma.cobros.aprobar` ni `plataforma.cobros.facturar` (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description No existe */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plataforma/cobros/cortes/{corte_id}/aprobar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Aprueba un corte en borrador (queda «por facturar»). */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Corte */
+                    corte_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Aprobado */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["CorteRespuesta"];
+                    };
+                };
+                /** @description Sin sesión o token vencido (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Sin `plataforma.cobros.aprobar` (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description No existe */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description No está en borrador (`conflicto_estado`) */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plataforma/cobros/cortes/{corte_id}/descartar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Descarta un corte en borrador o aprobado (con motivo). */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Corte */
+                    corte_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["MotivoCortePeticion"];
+                };
+            };
+            responses: {
+                /** @description Descartado */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["CorteRespuesta"];
+                    };
+                };
+                /** @description Sin sesión o token vencido (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Sin `plataforma.cobros.aprobar` (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description No existe */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Ya facturado (`conflicto_estado`) */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plataforma/cobros/cortes/{corte_id}/facturar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Factura un corte aprobado en la entidad de la plataforma (factura de venta emitida; el
+         *     documento electrónico se transmite desde su facturación) y avisa al correo de facturación.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Corte */
+                    corte_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Facturado */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["CorteRespuesta"];
+                    };
+                };
+                /** @description Sin sesión o token vencido (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Sin `plataforma.cobros.facturar` (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description No existe */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description No está aprobado (`conflicto_estado`) o ya tiene factura (`conflicto`) */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Sin entidad de la plataforma, pagador sin NIT o corte sin valor (`validacion`) */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plataforma/cobros/cortes/{corte_id}/factura-externa": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Marca un corte aprobado como facturado por fuera del sistema (mientras la plataforma no
+         *     factura en él).
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Corte */
+                    corte_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["FacturaExternaPeticion"];
+                };
+            };
+            responses: {
+                /** @description Facturado */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["CorteRespuesta"];
+                    };
+                };
+                /** @description Sin sesión o token vencido (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Sin `plataforma.cobros.facturar` (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description No existe */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description No está aprobado (`conflicto_estado`) */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plataforma/cobros/cortes/{corte_id}/pago": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Registra el pago de un corte facturado; si la entidad estaba suspendida por mora y no le
+         *     queda otro vencido, se reactiva.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Corte */
+                    corte_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["PagoCortePeticion"];
+                };
+            };
+            responses: {
+                /** @description Pagado */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["CorteRespuesta"];
+                    };
+                };
+                /** @description Sin sesión o token vencido (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Sin `plataforma.cobros.facturar` (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description No existe */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description No está facturado (`conflicto_estado`) */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plataforma/cobros/liquidaciones/{liquidacion_id}/corte": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Crea el corte (en borrador) de una liquidación de publicidad de un anunciante. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Liquidación de publicidad */
+                    liquidacion_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Corte */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["CorteRespuesta"];
+                    };
+                };
+                /** @description Sin sesión o token vencido (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Sin `plataforma.cobros.aprobar` (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description No existe */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Sin valor (`validacion`) */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/yo": {
         parameters: {
             query?: never;
@@ -33520,6 +34873,72 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/entidades/{entidad_id}/suscripcion": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** El plan de la entidad con la plataforma, su consumo del periodo en curso y sus facturas. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Entidad */
+                    entidad_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Suscripción */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["MiSuscripcionRespuesta"];
+                    };
+                };
+                /** @description Sin sesión o token vencido (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Sin `suscripcion.ver` (`sin_permiso`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description La entidad no tiene suscripción (`no_encontrado`) */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/entidades/{entidad_id}/terceros": {
         parameters: {
             query?: never;
@@ -43716,6 +45135,21 @@ export interface components {
             /** @description ¿Alguna recibe contactos por WhatsApp? (solo entonces se ofrece autorizar el contacto). */
             contactables: boolean;
         };
+        /** @description Periodo a calcular. */
+        CalcularPeticion: {
+            /** Format: uuid */
+            suscripcion_id: string;
+            /**
+             * Format: date
+             * @description Primer día del periodo.
+             */
+            desde: string;
+            /**
+             * Format: date
+             * @description Fin (excluido), solo en suscripciones por evento.
+             */
+            hasta?: string | null;
+        };
         /** @description Cálculo de intereses (vista previa o lo causado). */
         CalculoMoraRespuesta: {
             /** Format: date */
@@ -43956,6 +45390,18 @@ export interface components {
             horario?: components["schemas"]["HorarioDto"] | null;
             bien_comun?: components["schemas"]["BienComunDto"] | null;
         };
+        /** @description Cambios de una suscripción. */
+        CambiosSuscripcionPeticion: {
+            correo_facturacion?: string | null;
+            /** Format: int32 */
+            plazo_pago_dias?: number | null;
+            /**
+             * Format: date
+             * @description Termina la suscripción en esa fecha.
+             */
+            terminar_en?: string | null;
+            motivo?: string | null;
+        };
         /** @description Campaña lanzada. */
         CampanaCensoRespuesta: {
             /** Format: uuid */
@@ -44107,6 +45553,12 @@ export interface components {
              *     403). Muestre un aviso permanente.
              */
             modo_soporte: boolean;
+            /**
+             * @description La entidad está **suspendida** por la plataforma (p. ej. por mora): `permisos` ya trae
+             *     solo las lecturas, la portería y la atención a titulares. Muestre un aviso con el motivo
+             *     y cómo reactivarla.
+             */
+            entidad_suspendida: boolean;
         };
         /**
          * @description Cara de una línea de regla contable.
@@ -44802,6 +46254,12 @@ export interface components {
             /** Format: int64 */
             cantidad: number;
         };
+        /** @description Consumo medido en el periodo en curso. */
+        ConsumoRespuesta: {
+            metrica: string;
+            /** Format: int64 */
+            cantidad: number;
+        };
         /** @description Contacto compartido. */
         ContactoAutorizadoRespuesta: {
             /**
@@ -44958,6 +46416,47 @@ export interface components {
         CorteMorososPeticion: {
             /** Format: date */
             corte?: string | null;
+        };
+        /** @description Corte de cobro. */
+        CorteRespuesta: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            suscripcion_id?: string | null;
+            /**
+             * Format: uuid
+             * @description Corte de una liquidación de publicidad (un anunciante).
+             */
+            liquidacion_id?: string | null;
+            /** Format: date */
+            periodo_desde: string;
+            /**
+             * Format: date
+             * @description Excluido.
+             */
+            periodo_hasta: string;
+            lineas: components["schemas"]["LineaCorteDto"][];
+            /** @description Antes de impuestos (el IVA lo pone el ítem de facturación). */
+            total: string;
+            huella: string;
+            estado: components["schemas"]["EstadoCorte"];
+            motivo?: string | null;
+            /**
+             * Format: uuid
+             * @description `null` con estado `aprobado` = se aprobó solo (igual al anterior).
+             */
+            aprobado_por?: string | null;
+            /** Format: date-time */
+            aprobado_en?: string | null;
+            /** Format: uuid */
+            factura_venta_id?: string | null;
+            factura_externa?: string | null;
+            /** Format: date */
+            facturado_en?: string | null;
+            /** Format: date */
+            vencimiento?: string | null;
+            /** Format: date */
+            pagado_en?: string | null;
         };
         /** @description Costo acumulado de un activo. */
         CostoActivo: {
@@ -45526,6 +47025,13 @@ export interface components {
             puntos: components["schemas"]["PuntoRespuesta"][];
             documentos: components["schemas"]["DocumentoDto"][];
         };
+        /** @description Suscripción con sus líneas. */
+        DetalleSuscripcionRespuesta: {
+            suscripcion: components["schemas"]["SuscripcionRespuesta"];
+            lineas: components["schemas"]["LineaRespuesta"][];
+            /** @description Módulos habilitados en la entidad sin un producto que los cobre. */
+            modulos_sin_cobro: components["schemas"]["Modulo"][];
+        };
         /** @description Visita con su historial. */
         DetalleVisitaRespuesta: {
             visita: components["schemas"]["VisitaRespuesta"];
@@ -46042,6 +47548,11 @@ export interface components {
          */
         EstadoCorrespondencia: "recibida" | "entregada" | "devuelta";
         /**
+         * @description Estado de un corte de cobro de la plataforma: `borrador` → `aprobado` (por facturar) → `facturado` → `pagado`, o `descartado`.
+         * @enum {string}
+         */
+        EstadoCorte: "borrador" | "aprobado" | "facturado" | "pagado" | "descartado";
+        /**
          * @description Estado de moderación de un creativo.
          * @enum {string}
          */
@@ -46322,6 +47833,11 @@ export interface components {
          * @enum {string}
          */
         EstadoSorteo: "abierto" | "ejecutado";
+        /**
+         * @description Estado de la suscripción de una entidad con la plataforma.
+         * @enum {string}
+         */
+        EstadoSuscripcion: "activa" | "suspendida" | "terminada";
         /**
          * @description Estado de un ticket.
          * @enum {string}
@@ -46605,6 +48121,13 @@ export interface components {
             cargado_en: string;
             /** Format: int32 */
             movimientos: number;
+        };
+        /** @description Factura emitida por fuera del sistema. */
+        FacturaExternaPeticion: {
+            /** @example FE-1203 */
+            numero: string;
+            /** Format: date */
+            fecha: string;
         };
         /** @description Factura que no se pudo contabilizar. */
         FacturaFallida: {
@@ -47023,6 +48546,14 @@ export interface components {
             /** @description Vacío en votaciones reservadas sin permiso de detalle. */
             opcion?: string | null;
         };
+        /** @description Fin de una línea. */
+        FinLineaPeticion: {
+            /**
+             * Format: date
+             * @description Deja de cobrarse desde este día (excluido).
+             */
+            hasta: string;
+        };
         /**
          * @description Para qué se tratan los datos. La autorización es por finalidad: aceptar una no implica aceptar las demás (por ejemplo, la publicidad siempre es aparte).
          * @enum {string}
@@ -47357,6 +48888,14 @@ export interface components {
             categoria?: string | null;
             nombre: string;
             telefono?: string | null;
+        };
+        /** @description Línea de un corte. */
+        LineaCorteDto: {
+            producto: string;
+            descripcion: string;
+            cantidad: string;
+            valor_unitario: string;
+            valor: string;
         };
         /** @description Línea de una factura de proveedor nueva. */
         LineaFacturaProveedorPeticion: {
@@ -47792,6 +49331,14 @@ export interface components {
             consumido: string;
             dias: components["schemas"]["MetricaDiaRespuesta"][];
         };
+        /** @description Plan, consumo y facturas de la entidad. */
+        MiSuscripcionRespuesta: {
+            suscripcion: components["schemas"]["SuscripcionRespuesta"];
+            lineas: components["schemas"]["LineaRespuesta"][];
+            consumo: components["schemas"]["ConsumoRespuesta"][];
+            /** @description Aprobados, facturados y pagados, los más recientes primero. */
+            cortes: components["schemas"]["CorteRespuesta"][];
+        };
         /** @description Miembro de la organización. */
         MiembroPeticion: {
             /** Format: uuid */
@@ -47819,6 +49366,11 @@ export interface components {
          * @enum {string}
          */
         ModeloCobro: "tarifa_fija" | "cpm" | "cpc" | "por_redencion" | "por_lead" | "directorio_destacado";
+        /**
+         * @description Cómo cobra un producto de la plataforma: tarifa `plana`, `por_unidad` medida, `por_paquete` (base con unidades incluidas y excedente), `por_consumo` o `unica` (una vez).
+         * @enum {string}
+         */
+        ModeloTarifa: "plana" | "por_unidad" | "por_paquete" | "por_consumo" | "unica";
         /** @description Decisión sobre una reseña reportada. */
         ModeracionPeticion: {
             /**
@@ -47899,6 +49451,10 @@ export interface components {
             marcados: number;
             /** @description Bienes con cartera vencida que no están en el padrón. */
             no_encontrados: string[];
+        };
+        /** @description Motivo. */
+        MotivoCortePeticion: {
+            motivo: string;
         };
         /** @description Motivo de un desbloqueo (queda en la auditoría). */
         MotivoPeticion: {
@@ -49222,6 +50778,55 @@ export interface components {
             siguiente?: string | null;
         };
         /** @description Página de resultados de un listado. */
+        PaginaRespuesta_CorteRespuesta: {
+            /** @description Elementos de esta página. */
+            datos: {
+                /** Format: uuid */
+                id: string;
+                /** Format: uuid */
+                suscripcion_id?: string | null;
+                /**
+                 * Format: uuid
+                 * @description Corte de una liquidación de publicidad (un anunciante).
+                 */
+                liquidacion_id?: string | null;
+                /** Format: date */
+                periodo_desde: string;
+                /**
+                 * Format: date
+                 * @description Excluido.
+                 */
+                periodo_hasta: string;
+                lineas: components["schemas"]["LineaCorteDto"][];
+                /** @description Antes de impuestos (el IVA lo pone el ítem de facturación). */
+                total: string;
+                huella: string;
+                estado: components["schemas"]["EstadoCorte"];
+                motivo?: string | null;
+                /**
+                 * Format: uuid
+                 * @description `null` con estado `aprobado` = se aprobó solo (igual al anterior).
+                 */
+                aprobado_por?: string | null;
+                /** Format: date-time */
+                aprobado_en?: string | null;
+                /** Format: uuid */
+                factura_venta_id?: string | null;
+                factura_externa?: string | null;
+                /** Format: date */
+                facturado_en?: string | null;
+                /** Format: date */
+                vencimiento?: string | null;
+                /** Format: date */
+                pagado_en?: string | null;
+            }[];
+            /**
+             * Format: uuid
+             * @description Cursor para pedir la página siguiente (`despues=<siguiente>`); `null` si es la última.
+             */
+            siguiente?: string | null;
+        };
+        /** @description Página de resultados de un listado. */
         PaginaRespuesta_CreativoReportadoRespuesta: {
             /** @description Elementos de esta página. */
             datos: {
@@ -49834,6 +51439,11 @@ export interface components {
             obligacion_id: string;
             valor: string;
         };
+        /** @description Fecha del pago. */
+        PagoCortePeticion: {
+            /** Format: date */
+            fecha: string;
+        };
         /** @description Pago de un egreso autorizado. */
         PagoEgresoPeticion: {
             /**
@@ -49989,7 +51599,7 @@ export interface components {
          * @description Permiso del catálogo. El texto (`modulo.recurso.accion`) es contrato con la BD y con los clientes: no se renombra sin migración.
          * @enum {string}
          */
-        Permiso: "plataforma.copropiedades.crear" | "plataforma.copropiedades.ver" | "plataforma.cuentas.ver" | "plataforma.cuentas.bloquear" | "plataforma.cuentas.crear" | "plataforma.roles.gestionar" | "plataforma.roles.asignar" | "plataforma.organizaciones.revisar" | "plataforma.modulos.gestionar" | "plataforma.entidades.crear" | "plataforma.entidades.usuarios" | "plataforma.soporte.ver" | "plataforma.entidad_propia.designar" | "plataforma.plantillas_contables.publicar" | "plataforma.normativa.gestionar" | "plataforma.auditoria.ver" | "plataforma.publicidad.moderar" | "plataforma.publicidad.gestionar" | "plataforma.publicidad.liquidar" | "plataforma.directorio.gestionar" | "plataforma.facturacion.ver" | "plataforma.whatsapp.gestionar" | "copropiedad.datos.ver" | "copropiedad.datos.editar" | "roles.ver" | "roles.gestionar" | "roles.asignar" | "auditoria.ver" | "archivos.subir" | "archivos.ver" | "archivos.personales.ver" | "personas.ver" | "personas.editar" | "personas.datos_sensibles.ver" | "proteccion_datos.gestionar" | "organizaciones.crear" | "organizaciones.vincular" | "contratos.gestionar" | "bienes_privados.ver" | "bienes_privados.editar" | "bienes_privados.coeficientes.editar" | "bienes_privados.coeficientes.activar" | "agrupaciones.editar" | "titulares.ver" | "titulares.editar" | "censo.ver" | "censo.editar" | "censo.aprobar" | "censo.exportar" | "importaciones.ejecutar" | "bienes_comunes.ver" | "bienes_comunes.editar" | "reservas.crear" | "reservas.aprobar" | "reservas.ver_todas" | "reservas.cancelar_cualquiera" | "reservas.entregas.registrar" | "reservas.restringir" | "parqueaderos.ver" | "parqueaderos.asignar" | "sorteos.gestionar" | "tickets.crear" | "tickets.asignar" | "tickets.atender" | "tickets.ver_todos" | "tickets.configurar" | "tickets.convivencia.ver" | "tickets.urgencias.recibir" | "conversaciones.atender" | "preguntas_frecuentes.editar" | "inventario.ver" | "inventario.editar" | "mantenimiento.planificar" | "mantenimiento.ejecutar" | "mantenimiento.verificar" | "asambleas.ver" | "asambleas.convocar" | "asambleas.conducir" | "asambleas.registrar" | "asambleas.votos.registrar" | "asambleas.votos.ver_detalle" | "acceso.registrar" | "acceso.visitantes.autorizar" | "acceso.bitacora.ver" | "acceso.correspondencia.entregar" | "acceso.minuta.registrar" | "acceso.minuta.ver" | "acceso.configurar" | "acceso.credenciales.gestionar" | "acceso.biometria.enrolar" | "comunicados.gestionar" | "contabilidad.ver" | "contabilidad.configurar" | "contabilidad.comprobantes.crear" | "contabilidad.comprobantes.contabilizar" | "contabilidad.comprobantes.revertir" | "contabilidad.periodos.cerrar" | "contabilidad.periodos.reabrir" | "contabilidad.periodos.aprobar_reapertura" | "contabilidad.exportar" | "tesoreria.configurar" | "tesoreria.recibos.registrar" | "tesoreria.egresos.registrar" | "tesoreria.egresos.autorizar" | "tesoreria.facturas_proveedor.gestionar" | "tesoreria.conciliar" | "cartera.ver" | "cartera.configurar" | "cartera.liquidar" | "cartera.ajustar" | "cartera.certificados.emitir" | "presupuesto.gestionar" | "tributario.configurar" | "tributario.perfil.confirmar" | "tributario.preparar" | "terceros.gestionar" | "facturacion.ver" | "facturacion.facturas.gestionar" | "facturacion.items.gestionar" | "facturacion.exportar" | "facturacion.configurar" | "facturacion.certificado.gestionar" | "facturacion.emitir" | "facturacion.recibir" | "directorio.ver" | "directorio.resenar" | "directorio.compartir";
+        Permiso: "plataforma.copropiedades.crear" | "plataforma.copropiedades.ver" | "plataforma.cuentas.ver" | "plataforma.cuentas.bloquear" | "plataforma.cuentas.crear" | "plataforma.roles.gestionar" | "plataforma.roles.asignar" | "plataforma.organizaciones.revisar" | "plataforma.modulos.gestionar" | "plataforma.entidades.crear" | "plataforma.entidades.usuarios" | "plataforma.soporte.ver" | "plataforma.entidad_propia.designar" | "plataforma.plantillas_contables.publicar" | "plataforma.normativa.gestionar" | "plataforma.auditoria.ver" | "plataforma.publicidad.moderar" | "plataforma.publicidad.gestionar" | "plataforma.publicidad.liquidar" | "plataforma.directorio.gestionar" | "plataforma.facturacion.ver" | "plataforma.comercial.gestionar" | "plataforma.cobros.aprobar" | "plataforma.cobros.facturar" | "plataforma.whatsapp.gestionar" | "copropiedad.datos.ver" | "copropiedad.datos.editar" | "roles.ver" | "roles.gestionar" | "roles.asignar" | "auditoria.ver" | "archivos.subir" | "archivos.ver" | "archivos.personales.ver" | "personas.ver" | "personas.editar" | "personas.datos_sensibles.ver" | "proteccion_datos.gestionar" | "suscripcion.ver" | "organizaciones.crear" | "organizaciones.vincular" | "contratos.gestionar" | "bienes_privados.ver" | "bienes_privados.editar" | "bienes_privados.coeficientes.editar" | "bienes_privados.coeficientes.activar" | "agrupaciones.editar" | "titulares.ver" | "titulares.editar" | "censo.ver" | "censo.editar" | "censo.aprobar" | "censo.exportar" | "importaciones.ejecutar" | "bienes_comunes.ver" | "bienes_comunes.editar" | "reservas.crear" | "reservas.aprobar" | "reservas.ver_todas" | "reservas.cancelar_cualquiera" | "reservas.entregas.registrar" | "reservas.restringir" | "parqueaderos.ver" | "parqueaderos.asignar" | "sorteos.gestionar" | "tickets.crear" | "tickets.asignar" | "tickets.atender" | "tickets.ver_todos" | "tickets.configurar" | "tickets.convivencia.ver" | "tickets.urgencias.recibir" | "conversaciones.atender" | "preguntas_frecuentes.editar" | "inventario.ver" | "inventario.editar" | "mantenimiento.planificar" | "mantenimiento.ejecutar" | "mantenimiento.verificar" | "asambleas.ver" | "asambleas.convocar" | "asambleas.conducir" | "asambleas.registrar" | "asambleas.votos.registrar" | "asambleas.votos.ver_detalle" | "acceso.registrar" | "acceso.visitantes.autorizar" | "acceso.bitacora.ver" | "acceso.correspondencia.entregar" | "acceso.minuta.registrar" | "acceso.minuta.ver" | "acceso.configurar" | "acceso.credenciales.gestionar" | "acceso.biometria.enrolar" | "comunicados.gestionar" | "contabilidad.ver" | "contabilidad.configurar" | "contabilidad.comprobantes.crear" | "contabilidad.comprobantes.contabilizar" | "contabilidad.comprobantes.revertir" | "contabilidad.periodos.cerrar" | "contabilidad.periodos.reabrir" | "contabilidad.periodos.aprobar_reapertura" | "contabilidad.exportar" | "tesoreria.configurar" | "tesoreria.recibos.registrar" | "tesoreria.egresos.registrar" | "tesoreria.egresos.autorizar" | "tesoreria.facturas_proveedor.gestionar" | "tesoreria.conciliar" | "cartera.ver" | "cartera.configurar" | "cartera.liquidar" | "cartera.ajustar" | "cartera.certificados.emitir" | "presupuesto.gestionar" | "tributario.configurar" | "tributario.perfil.confirmar" | "tributario.preparar" | "terceros.gestionar" | "facturacion.ver" | "facturacion.facturas.gestionar" | "facturacion.items.gestionar" | "facturacion.exportar" | "facturacion.configurar" | "facturacion.certificado.gestionar" | "facturacion.emitir" | "facturacion.recibir" | "directorio.ver" | "directorio.resenar" | "directorio.compartir";
         /** @description Permiso del catálogo. */
         PermisoRespuesta: {
             /** @example roles.asignar */
@@ -50509,6 +52119,42 @@ export interface components {
          * @enum {string}
          */
         PrioridadTicket: "urgente" | "alta" | "media" | "baja";
+        /** @description Producto del catálogo comercial. */
+        ProductoPeticion: {
+            /**
+             * @description Código único (`a-z0-9_`); no cambia al editar.
+             * @example asambleas
+             */
+            codigo: string;
+            /** @example Asambleas y votaciones */
+            nombre: string;
+            /**
+             * @description Texto de la línea de la factura: `{producto}`, `{periodo}`, `{cantidad}`, `{incluidas}`.
+             * @example {producto} — {periodo}
+             */
+            descripcion_factura: string;
+            modulo?: components["schemas"]["Modulo"] | null;
+            /**
+             * Format: uuid
+             * @description Ítem de facturación de la entidad de la plataforma (cuenta e IVA salen de él).
+             */
+            item_facturacion_id?: string | null;
+            activo?: boolean;
+        };
+        /** @description Producto con sus tarifas. */
+        ProductoRespuesta: {
+            /** Format: uuid */
+            id: string;
+            codigo: string;
+            nombre: string;
+            descripcion_factura: string;
+            modulo?: components["schemas"]["Modulo"] | null;
+            /** Format: uuid */
+            item_facturacion_id?: string | null;
+            activo: boolean;
+            /** @description La más reciente primero. */
+            tarifas: components["schemas"]["TarifaDto"][];
+        };
         /**
          * @description Propuesta de cambio: `tipo` y los `datos` del registro (los mismos campos que en
          *     `POST /residencias`, `/vehiculos` o `/mascotas`, sin `bien_privado_id`).
@@ -51901,6 +53547,65 @@ export interface components {
             descripcion: string;
             /** Format: int32 */
             periodicidad_meses: number;
+        };
+        /** @description Suscripción nueva. */
+        SuscripcionPeticion: {
+            /** Format: uuid */
+            entidad_id: string;
+            /**
+             * Format: uuid
+             * @description Otra entidad que paga (o `pagador_organizacion_id`, o ninguno: paga la misma entidad).
+             */
+            pagador_entidad_id?: string | null;
+            /** Format: uuid */
+            pagador_organizacion_id?: string | null;
+            /**
+             * Format: int32
+             * @description Cada cuántos meses se corta (1 a 12); `null` = por evento (se corta a pedido).
+             */
+            ciclo_meses?: number | null;
+            /** Format: date */
+            inicio: string;
+            /**
+             * Format: int32
+             * @description Prueba gratuita de 0 a 30 días.
+             */
+            dias_prueba?: number;
+            /**
+             * Format: int32
+             * @description Días para pagar cada factura (15 si se omite).
+             */
+            plazo_pago_dias?: number | null;
+            /** @example facturacion@conjunto.co */
+            correo_facturacion: string;
+        };
+        /** @description Suscripción. */
+        SuscripcionRespuesta: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            entidad_id: string;
+            /** Format: uuid */
+            pagador_entidad_id?: string | null;
+            /** Format: uuid */
+            pagador_organizacion_id?: string | null;
+            /**
+             * Format: int32
+             * @description `null` = por evento.
+             */
+            ciclo_meses?: number | null;
+            /** Format: date */
+            inicio: string;
+            /** Format: int32 */
+            dias_prueba: number;
+            /** Format: int32 */
+            plazo_pago_dias: number;
+            correo_facturacion: string;
+            estado: components["schemas"]["EstadoSuscripcion"];
+            /** @description La entidad está suspendida por mora (se reactiva al pagar). */
+            suspendida_por_mora: boolean;
+            /** Format: date */
+            terminada_en?: string | null;
         };
         /** @description Indicadores del tablero de mantenimiento. */
         TableroMantenimientoRespuesta: {

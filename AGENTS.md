@@ -114,7 +114,7 @@ Se mantiene al día: quien crea una pieza reutilizable la agrega aquí.
 | Subir, abrir y descargar archivos | `subirArchivo`, `abrirArchivo` (enlace firmado justo antes), `descargar(api().GET(…, { parseAs: 'blob' }))` → nombre y `sha256`, `aBase64` | `src/api/archivos.ts` |
 | Sesión, login, 2FA, cierre, definir contraseña | `useSesion()` (`definirContrasena`, `recuperarContrasena`) | `src/stores/sesion.ts` |
 | Cuenta de la persona (perfil, 2FA, sesiones, dispositivos, permisos de plataforma) | `useCuenta()`: `asegurar`, `id`, `permisosPlataforma`, `segundoFactorActivo` | `src/stores/cuenta.ts` |
-| Entidad activa, ¿es PH?, permisos, módulos, roles, modo soporte, zona horaria | `useEntidad()`: `esPH`, `modoSoporte`, `zonaHoraria`, `ficha`, `tieneModulo`, `tienePermiso`, `tieneRol`, `refrescar` | `src/stores/entidad.ts` |
+| Entidad activa, ¿es PH?, permisos, módulos, roles, modo soporte, zona horaria | `useEntidad()`: `esPH`, `modoSoporte`, `suspendida`, `zonaHoraria`, `ficha`, `tieneModulo`, `tienePermiso`, `tieneRol`, `refrescar` | `src/stores/entidad.ts` |
 | Preferencias del navegador | `usePreferencias()` (vista, calidad 3D) | `src/stores/preferencias.ts` |
 | Secciones, acciones y su estado (módulos «alguno de» / `requiereTodos`, módulo por acción, `soloPH`) | `SECCIONES`, `estadoSeccion`, `estadoAccion`, `seccionContratada`, `accionesVisibles`, `TEXTO_ESTADO` | `src/escena/mapa-modulos.ts` |
 | Zonas de la maqueta y rutas | `useNavegacion()`: `zonas`, `estadosZonas`, `secciones`, `rutaAccion`, `rutaMaqueta` | `src/pantallas/navegacion.ts` |
