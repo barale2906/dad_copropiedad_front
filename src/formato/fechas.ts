@@ -27,6 +27,22 @@ export function fecha(utc: string | Date, zona: string): string {
   return formateador(zona, { day: 'numeric', month: 'short', year: 'numeric' }).format(aFecha(utc))
 }
 
+/**
+ * Fecha de calendario sin hora (`2026-11-01`: vencimientos, periodos, escrituras) → «1 nov 2026».
+ * No convierte zonas: el día es el mismo en todas.
+ */
+export function fechaCalendario(yyyymmdd: string): string {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(yyyymmdd)) throw new RangeError(`Fecha inválida: ${yyyymmdd}`)
+  return fecha(`${yyyymmdd}T12:00:00Z`, 'UTC')
+}
+
+/** El día de hoy (`YYYY-MM-DD`) en la zona de la entidad, para comparar con fechas de calendario. */
+export function hoyEn(zona: string, ahora: Date = new Date()): string {
+  const partes = formateador(zona, { year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(ahora)
+  const v = (t: Intl.DateTimeFormatPartTypes) => partes.find((p) => p.type === t)?.value ?? ''
+  return `${v('year')}-${v('month')}-${v('day')}`
+}
+
 /** `2026-11-16T15:04:05Z` → «16 nov 2026, 10:04 a. m.» en la zona dada. */
 export function fechaHora(utc: string | Date, zona: string): string {
   return formateador(zona, {

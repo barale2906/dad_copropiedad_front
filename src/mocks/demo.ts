@@ -11,14 +11,15 @@
  *  - que contenga `empresa` → solo la empresa (maqueta de oficina)
  *  - que contenga `nuevo` → sin entidades (cuenta aún sin roles)
  */
-import type { Capacidades, EntidadDeLaCuenta, FichaEntidad, Permiso, Tokens } from '@/api/tipos'
+import type { Capacidades, EntidadDeLaCuenta, Permiso, Tokens } from '@/api/tipos'
 import { archivos } from './archivos'
 import { cuenta, cuentaPublica, iniciarCuenta } from './cuenta'
 import { entidad, iniciarEntidad, permisos } from './entidad'
+import { ficha, iniciarFicha } from './ficha'
 import { error, json, type Manejador } from './http'
 
 /** Manejadores que exigen sesión, en orden; el primero que responda gana. */
-const CON_SESION: Manejador[] = [cuenta, archivos, entidad, permisos]
+const CON_SESION: Manejador[] = [cuenta, archivos, ficha, entidad, permisos]
 /** Manejadores sin sesión (además del inicio de sesión). */
 const SIN_SESION: Manejador[] = [cuentaPublica]
 
@@ -82,25 +83,6 @@ const ENTIDADES: (EntidadDeLaCuenta & { capacidades: Capacidades })[] = [
 
 let usuario = ''
 
-function fichaDe(e: EntidadDeLaCuenta): FichaEntidad {
-  return {
-    nombre: e.nombre,
-    razon_social: e.nombre,
-    nit: e.nit,
-    direccion: 'Calle 100 # 15-20',
-    municipio_dane: '11001',
-    departamento: 'Bogotá D. C.',
-    barrio: null,
-    latitud: null,
-    longitud: null,
-    telefono: null,
-    correo: null,
-    sitio_web: null,
-    zona_horaria: 'America/Bogota',
-    estado: e.estado,
-  }
-}
-
 function tokens(): Tokens {
   const ahora = Date.now()
   return {
@@ -142,6 +124,7 @@ export async function fetchDemo(req: Request): Promise<Response> {
     usuario = p.identificador.toLowerCase()
     iniciarCuenta(usuario)
     iniciarEntidad()
+    iniciarFicha(ENTIDADES)
     if (usuario.includes('2fa')) {
       return json({ resultado: 'segundo_factor', desafio: 'demo-desafio', desafio_expira_en: new Date(Date.now() + 300_000).toISOString() })
     }
@@ -157,6 +140,7 @@ export async function fetchDemo(req: Request): Promise<Response> {
     usuario = p.token_renovacion.split('-')[2] ?? ''
     iniciarCuenta(usuario)
     iniciarEntidad()
+    iniciarFicha(ENTIDADES)
     return json(tokens())
   }
   if (m === 'POST' && ruta === '/auth/contrasena/recuperar') return new Response(null, { status: 202 })
@@ -173,15 +157,6 @@ export async function fetchDemo(req: Request): Promise<Response> {
   if (m === 'GET' && cap) {
     const e = ENTIDADES.find((x) => x.entidad_id === cap[1])
     return e ? json(e.capacidades) : error(404, 'no_encontrado', 'No encontrada.')
-  }
-  const ficha = ruta.match(/^\/entidades\/([^/]+)$/)
-  if (m === 'GET' && ficha) {
-    const e = ENTIDADES.find((x) => x.entidad_id === ficha[1])
-    if (!e) return error(404, 'no_encontrado', 'No encontrada.')
-    if (!e.capacidades.permisos.includes('copropiedad.datos.ver')) {
-      return error(403, 'sin_permiso', 'No tiene permiso para ver la ficha.')
-    }
-    return json(fichaDe(e))
   }
   for (const atender of CON_SESION) {
     const r = await atender(req, ruta)

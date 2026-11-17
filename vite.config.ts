@@ -40,6 +40,7 @@ export default defineConfig({
         'src/modulos/*/api.ts',
         'src/modulos/*/usuarios.ts',
         'src/modulos/*/permisos.ts',
+        'src/modulos/entidad/{horario,ficha,suscripcion,auditoria}.ts',
         'src/pantallas/navegacion.ts',
         'src/pantallas/textos-entidad.ts',
       ],

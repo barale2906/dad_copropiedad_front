@@ -82,6 +82,17 @@ export const useEntidad = defineStore('entidad', () => {
     }
   }
 
+  /**
+   * Vuelve a leer la ficha tras editarla (zona horaria, nombre). El nombre se actualiza también
+   * en la lista de entidades de la sesión, que es de donde lo toma la barra superior.
+   */
+  async function recargarFicha(): Promise<void> {
+    const e = activa.value
+    if (!e || !capacidades.value) return
+    ficha.value = await cargarFicha(e.entidad_id, capacidades.value)
+    if (ficha.value) e.nombre = ficha.value.nombre
+  }
+
   /** Tras un 403 `sin_permiso` o `modulo_no_habilitado`: los roles o el contrato cambiaron. */
   async function refrescar(): Promise<void> {
     const id = activa.value?.entidad_id
@@ -115,6 +126,7 @@ export const useEntidad = defineStore('entidad', () => {
     tienePermiso,
     tieneRol,
     entrar,
+    recargarFicha,
     refrescar,
     salir,
     ultima,

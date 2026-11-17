@@ -230,6 +230,7 @@ export const SECCIONES: Record<string, Seccion> = {
       a('ficha', 'Ficha', 'Datos generales y de contacto.', ['copropiedad.datos.ver']),
       a('usuarios', 'Usuarios', 'Quién trabaja en la entidad y con qué rol.', ['roles.ver']),
       a('roles', 'Roles y permisos', 'Qué puede hacer cada rol.', ['roles.ver']),
+      a('suscripcion', 'Mi suscripción', 'Plan con DAD, consumo y facturas.', ['suscripcion.ver']),
       a('auditoria', 'Auditoría', 'Registro de operaciones.', ['auditoria.ver']),
       a('proteccion-datos', 'Protección de datos', 'Políticas y solicitudes (Ley 1581).', ['proteccion_datos.gestionar'], SOLO_PH),
       a('organizaciones', 'Organizaciones y contratos', 'Administradora, contador, vigilancia…', [

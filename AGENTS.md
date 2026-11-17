@@ -108,7 +108,7 @@ Se mantiene al día: quien crea una pieza reutilizable la agrega aquí.
 | Mostrar un error | `mensajeDeError(e)` | `src/api/errores.ts` |
 | Ejecutar una acción (idempotencia, errores por código, 429) | `useAccion((clave, …) => …, { alConflicto, alExito })`; `ejecutar()` → `{ ok, valor }` | `src/composables/useAccion.ts` |
 | Botones por estado del recurso / cuatro ojos | `accionesPermitidas(estado, mapa)`, `puedeAprobar(autores, cuentaId)` | `src/composables/reglas.ts` |
-| Fechas en la zona de la entidad | `fecha`, `fechaHora`, `hora`, `aUtc` (con `useEntidad().zonaHoraria`) | `src/formato/fechas.ts` |
+| Fechas en la zona de la entidad | `fecha`, `fechaHora`, `hora`, `aUtc` (con `useEntidad().zonaHoraria`); fechas de calendario `YYYY-MM-DD`: `fechaCalendario`, `hoyEn(zona)` | `src/formato/fechas.ts` |
 | Montos, porcentajes, coeficientes, sumas | `moneda`, `porcentaje`, `coeficiente`, `sumar`, `restar`, `comparar`, `leerDecimal` | `src/formato/decimales.ts` |
 | Generar UUID (también en HTTP) | `uuid()` | `src/api/uuid.ts` |
 | Subir, abrir y descargar archivos | `subirArchivo`, `abrirArchivo` (enlace firmado justo antes), `descargar(api().GET(…, { parseAs: 'blob' }))` → nombre y `sha256`, `aBase64` | `src/api/archivos.ts` |
@@ -148,13 +148,14 @@ Se mantiene al día: quien crea una pieza reutilizable la agrega aquí.
 | Barra superior de la entidad | `<BarraSuperior>` (slot para acciones) | `src/pantallas/componentes/BarraSuperior.vue` |
 | Marco de módulo (menú lateral, migas, volver) | `ModuloView.vue` (base del marco de módulos) | `src/pantallas/ModuloView.vue` |
 | Montar la vista real de una acción | registrar `'seccion/accion': () => import(…)` en `VISTAS_MODULOS` (sin registro: «en construcción»); el detalle llega en `route.params.id` | `src/app/vistas-modulos.ts`, `src/pantallas/vistas-modulo.ts` |
+| Horario semanal con excepciones (editar, validar, resumir) | `<EditorHorario v-model>`; `validarHorario`, `normalizarHorario`, `resumirHorario`, `DIAS` | `src/modulos/entidad/componentes/EditorHorario.vue`, `src/modulos/entidad/horario.ts` (subir a una capa compartida con el plan 02) |
 | Matriz de permisos de un rol (por módulo, búsqueda, «todos», no otorgables) | `<MatrizPermisos v-model grupos solo-lectura puede-otorgar>` con `agruparPermisos(catalogo, ambito)`, `etiquetaPermiso`, `diferencia`, `noOtorgables` | `src/modulos/entidad/componentes/MatrizPermisos.vue`, `src/modulos/entidad/permisos.ts` (subir a una capa compartida con el plan 15) |
 | Lienzo 3D | `<EscenaCanvas plantilla perfil estados enfocada holgura>` (siempre asíncrono) | `src/escena/EscenaCanvas.vue` |
 | Nivel de calidad 3D / movimiento reducido | `perfil()`, `soportaWebGL()`, `movimientoReducido()` | `src/escena/calidad.ts` |
 | Piezas 3D | `Kit` (`caja`, `losa`, `cilindro_`, `cono_`) y `torre`, `edificio`, `arbol`, `carro`, `escritorio` | `src/escena/piezas.ts` |
 | Fondo ambiental HUD | clase `.fondo-hud`; rótulos: `.rotulo`; texto oculto accesible: `.solo-lector` | `src/hud/estilos/base.css` |
 | Transición entre vistas | `<Transition name="vista">` | `src/hud/estilos/base.css` |
-| Datos de prueba / demo | `fetchDemo` (usuarios `uno`, `empresa`, `2fa`, `nuevo` sin roles, `sinverificar`; códigos `123456`; correos `@otra.dad` simulan una cuenta existente); un `Manejador` por área (`json`, `error`, `sinContenido`) | `src/mocks/demo.ts`, `src/mocks/http.ts`, `src/mocks/<area>.ts` |
+| Datos de prueba / demo | `fetchDemo` (ficha, puntos de atención, suscripción y auditoría en `src/mocks/ficha.ts`) (usuarios `uno`, `empresa`, `2fa`, `nuevo` sin roles, `sinverificar`; códigos `123456`; correos `@otra.dad` simulan una cuenta existente); un `Manejador` por área (`json`, `error`, `sinContenido`) | `src/mocks/demo.ts`, `src/mocks/http.ts`, `src/mocks/<area>.ts` |
 | Preparar pruebas | `prepararConDemo()`, `conCapacidades()` (`modo_soporte` opcional), `conConfig()`, `conRespuesta(metodo, ruta, fn)`, `ENTIDAD_PH` | `src/__tests__/ayudantes.ts` |
 | Pasos E2E | `entrar()`, `esperarMaqueta()`, `elegirZona()` | `e2e/utilidades.ts` |
 

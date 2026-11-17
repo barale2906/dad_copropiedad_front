@@ -1,10 +1,23 @@
 import { describe, expect, it } from 'vitest'
 import { coeficiente, comparar, esDecimal, leerDecimal, moneda, porcentaje, restar, sumar } from '@/formato/decimales'
-import { aUtc, fecha, fechaHora, hora } from '@/formato/fechas'
+import { aUtc, fecha, fechaCalendario, fechaHora, hora, hoyEn } from '@/formato/fechas'
 
 const normal = (s: string) => s.replace(/\s/g, ' ')
 
 describe('fechas', () => {
+  it('una fecha de calendario no se corre de día con la zona', () => {
+    // Medianoche UTC del 1 de noviembre es el 31 de octubre en Bogotá; la fecha de calendario no se corre.
+    expect(fechaCalendario('2026-11-01')).toBe(fecha('2026-11-01T17:00:00Z', 'America/Bogota'))
+    expect(fechaCalendario('2026-11-01')).toContain('1')
+    expect(() => fechaCalendario('01/11/2026')).toThrow(RangeError)
+  })
+
+  it('el día de hoy depende de la zona de la entidad', () => {
+    const casiMedianoche = new Date('2026-11-17T03:30:00Z')
+    expect(hoyEn('America/Bogota', casiMedianoche)).toBe('2026-11-16')
+    expect(hoyEn('UTC', casiMedianoche)).toBe('2026-11-17')
+  })
+
   it('muestra en la zona de la entidad, no en la del navegador', () => {
     // 03:00 UTC del 17 es todavía el 16 en Bogotá (UTC-5).
     expect(fecha('2026-11-17T03:00:00Z', 'America/Bogota')).toContain('16')

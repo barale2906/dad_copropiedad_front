@@ -1,8 +1,18 @@
 /** Llamadas del módulo «Datos y usuarios» (`/entidades/{id}/…`). */
 import { descargar } from '@/api/archivos'
 import { api, exigir, idempotencia } from '@/api/cliente'
+import { ErrorApi } from '@/api/errores'
 import type {
   Asignacion,
+  CambiosCopropiedad,
+  CambiosEntidad,
+  DatosCopropiedad,
+  FichaCopropiedad,
+  FichaEntidad,
+  Horario,
+  MiSuscripcion,
+  NuevoPuntoAtencion,
+  PuntoAtencion,
   Importacion,
   NuevoRol,
   NuevoUsuario,
@@ -123,3 +133,101 @@ export function confirmarImportacion(entidadId: string, importacionId: string, c
     }),
   )
 }
+
+/** Ficha genérica de la entidad (empresa o plataforma). */
+export function fichaEntidad(entidadId: string): Promise<FichaEntidad> {
+  return exigir(api().GET('/api/v1/entidades/{entidad_id}', { params: ruta(entidadId) }))
+}
+
+/** Cambia los datos generales (solo los campos enviados). 422 si el NIT no es válido. */
+export function editarEntidad(entidadId: string, cambios: CambiosEntidad): Promise<FichaEntidad> {
+  return exigir(api().PATCH('/api/v1/entidades/{entidad_id}', { params: ruta(entidadId), body: cambios }))
+}
+
+const rutaPH = (copropiedadId: string) => ({ path: { copropiedad_id: copropiedadId } })
+
+/** Ficha de la PH con sus cargos vigentes y las advertencias legales. */
+export function fichaCopropiedad(copropiedadId: string): Promise<FichaCopropiedad> {
+  return exigir(api().GET('/api/v1/copropiedades/{copropiedad_id}', { params: rutaPH(copropiedadId) }))
+}
+
+export function editarCopropiedad(copropiedadId: string, cambios: CambiosCopropiedad): Promise<DatosCopropiedad> {
+  return exigir(
+    api().PATCH('/api/v1/copropiedades/{copropiedad_id}', { params: rutaPH(copropiedadId), body: cambios }),
+  )
+}
+
+export function puntosAtencion(copropiedadId: string): Promise<PuntoAtencion[]> {
+  return exigir(api().GET('/api/v1/copropiedades/{copropiedad_id}/puntos-atencion', { params: rutaPH(copropiedadId) }))
+}
+
+export function crearPuntoAtencion(copropiedadId: string, datos: NuevoPuntoAtencion, clave: string): Promise<PuntoAtencion> {
+  return exigir(
+    api().POST('/api/v1/copropiedades/{copropiedad_id}/puntos-atencion', {
+      params: rutaPH(copropiedadId),
+      body: datos,
+      headers: idempotencia(clave),
+    }),
+  )
+}
+
+/** Reemplaza el horario completo de un punto de atención. */
+export async function cambiarHorario(copropiedadId: string, puntoId: string, horario: Horario): Promise<void> {
+  await exigir(
+    api().PUT('/api/v1/copropiedades/{copropiedad_id}/puntos-atencion/{punto_id}/horario', {
+      params: { path: { copropiedad_id: copropiedadId, punto_id: puntoId } },
+      body: horario,
+    }),
+  )
+}
+
+/**
+ * Producto contratado en la suscripción. El contrato hoy lo tipa mal (`LineaRespuesta` choca
+ * con la de WhatsApp y la de contabilidad: solicitud S10 al backend); estos son los campos que
+ * envía `routes/cobros.rs`.
+ */
+export interface LineaSuscripcion {
+  id: string
+  producto_id: string
+  producto: string
+  nombre: string
+  precio_pactado?: string | null
+  motivo_precio?: string | null
+  desde: string
+  hasta?: string | null
+}
+
+export type SuscripcionDeLaEntidad = Omit<MiSuscripcion, 'lineas'> & { lineas: LineaSuscripcion[] }
+
+/** Plan, consumo y facturas de la entidad con la plataforma; `null` si no tiene suscripción (404). */
+export async function miSuscripcion(entidadId: string): Promise<SuscripcionDeLaEntidad | null> {
+  try {
+    const r = await exigir(api().GET('/api/v1/entidades/{entidad_id}/suscripcion', { params: ruta(entidadId) }))
+    return r as unknown as SuscripcionDeLaEntidad
+  } catch (e) {
+    if (e instanceof ErrorApi && e.estado === 404) return null
+    throw e
+  }
+}
+
+export interface FiltrosAuditoria {
+  /** Prefijo de acción terminado en punto (`acceso.`) o acción exacta. */
+  accion?: string
+  actorId?: string
+  /** Instantes UTC (ISO). */
+  desde?: string
+  hasta?: string
+}
+
+/** Página de la auditoría (más recientes primero). Nunca trae datos personales. */
+export function listarAuditoria(entidadId: string, despues: string | undefined, f: FiltrosAuditoria = {}) {
+  return exigir(
+    api().GET('/api/v1/entidades/{entidad_id}/auditoria', {
+      params: {
+        ...ruta(entidadId),
+        query: { limite: 50, despues, accion: f.accion || undefined, actor_id: f.actorId, desde: f.desde, hasta: f.hasta },
+      },
+    }),
+  )
+}
+
