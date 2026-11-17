@@ -2,17 +2,17 @@
 /**
  * Editor de un horario semanal: franjas por día (con o sin festivos) y excepciones por fecha
  * (cerrado o con otro horario). Solo presenta y emite con `v-model`; se valida con
- * `validarHorario` y se envía con `normalizarHorario` (`../horario.ts`).
+ * `validarHorario` y se envía con `normalizarHorario` (`@/formato/horario`).
  */
 import { useId } from 'vue'
 import type { ExcepcionHorario, Franja, Horario } from '@/api/tipos'
-import HudBoton from '@/hud/componentes/HudBoton.vue'
-import HudCampo from '@/hud/componentes/HudCampo.vue'
-import HudFecha from '@/hud/componentes/HudFecha.vue'
-import HudSelector from '@/hud/componentes/HudSelector.vue'
+import HudBoton from './HudBoton.vue'
+import HudCampo from './HudCampo.vue'
+import HudFecha from './HudFecha.vue'
+import HudSelector from './HudSelector.vue'
 import IMas from '~icons/tabler/plus'
 import IBorrar from '~icons/tabler/trash'
-import { aHoraCorta, DIAS } from '../horario'
+import { aHoraCorta, DIAS } from '@/formato/horario'
 
 const horario = defineModel<Horario>({ required: true })
 

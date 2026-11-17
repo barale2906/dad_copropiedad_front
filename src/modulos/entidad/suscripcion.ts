@@ -1,5 +1,6 @@
 /** Textos y reglas de la suscripción de la entidad con la plataforma (funciones puras). */
 import type { Corte, EstadoCorte, EstadoSuscripcion, Suscripcion } from '@/api/tipos'
+import { sumarDias } from '@/formato/fechas'
 
 type Tono = 'exito' | 'aviso' | 'peligro' | 'info' | 'neutro'
 
@@ -24,13 +25,6 @@ export function textoCiclo(meses: number | null | undefined): string {
   if (meses === 1) return 'Mensual'
   if (meses === 12) return 'Anual'
   return `Cada ${meses} meses`
-}
-
-/** Suma días a una fecha `YYYY-MM-DD` (calendario, sin zonas). */
-export function sumarDias(fecha: string, dias: number): string {
-  const d = new Date(`${fecha}T00:00:00Z`)
-  d.setUTCDate(d.getUTCDate() + dias)
-  return d.toISOString().slice(0, 10)
 }
 
 /** Último día incluido de un periodo cuyo `hasta` es excluyente. */

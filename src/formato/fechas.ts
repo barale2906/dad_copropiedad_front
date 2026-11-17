@@ -36,11 +36,28 @@ export function fechaCalendario(yyyymmdd: string): string {
   return fecha(`${yyyymmdd}T12:00:00Z`, 'UTC')
 }
 
+/** Suma días a una fecha de calendario `YYYY-MM-DD` (sin zonas): `('2026-02-28', 1)` → `'2026-03-01'`. */
+export function sumarDias(fecha: string, dias: number): string {
+  const d = new Date(`${fecha}T00:00:00Z`)
+  d.setUTCDate(d.getUTCDate() + dias)
+  return d.toISOString().slice(0, 10)
+}
+
 /** El día de hoy (`YYYY-MM-DD`) en la zona de la entidad, para comparar con fechas de calendario. */
 export function hoyEn(zona: string, ahora: Date = new Date()): string {
   const partes = formateador(zona, { year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(ahora)
   const v = (t: Intl.DateTimeFormatPartTypes) => partes.find((p) => p.type === t)?.value ?? ''
   return `${v('year')}-${v('month')}-${v('day')}`
+}
+
+/** Solo la hora de un instante en la zona dada: `2026-11-16T15:04:05Z` → «10:04 a. m.». */
+export function horaEn(utc: string | Date, zona: string): string {
+  return formateador(zona, { hour: 'numeric', minute: '2-digit' }).format(aFecha(utc))
+}
+
+/** Día de la semana y fecha de calendario: `2026-11-16` → «lunes, 16 nov». */
+export function diaSemana(yyyymmdd: string): string {
+  return formateador('UTC', { weekday: 'long', day: 'numeric', month: 'short' }).format(aFecha(`${yyyymmdd}T12:00:00Z`))
 }
 
 /** `2026-11-16T15:04:05Z` → «16 nov 2026, 10:04 a. m.» en la zona dada. */

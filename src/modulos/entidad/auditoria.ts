@@ -3,9 +3,8 @@
  * actuó se muestra como «Usted», «Sistema» u «Otra cuenta», sin pedir su nombre.
  */
 import type { EventoAuditado } from '@/api/tipos'
-import { aUtc } from '@/formato/fechas'
+import { aUtc, sumarDias } from '@/formato/fechas'
 import type { FiltrosAuditoria } from './api'
-import { sumarDias } from './suscripcion'
 
 type Tono = 'exito' | 'aviso' | 'peligro' | 'neutro'
 

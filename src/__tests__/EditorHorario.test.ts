@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 import type { Horario } from '@/api/tipos'
-import EditorHorario from '@/modulos/entidad/componentes/EditorHorario.vue'
+import EditorHorario from '@/hud/componentes/EditorHorario.vue'
 
 function montar(inicial: Horario) {
   const w = mount(EditorHorario, {

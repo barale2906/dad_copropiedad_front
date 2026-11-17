@@ -54,7 +54,8 @@ watch(solicitudes.filas, async (filas) => {
   const faltan = [...new Set(filas.map((s) => s.persona_id))].filter((id) => !(id in nombres.value))
   for (const id of faltan) {
     try {
-      nombres.value = { ...nombres.value, [id]: (await personaPorId(props.copropiedadId, id)).nombre }
+      const { nombre } = await personaPorId(props.copropiedadId, id)
+      nombres.value = { ...nombres.value, [id]: nombre }
     } catch {
       nombres.value = { ...nombres.value, [id]: 'Titular' }
     }

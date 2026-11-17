@@ -16,8 +16,8 @@ import HudSelector from '@/hud/componentes/HudSelector.vue'
 import IMas from '~icons/tabler/plus'
 import { cambiarHorario, crearPuntoAtencion, puntosAtencion } from '../api'
 import { TIPO_PUNTO } from '../ficha'
-import { normalizarHorario, resumirHorario, validarHorario } from '../horario'
-import EditorHorario from './EditorHorario.vue'
+import { normalizarHorario, resumirHorario, validarHorario } from '@/formato/horario'
+import EditorHorario from '@/hud/componentes/EditorHorario.vue'
 
 const props = defineProps<{ copropiedadId: string; editable: boolean }>()
 

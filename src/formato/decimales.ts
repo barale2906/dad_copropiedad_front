@@ -54,6 +54,11 @@ export function restar(a: string, b: string): string {
   return dec(a).minus(dec(b)).toString()
 }
 
+/** El `porcentaje` (texto, p. ej. `"20"`) de un monto, redondeado a 2 decimales: `("150000", "20")` → `"30000.00"`. */
+export function porcentajeDe(monto: string, porcentaje: string): string {
+  return dec(monto).times(dec(porcentaje)).dividedBy(100).toFixed(2)
+}
+
 /** -1, 0 o 1, como `a` es menor, igual o mayor que `b`. */
 export function comparar(a: string, b: string): -1 | 0 | 1 {
   const c = dec(a).comparedTo(dec(b))
