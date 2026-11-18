@@ -1,0 +1,141 @@
+/* Estilos comunes de la contabilidad (pensada para escritorio; usable desde 360 px). */
+section {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+
+h1 {
+  font-size: clamp(24px, 5vw, 34px);
+}
+
+h2 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.encabezado {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.texto-2 {
+  margin: 0;
+  color: var(--texto-2);
+}
+
+small {
+  color: var(--texto-3);
+}
+
+.filtros {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 190px), 1fr));
+  gap: 12px;
+  align-items: end;
+}
+
+.campos {
+  display: grid;
+  gap: 14px;
+}
+
+.botones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.lista {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lista > li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--linea);
+  background: var(--superficie);
+}
+
+.crece {
+  display: grid;
+  flex: 1 1 220px;
+  gap: 2px;
+}
+
+.datos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 170px), 1fr));
+  gap: 10px 16px;
+  margin: 0;
+}
+
+dt {
+  color: var(--texto-3);
+  font-size: 13px;
+}
+
+dd {
+  margin: 2px 0 0;
+  overflow-wrap: anywhere;
+}
+
+.ok,
+.error,
+.aviso {
+  margin: 0;
+}
+
+.ok {
+  padding: 10px 14px;
+  border-left: 3px solid var(--verde);
+  background: color-mix(in srgb, var(--verde) 10%, transparent);
+}
+
+.aviso {
+  padding: 10px 14px;
+  border-left: 3px solid var(--ambar);
+  background: color-mix(in srgb, var(--ambar) 10%, transparent);
+}
+
+.error {
+  color: var(--magenta);
+}
+
+.volver {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  color: var(--cian);
+}
+
+.casilla {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  cursor: pointer;
+}
+
+.casilla input {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--cian);
+}
+
+.cifra {
+  font-family: var(--fuente-mono);
+  text-align: right;
+  white-space: nowrap;
+}

@@ -42,7 +42,7 @@ const PLANTILLAS: Rol[] = [
   {
     id: id(902), codigo: 'contador', nombre: 'Contador', ambito: 'copropiedad', es_plantilla: true,
     descripcion: 'Contabilidad, tesorería y cartera.',
-    permisos: ['contabilidad.ver', 'contabilidad.comprobantes.crear', 'contabilidad.periodos.cerrar', 'cartera.ver'],
+    permisos: ['contabilidad.ver', 'contabilidad.comprobantes.crear', 'contabilidad.periodos.cerrar', 'cartera.ver', 'cartera.ajustar'],
   },
   {
     id: id(903), codigo: 'porteria', nombre: 'Portería', ambito: 'copropiedad', es_plantilla: true,

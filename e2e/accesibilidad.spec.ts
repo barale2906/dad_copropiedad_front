@@ -468,3 +468,22 @@ test('asambleas: acta y reportes', async ({ page }) => {
   await expect(page.getByRole('table', { name: 'Asistencia' })).toBeVisible()
   await revisar(page)
 })
+
+test('contabilidad: comprobantes, editor, plan de cuentas y periodos', async ({ page }) => {
+  await entrar(page, 'uno')
+  await expect(page).toHaveURL(/\/e\/[^/]+$/)
+  const base = `${new URL(page.url()).pathname}/contabilidad`
+  await page.goto(`${base}/comprobantes`)
+  await expect(page.getByRole('table', { name: 'Comprobantes' })).toBeVisible()
+  await revisar(page)
+  await page.getByRole('link', { name: 'NC (borrador)' }).click()
+  await expect(page.getByRole('list', { name: 'Líneas del comprobante' })).toBeVisible()
+  await revisar(page)
+  await page.goto(`${base}/puc`)
+  await expect(page.getByRole('table', { name: 'Cuentas del plan' })).toBeVisible()
+  await revisar(page)
+  await page.goto(`${base}/periodos`)
+  await expect(page.getByRole('list', { name: /^Periodos de / })).toBeVisible()
+  await revisar(page)
+})
+

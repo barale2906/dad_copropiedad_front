@@ -47,6 +47,7 @@ export default defineConfig({
         'src/modulos/administracion/reglas.ts',
         'src/modulos/asambleas/reglas.ts',
         'src/modulos/asambleas/useTableroEnVivo.ts',
+        'src/modulos/contabilidad/reglas.ts',
         'src/modulos/zonas-comunes/{reservas,recursos,store}.ts',
         'src/modulos/unidades/{coeficientes,titulares,censo,bienes}.ts',
         'src/modulos/mi/reglas.ts',

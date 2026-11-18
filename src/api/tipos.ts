@@ -385,3 +385,25 @@ export interface DatosActa {
   advertencias: string[]
   generada: string
 }
+
+// Contabilidad
+export type Naturaleza = S['Naturaleza']
+export type NivelCuenta = S['NivelCuenta']
+export type CuentaPuc = S['CuentaPucDto']
+export type CuentaContable = S['CuentaRespuesta']
+export type NuevaCuentaContable = S['NuevaCuentaPeticion']
+export type CambioCuentaContable = S['CambioCuentaPeticion']
+export type CentroCosto = S['CentroCostoRespuesta']
+export type NuevoCentroCosto = S['CentroCostoPeticion']
+export type TipoComprobante = S['TipoComprobanteRespuesta']
+export type Comprobante = S['ComprobanteRespuesta']
+export type EstadoComprobante = S['EstadoComprobante']
+export type LineaAsiento = S['LineaAsientoRespuesta']
+export type BorradorComprobante = S['BorradorPeticion']
+export type LineaBorrador = S['LineaAsientoPeticion']
+export type Asiento = S['AsientoRespuesta']
+export type PeriodoContable = S['PeriodoRespuesta']
+export type EstadoPeriodo = S['EstadoPeriodo']
+export type Reapertura = S['ReaperturaRespuesta']
+export type EstadoReapertura = S['EstadoReapertura']
+export type Tercero = S['TerceroRespuesta']

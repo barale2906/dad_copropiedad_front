@@ -20,8 +20,10 @@ withDefaults(
     error?: string | null
     ayuda?: string
     requerido?: boolean
+    /** La etiqueta queda solo para lectores de pantalla (celdas de una tabla densa). */
+    etiquetaOculta?: boolean
   }>(),
-  { vacio: undefined, error: null, ayuda: undefined, requerido: false },
+  { vacio: undefined, error: null, ayuda: undefined, requerido: false, etiquetaOculta: false },
 )
 const valor = defineModel<V | ''>({ required: true })
 const id = useId()
@@ -34,7 +36,7 @@ const id = useId()
   >
     <label
       :for="id"
-      class="rotulo"
+      :class="etiquetaOculta ? 'solo-lector' : 'rotulo'"
     >{{ etiqueta }}</label>
     <select
       :id="id"

@@ -14,6 +14,8 @@ defineProps<{
   multilinea?: boolean
   /** Al salir del campo (p. ej. para dar formato al valor). */
   alSalir?: () => void
+  /** La etiqueta queda solo para lectores de pantalla (celdas de una tabla densa). */
+  etiquetaOculta?: boolean
 }>()
 
 const valor = defineModel<string>({ required: true })
@@ -27,7 +29,7 @@ const id = useId()
   >
     <label
       :for="id"
-      class="rotulo"
+      :class="etiquetaOculta ? 'solo-lector' : 'rotulo'"
     >{{ etiqueta }}</label>
     <div class="marco">
       <slot name="antes" />

@@ -9,8 +9,8 @@ import { leerDecimal, moneda } from '@/formato/decimales'
 import HudCampo from './HudCampo.vue'
 
 const props = withDefaults(
-  defineProps<{ etiqueta: string; ayuda?: string; requerido?: boolean; decimales?: number; error?: string | null }>(),
-  { ayuda: undefined, requerido: false, decimales: 2, error: null },
+  defineProps<{ etiqueta: string; ayuda?: string; requerido?: boolean; decimales?: number; error?: string | null; etiquetaOculta?: boolean }>(),
+  { ayuda: undefined, requerido: false, decimales: 2, error: null, etiquetaOculta: false },
 )
 const valor = defineModel<string>({ required: true })
 
@@ -37,6 +37,7 @@ function darFormato() {
   <HudCampo
     v-model="texto"
     :etiqueta="etiqueta"
+    :etiqueta-oculta="etiquetaOculta"
     :ayuda="ayuda"
     :requerido="requerido"
     :error="errorMostrado"
