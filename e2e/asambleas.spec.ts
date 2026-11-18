@@ -89,10 +89,86 @@ test.describe('asambleas', () => {
     await expect(page.getByRole('status').filter({ hasText: 'Asamblea cerrada' })).toBeVisible()
   })
 
+  test('abrir una pregunta, votar en la sala, cerrar y ver el escrutinio', async ({ page }) => {
+    const enunciado = '¿Qué empresa de vigilancia se contrata?'
+    await abrir(page, `en-vivo/${vid(4004)}`)
+    const preguntas = page.getByRole('list', { name: 'Preguntas' })
+    await expect(preguntas).toContainText('¿Aprueba los estados financieros de 2026?')
+    await expect(page.getByRole('list', { name: /Resultado parcial de «¿Aprueba los estados financieros/ })).toBeVisible()
+    await preguntas.getByRole('button', { name: `Abrir la votación «${enunciado}»` }).click()
+    await expect(page.getByRole('status').filter({ hasText: 'Votación abierta: se avisó' })).toBeVisible()
+
+    await page.getByRole('main').getByRole('link', { name: 'Voto presencial' }).click()
+    await page.getByLabel('Pregunta abierta').selectOption({ label: `2. ${enunciado}` })
+    await page.getByRole('button', { name: 'Seguridad Andina' }).click()
+    await page.getByLabel('Buscar asistente').fill('T1-101')
+    await page.getByRole('list', { name: 'Asistentes presentes' }).getByRole('button', { name: 'Elegir a Titular T1-101' }).click()
+    await page.getByRole('button', { name: 'Registrar el voto de Titular T1-101' }).click()
+    await expect(page.getByRole('status').filter({ hasText: 'Voto de Titular T1-101 registrado por T1-101, T1-102' })).toBeVisible()
+    await page.getByRole('button', { name: 'Seguridad Andina' }).click()
+    await page.getByLabel('Buscar asistente').fill('T1-101')
+    await page.getByRole('button', { name: 'Elegir a Titular T1-101' }).click()
+    await page.getByRole('button', { name: 'Registrar el voto de Titular T1-101' }).click()
+    await expect(page.getByRole('status').filter({ hasText: 'su voto ya quedó registrado' })).toBeVisible()
+
+    await page.getByRole('button', { name: 'Por rótulo' }).click()
+    await page.getByRole('button', { name: 'Vigías del Norte' }).click()
+    await page.getByLabel('Rótulo del asistente').fill('ASM-9999')
+    await page.getByLabel('Rótulo del asistente').press('Enter')
+    await expect(page.getByRole('status').filter({ hasText: 'Rótulo ASM-9999: no está presente' })).toBeVisible()
+
+    await page.getByRole('link', { name: 'Conducir' }).click()
+    await page.getByRole('button', { name: `Cerrar la votación «${enunciado}»` }).click()
+    await expect(page.getByRole('status').filter({ hasText: 'Votación cerrada' })).toBeVisible()
+    await page.getByRole('link', { name: `Escrutinio de «${enunciado}»` }).click()
+    await expect(page.getByRole('heading', { name: 'Resultados' })).toBeVisible()
+    await expect(page.getByText('Ninguna opción alcanzó la mayoría')).toBeVisible()
+    await expect(page.getByRole('list', { name: 'Resultados por opción' })).toContainText('Seguridad Andina')
+  })
+
+  test('el detalle de una votación reservada pasa por el aviso de auditoría', async ({ page }) => {
+    await abrir(page, `resultados/${vid(4004)}?pregunta=${vid(6004)}`)
+    await expect(page.getByText('Votación reservada: solo se publican los totales.', { exact: false })).toBeVisible()
+    await expect(page.getByText('No aprobada')).toBeVisible()
+    await page.getByRole('button', { name: 'Ver el detalle por bien' }).click()
+    await page.getByRole('dialog', { name: 'Consulta registrada en la auditoría' }).getByRole('button', { name: 'Ver de todos modos' }).click()
+    await expect(page.getByRole('table', { name: 'Votos por bien' })).toBeVisible()
+  })
+
+  test('la proyección muestra el quórum y la votación abierta', async ({ page }) => {
+    await abrir(page, `proyeccion/${vid(4004)}`)
+    await expect(page.getByRole('heading', { name: 'Asamblea ordinaria de mitad de año' })).toBeVisible()
+    await expect(page.getByRole('meter', { name: 'Quórum por coeficiente' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: /Votación abierta/ })).toContainText('¿Aprueba los estados financieros de 2026?')
+  })
+
+  test('el acta se genera, se firma, se aprueba y se publica', async ({ page }) => {
+    await abrir(page, `acta/${vid(4007)}`)
+    await expect(page.getByRole('table', { name: 'Asistentes del acta' })).toBeVisible()
+    await page.getByRole('button', { name: 'Generar el acta (PDF)' }).click()
+    await expect(page.getByRole('status').filter({ hasText: 'Acta generada en PDF' })).toBeVisible()
+    await page.getByLabel('Adjuntar archivos').setInputFiles({ name: 'acta-firmada.pdf', mimeType: 'application/pdf', buffer: Buffer.from('%PDF-1.4 demo') })
+    await page.getByRole('button', { name: 'Ligar el acta firmada' }).click()
+    await expect(page.getByRole('status').filter({ hasText: 'Acta firmada ligada' })).toBeVisible()
+    await page.getByRole('button', { name: 'Aprobar el acta' }).click()
+    await expect(page.getByRole('status').filter({ hasText: 'Acta aprobada' })).toBeVisible()
+    await page.getByRole('button', { name: 'Publicar en el libro de actas' }).click()
+    await expect(page.getByRole('status').filter({ hasText: 'Acta publicada' })).toBeVisible()
+  })
+
+  test('los reportes muestran la asistencia y los votos por canal', async ({ page }) => {
+    await abrir(page, `reportes/${vid(4007)}`)
+    await expect(page.getByRole('table', { name: 'Asistencia' })).toBeVisible()
+    await page.getByRole('link', { name: 'Votos por canal' }).click()
+    await expect(page.getByRole('list', { name: 'Participación por pregunta' })).toContainText('Mesa: 24')
+    await page.getByRole('link', { name: 'Costo de WhatsApp' }).click()
+    await expect(page.getByText('$ 2.380,00 COP')).toBeVisible()
+  })
+
   test('las reuniones se listan por estado con sus actas', async ({ page }) => {
     await abrir(page, 'reuniones')
     const lista = page.getByRole('list', { name: 'Reuniones' })
-    await expect(lista.getByRole('listitem')).toHaveCount(6)
+    await expect(lista.getByRole('listitem')).toHaveCount(7)
     await expect(page.getByRole('list', { name: 'Actas publicadas' })).toContainText('Asamblea ordinaria 2025')
     await lista.getByRole('link', { name: 'Asamblea extraordinaria: fachada' }).click()
     await expect(page.getByRole('link', { name: 'Constancias y morosos' })).toBeVisible()

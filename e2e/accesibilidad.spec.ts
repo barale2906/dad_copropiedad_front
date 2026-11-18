@@ -447,3 +447,24 @@ test('asambleas: mesa de registro y conducción', async ({ page }) => {
   await expect(page.getByRole('meter', { name: 'Quórum por coeficiente' })).toBeVisible()
   await revisar(page)
 })
+
+test('asambleas: votaciones, voto presencial, resultados y proyección', async ({ page }) => {
+  await entrarAAsambleas(page, `voto-presencial/${reunionDemo(4004)}`)
+  await expect(page.getByRole('list', { name: 'Asistentes presentes' })).toBeVisible()
+  await revisar(page)
+  await page.goto(page.url().replace(/voto-presencial.*$/, `resultados/${reunionDemo(4004)}`))
+  await expect(page.getByRole('list', { name: 'Resultados por opción' })).toBeVisible()
+  await revisar(page)
+  await page.goto(page.url().replace(/resultados.*$/, `proyeccion/${reunionDemo(4004)}`))
+  await expect(page.getByRole('meter', { name: 'Quórum por coeficiente' })).toBeVisible()
+  await revisar(page)
+})
+
+test('asambleas: acta y reportes', async ({ page }) => {
+  await entrarAAsambleas(page, `acta/${reunionDemo(4007)}`)
+  await expect(page.getByRole('table', { name: 'Asistentes del acta' })).toBeVisible()
+  await revisar(page)
+  await page.goto(page.url().replace(/acta.*$/, `reportes/${reunionDemo(4007)}`))
+  await expect(page.getByRole('table', { name: 'Asistencia' })).toBeVisible()
+  await revisar(page)
+})

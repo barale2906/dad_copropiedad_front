@@ -1,7 +1,7 @@
 <script setup lang="ts">
 /**
  * Preparar y convocar una asamblea, en pasos: datos y reglas → orden del día → anexos →
- * convocar (el padrón queda fijo). Ya convocada: constancias de envío y bienes en mora.
+ * preguntas en borrador → convocar (el padrón queda fijo). Ya convocada: constancias de envío y bienes en mora.
  */
 import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
@@ -20,12 +20,14 @@ import FormularioReunion from '../componentes/FormularioReunion.vue'
 import OrdenDelDia from '../componentes/OrdenDelDia.vue'
 import PanelConvocada from '../componentes/PanelConvocada.vue'
 import PanelConvocar from '../componentes/PanelConvocar.vue'
+import PreguntasReunion from '../componentes/PreguntasReunion.vue'
 import { ESTADO_REUNION, preparable } from '../reglas'
 
 const PASOS = [
   { id: 'datos', texto: 'Datos y reglas' },
   { id: 'orden', texto: 'Orden del día' },
   { id: 'anexos', texto: 'Anexos' },
+  { id: 'preguntas', texto: 'Preguntas' },
   { id: 'convocar', texto: 'Convocatoria' },
 ]
 
@@ -164,6 +166,19 @@ watch(reunionId, () => void cargar(), { immediate: true })
             :documentos="detalle.documentos"
             editable
             @cambio="cargar"
+          />
+        </HudPanel>
+        <HudPanel
+          v-else-if="paso === 'preguntas'"
+          etiqueta="Preguntas"
+        >
+          <p class="texto-2">
+            Prepare las votaciones; también puede agregarlas durante la asamblea.
+          </p>
+          <PreguntasReunion
+            :entidad-id="id"
+            :reunion="reunion"
+            :puntos="detalle.puntos"
           />
         </HudPanel>
         <HudPanel

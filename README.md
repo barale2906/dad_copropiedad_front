@@ -58,6 +58,11 @@ empresa solo tiene `contabilidad`: así se ven las zonas apagadas.
    falta el *fallback* a `index.html` (el router usa URLs limpias), la caché larga en
    `/assets/` y `no-store` en `config.json`.
 5. En el backend, el origen exacto de la web debe estar en `CORS_ORIGENES`.
+6. El tablero en vivo de las asambleas abre un WebSocket a `…/asambleas/{id}/en-vivo` en el
+   mismo origen de `apiUrl` (`wss://`). El proxy que publique la **API** debe dejar pasar la
+   actualización: `proxy_http_version 1.1; proxy_set_header Upgrade $http_upgrade;
+   proxy_set_header Connection "upgrade"; proxy_read_timeout 1h;`. Sin eso la pantalla sigue
+   funcionando con consultas cada pocos segundos.
 
 ## Estructura
 

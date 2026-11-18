@@ -21,7 +21,7 @@ import { actasPublicadas, detalleReunion, listarReuniones, transicionReunion } f
 import AnexosReunion from '../componentes/AnexosReunion.vue'
 import OrdenDelDia from '../componentes/OrdenDelDia.vue'
 import ResumenReunion from '../componentes/ResumenReunion.vue'
-import { accionesReunion, ESTADO_REUNION, mesaAbierta, preparable } from '../reglas'
+import { accionesReunion, ESTADO_ACTA, ESTADO_REUNION, mesaAbierta, preparable } from '../reglas'
 
 const route = useRoute()
 const entidad = useEntidad()
@@ -107,6 +107,12 @@ onMounted(async () => {
           <HudInsignia :tono="ESTADO_REUNION[reunion.estado].tono">
             {{ ESTADO_REUNION[reunion.estado].texto }}
           </HudInsignia>
+          <HudInsignia
+            v-if="reunion.estado === 'cerrada'"
+            :tono="ESTADO_ACTA[reunion.acta_estado].tono"
+          >
+            Acta: {{ ESTADO_ACTA[reunion.acta_estado].texto.toLowerCase() }}
+          </HudInsignia>
         </header>
         <p
           v-if="resultado"
@@ -141,6 +147,27 @@ onMounted(async () => {
             :a="ruta('en-vivo', reunion.id)"
           >
             Conducir
+          </HudBoton>
+          <HudBoton
+            v-if="['instalada', 'suspendida', 'cerrada'].includes(reunion.estado) && puede('asambleas.ver')"
+            variante="secundario"
+            :a="ruta('resultados', reunion.id)"
+          >
+            Resultados
+          </HudBoton>
+          <HudBoton
+            v-if="reunion.estado === 'cerrada' && puede('asambleas.ver')"
+            variante="secundario"
+            :a="ruta('acta', reunion.id)"
+          >
+            Acta
+          </HudBoton>
+          <HudBoton
+            v-if="['en_registro', 'instalada', 'suspendida', 'cerrada'].includes(reunion.estado) && puede('asambleas.ver')"
+            variante="fantasma"
+            :a="ruta('reportes', reunion.id)"
+          >
+            Reportes
           </HudBoton>
           <HudBoton
             v-if="puedeCancelar"

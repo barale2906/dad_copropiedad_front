@@ -113,7 +113,7 @@ const estado = computed(() => (props.hayQuorum ? 'Hay quórum' : props.umbral ==
   position: absolute;
   inset: 0 auto 0 0;
   background: var(--ambar);
-  transition: width var(--normal);
+  transition: width var(--medio);
 }
 
 .ok .relleno {

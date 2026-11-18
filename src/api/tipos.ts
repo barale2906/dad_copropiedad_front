@@ -279,3 +279,109 @@ export type MotivoSalida = S['MotivoSalida']
 export type Poder = S['PoderRespuesta']
 export type EstadoPoder = S['EstadoPoder']
 export type ResultadoMorosos = S['MorososAsambleaRespuesta']
+export type Pregunta = S['PreguntaRespuesta']
+export type NuevaPregunta = S['PreguntaPeticion']
+export type OpcionPregunta = S['OpcionRespuesta']
+export type TipoPregunta = S['TipoPregunta']
+export type TipoVoto = S['TipoVoto']
+export type EstadoPregunta = S['EstadoPregunta']
+export type AccionPregunta = S['AccionPregunta']
+export type CargoEleccion = S['CargoEleccion']
+export type ReglaMayoria = S['ReglaDto']
+export type CanalVoto = S['CanalVoto']
+export type NuevoVoto = S['VotoPeticion']
+export type Voto = S['VotoRespuesta']
+export type ResultadosPregunta = S['ResultadosRespuesta']
+export type PreguntaEnVivo = S['PreguntaEnVivoRespuesta']
+export type DetalleVoto = S['DetalleVotoRespuesta']
+export type Elegido = S['ElegidoRespuesta']
+export type PasoActa = S['PasoActaDto']
+export type FilaAsistencia = S['FilaAsistenciaRespuesta']
+export type FilaVoto = S['FilaVotoRespuesta']
+export type CanalesPregunta = S['CanalesRespuesta']
+export type CostoWhatsapp = S['CostoRespuesta']
+
+// El contrato declara el escrutinio y los datos del acta como `object` (solicitud S17): estas
+// interfaces siguen `domain::resultados::Escrutinio` y `puertos::actas::DatosActa` del backend.
+// Decimales como texto; `null` donde el backend usa `Option`.
+
+/** Una cantidad en ambas bases. */
+export interface ConteoVotos {
+  coeficiente: string
+  unidades: number
+}
+
+export interface ResultadoOpcion {
+  opcion_id: string
+  texto: string
+  en_blanco: boolean
+  votos: ConteoVotos
+  /** Sobre lo habilitado, 4 decimales. */
+  porcentaje_coeficiente: string
+  porcentaje_unidades: string
+  /** ¿Alcanza la mayoría en la base de cómputo? `null` en elecciones. */
+  aprobada: boolean | null
+  aprobada_en_otra_base: boolean | null
+  cupos: number | null
+}
+
+export interface CuposPlancha {
+  opcion_id: string
+  por_cociente: number
+  por_residuo: number
+  residuo: string
+}
+
+export type DecisionEscrutinio =
+  | { decision: 'aprobada' }
+  | { decision: 'no_aprobada' }
+  | { decision: 'ganadora'; opcion_id: string }
+  | { decision: 'sin_ganadora'; empate: boolean }
+  | { decision: 'por_opcion' }
+  | { decision: 'reparto'; cociente: string; cupos: CuposPlancha[]; empate: boolean; sin_asignar: number }
+
+/** Escrutinio de una pregunta (en vivo si está abierta; el guardado si cerró). */
+export interface Escrutinio {
+  base_computo: BaseComputo
+  habilitados: ConteoVotos
+  total: ConteoVotos
+  votantes: ConteoVotos
+  sin_votar: ConteoVotos
+  opciones: ResultadoOpcion[]
+  decision: DecisionEscrutinio
+  /** Decide por unidades: la ley exige coeficientes (arts. 45 y 49). */
+  advertencia_unidades: boolean
+}
+
+/** Datos del acta ya calculados por el backend (fechas y horas ya en la zona de la PH). */
+export interface DatosActa {
+  copropiedad: string
+  nit: string | null
+  titulo: string
+  tipo: string
+  convocatoria: string
+  modalidad: string
+  lugar: string | null
+  fecha: string
+  instalada: string | null
+  cerrada: string | null
+  orden_del_dia: string[]
+  quorum: { momento: string; hora: string; coeficiente: string; porcentaje_coeficiente: string; unidades: number; unidades_total: number; asistentes: number }[]
+  asistentes: { nombre: string; bienes: string[]; coeficiente: string; poderes: string[]; entrada: string; salidas: string[] }[]
+  morosos: string[]
+  efecto_mora: string
+  preguntas: {
+    orden: number
+    enunciado: string
+    tipo: string
+    tipo_voto: string
+    abierta: string | null
+    cerrada: string | null
+    escrutinio: Escrutinio | null
+    decision: string
+    detalle: { bien: string; coeficiente: string; opcion: string; canal: string; hora: string; apoderado: boolean }[]
+    elegidos: string[]
+  }[]
+  advertencias: string[]
+  generada: string
+}

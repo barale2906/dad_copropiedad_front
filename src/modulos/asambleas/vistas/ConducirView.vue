@@ -1,16 +1,15 @@
 <script setup lang="ts">
 /**
- * Conducir la asamblea: quórum en vivo (refresco cada 5 s; el backend dice si hay quórum),
- * abrir el registro, instalar, suspender, reanudar y cerrar; segunda convocatoria si no hubo
- * quórum (art. 41); foto del quórum para el acta y avance del orden del día.
+ * Conducir la asamblea: tablero en vivo por WebSocket (quórum, punto en curso y preguntas
+ * abiertas con su escrutinio; el backend dice si hay quórum), abrir el registro, instalar,
+ * suspender, reanudar y cerrar; segunda convocatoria si no hubo quórum (art. 41); foto del
+ * quórum para el acta, avance del orden del día y las votaciones.
  */
 import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { mensajeDeError } from '@/api/errores'
-import type { AccionReunion, DetalleReunion, EstadoPunto, PuntoOrdenDia, TableroReunion } from '@/api/tipos'
+import type { AccionReunion, DetalleReunion, EstadoPunto, Pregunta, PuntoOrdenDia } from '@/api/tipos'
 import { useAccion } from '@/composables/useAccion'
-import { useListado } from '@/composables/useListado'
-import { useRefresco } from '@/composables/useRefresco'
 import { fechaHora } from '@/formato/fechas'
 import ConfirmarConMotivo from '@/hud/componentes/ConfirmarConMotivo.vue'
 import HudBoton from '@/hud/componentes/HudBoton.vue'
@@ -20,8 +19,11 @@ import HudInsignia from '@/hud/componentes/HudInsignia.vue'
 import HudPanel from '@/hud/componentes/HudPanel.vue'
 import MedidorQuorum from '@/hud/componentes/MedidorQuorum.vue'
 import { useEntidad } from '@/stores/entidad'
-import { detalleReunion, estadoPunto, fotoQuorum, listarReuniones, segundaConvocatoria, tablero, transicionReunion } from '../api'
+import { detalleReunion, estadoPunto, fotoQuorum, segundaConvocatoria, transicionReunion } from '../api'
+import ElegirReunion from '../componentes/ElegirReunion.vue'
+import PreguntasReunion from '../componentes/PreguntasReunion.vue'
 import { ACCION_REUNION, accionesReunion, CONVOCATORIA, ESTADO_PUNTO, ESTADO_REUNION, umbralQuorum } from '../reglas'
+import { TEXTO_CONEXION, useTableroEnVivo } from '../useTableroEnVivo'
 
 const route = useRoute()
 const router = useRouter()
@@ -32,15 +34,13 @@ const reunionId = computed(() => (typeof route.params.id === 'string' ? route.pa
 const ruta = (accion: string, r = '') => ({ name: 'modulo', params: { ...route.params, accion, id: r }, query: {} })
 const conduce = computed(() => entidad.tienePermiso('asambleas.conducir'))
 
-const enCurso = useListado(async (despues) => {
-  const p = await listarReuniones(id.value, despues)
-  return { ...p, datos: p.datos.filter((r) => ['convocada', 'en_registro', 'instalada', 'suspendida'].includes(r.estado)) }
-}, { inmediato: !reunionId.value })
-
-const estado = ref<'cargando' | 'listo' | 'error'>('cargando')
-const error = ref<string | null>(null)
-const vivo = ref<TableroReunion | null>(null)
+const enVivo = useTableroEnVivo(() => id.value, () => reunionId.value)
+const vivo = enVivo.tablero
+const errorDetalle = ref<string | null>(null)
 const detalle = ref<DetalleReunion | null>(null)
+const estado = computed(() => (errorDetalle.value ? 'error' : enVivo.estado.value === 'listo' && !detalle.value ? 'cargando' : enVivo.estado.value))
+const error = computed(() => errorDetalle.value ?? enVivo.error.value)
+const enlaceResultados = (p: Pregunta) => ({ ...ruta('resultados', reunionId.value), query: { pregunta: p.id } })
 const resultado = ref<string | null>(null)
 const r = computed(() => vivo.value?.reunion ?? null)
 const acciones = computed(() =>
@@ -103,22 +103,17 @@ async function avanzarPunto(p: PuntoOrdenDia, e: EstadoPunto) {
 async function cargar() {
   if (!reunionId.value) return
   try {
-    const [t, d] = await Promise.all([tablero(id.value, reunionId.value), detalleReunion(id.value, reunionId.value)])
-    vivo.value = t
+    const [d] = await Promise.all([detalleReunion(id.value, reunionId.value), enVivo.recargar()])
     detalle.value = d
-    estado.value = 'listo'
+    errorDetalle.value = null
   } catch (e) {
-    error.value = mensajeDeError(e)
-    if (estado.value !== 'listo') estado.value = 'error'
+    errorDetalle.value = mensajeDeError(e)
   }
 }
 
-useRefresco(async () => {
-  if (!reunionId.value || estado.value !== 'listo') return
-  vivo.value = await tablero(id.value, reunionId.value)
-}, { cada: 5_000 })
 watch(reunionId, () => {
-  estado.value = 'cargando'
+  detalle.value = null
+  errorDetalle.value = null
   resultado.value = null
   void cargar()
 }, { immediate: true })
@@ -145,10 +140,37 @@ watch(reunionId, () => {
               {{ r.titulo }}
             </h1>
           </div>
-          <HudInsignia :tono="ESTADO_REUNION[r.estado].tono">
-            {{ ESTADO_REUNION[r.estado].texto }}
-          </HudInsignia>
+          <div class="estado-vivo">
+            <HudInsignia :tono="ESTADO_REUNION[r.estado].tono">
+              {{ ESTADO_REUNION[r.estado].texto }}
+            </HudInsignia>
+            <span
+              class="conexion"
+              :class="{ en: enVivo.enVivo.value }"
+            >{{ TEXTO_CONEXION[enVivo.conexion.value] }}</span>
+          </div>
         </header>
+        <div class="botones">
+          <HudBoton
+            v-if="entidad.tienePermiso('asambleas.votos.registrar') && ['instalada', 'suspendida'].includes(r.estado)"
+            :a="ruta('voto-presencial', r.id)"
+          >
+            Voto presencial
+          </HudBoton>
+          <HudBoton
+            variante="secundario"
+            :a="ruta('proyeccion', r.id)"
+          >
+            Proyectar en sala
+          </HudBoton>
+          <HudBoton
+            v-if="r.estado === 'cerrada'"
+            variante="secundario"
+            :a="ruta('acta', r.id)"
+          >
+            Acta
+          </HudBoton>
+        </div>
         <p
           v-if="resultado"
           class="ok"
@@ -267,6 +289,20 @@ watch(reunionId, () => {
           </ol>
         </HudPanel>
 
+        <HudPanel
+          v-if="r.estado !== 'convocada'"
+          etiqueta="Votaciones"
+        >
+          <PreguntasReunion
+            :entidad-id="id"
+            :reunion="r"
+            :puntos="detalle.puntos"
+            :en-vivo="vivo.preguntas_abiertas"
+            :resultados="enlaceResultados"
+            @cambio="enVivo.recargar()"
+          />
+        </HudPanel>
+
         <HudDialogo
           v-model:abierto="cerrando"
           titulo="Cerrar la asamblea"
@@ -302,42 +338,12 @@ watch(reunionId, () => {
       <h1 id="titulo-conducir">
         Conducir una asamblea
       </h1>
-      <HudEstado
-        v-if="enCurso.estado.value === 'cargando'"
-        estado="cargando"
+      <ElegirReunion
+        accion="en-vivo"
+        :estados="['convocada', 'en_registro', 'instalada', 'suspendida']"
+        etiqueta="Asambleas por conducir"
+        vacio="No hay asambleas convocadas o en curso."
       />
-      <HudEstado
-        v-else-if="enCurso.estado.value === 'error'"
-        estado="error"
-        :mensaje="enCurso.error.value ?? undefined"
-        @reintentar="enCurso.recargar()"
-      />
-      <HudEstado
-        v-else-if="enCurso.filas.value.length === 0"
-        estado="vacio"
-        mensaje="No hay asambleas convocadas o en curso."
-      />
-      <ul
-        v-else
-        class="lista"
-        aria-label="Asambleas por conducir"
-      >
-        <li
-          v-for="x in enCurso.filas.value"
-          :key="x.id"
-        >
-          <HudInsignia :tono="ESTADO_REUNION[x.estado].tono">
-            {{ ESTADO_REUNION[x.estado].texto }}
-          </HudInsignia>
-          <span class="crece">
-            <RouterLink
-              :to="ruta('en-vivo', x.id)"
-              class="fila"
-            ><strong>{{ x.titulo }}</strong></RouterLink>
-            <small>{{ fechaHora(x.fecha_programada, zona) }}</small>
-          </span>
-        </li>
-      </ul>
     </template>
   </section>
 </template>
@@ -350,5 +356,21 @@ watch(reunionId, () => {
 
 .acciones :deep(.hud-boton) {
   min-height: 52px;
+}
+
+.estado-vivo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.conexion {
+  color: var(--texto-2);
+  font-size: 14px;
+}
+
+.conexion.en {
+  color: var(--verde);
 }
 </style>

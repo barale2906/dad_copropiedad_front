@@ -1,21 +1,31 @@
 /**
  * Demo de las asambleas: una reunión en cada estado (en preparación, convocada, con el registro
- * abierto y sin quórum, instalada con quórum, cerrada con acta publicada y cancelada). El padrón
+ * abierto y sin quórum, instalada con quórum y preguntas en cada estado, cerrada con acta
+ * publicada, cerrada con el acta por generar y cancelada). El padrón
  * son los 40 bienes del demo (2,5 % cada uno; el representante de cada bien es su «Titular»).
  * Valida lo que valida el backend: antelación de 15 días en ordinarias, orden del día para
  * convocar, quórum para instalar (más de la mitad en primera convocatoria), un bien en un solo
- * asistente, rótulos sin repetir y el diagrama de estados. Se reinicia en cada inicio de sesión.
+ * asistente, rótulos sin repetir, el diagrama de estados, la `Idempotency-Key` de los votos y
+ * que un bien vote una sola vez. El escrutinio sigue la forma de `domain::Escrutinio`. Se
+ * reinicia en cada inicio de sesión.
  */
 import type {
   Asistente,
   CoincidenciaMesa,
   Constancia,
+  DatosActa,
+  DecisionEscrutinio,
   DocumentoReunion,
+  Escrutinio,
+  NuevaPregunta,
   NuevaReunion,
   NuevoAsistente,
+  NuevoVoto,
   Poder,
+  Pregunta,
   PuntoOrdenDia,
   Reunion,
+  Voto,
 } from '@/api/tipos'
 import { cuerpo, error, json, type Manejador, sinContenido } from './http'
 import { bienesDemo } from './unidades'
@@ -30,8 +40,24 @@ const enDias = (d: number, hora = 15) => {
 const ahora = () => new Date().toISOString()
 const COEF = '0.025'
 
+interface VotoDemo {
+  bien: string
+  opciones: string[]
+  canal: NuevoVoto['canal']
+  asistente: Asistente
+  apoderado: boolean
+  en: string
+}
+
+interface PreguntaDemo {
+  p: Pregunta
+  votos: VotoDemo[]
+  resultado: Escrutinio | null
+}
+
 interface ReunionDemo {
   reunion: Reunion
+  preguntas: PreguntaDemo[]
   puntos: PuntoOrdenDia[]
   documentos: DocumentoReunion[]
   asistentes: Asistente[]
@@ -42,6 +68,8 @@ interface ReunionDemo {
 
 let reuniones: ReunionDemo[] = []
 let consecutivo = 4800
+/** Respuestas de voto por `Idempotency-Key` (un reintento devuelve la original). */
+let votosPorClave = new Map<string, Voto>()
 
 const titular = (i: number) => ({ persona: id(5100 + i), nombre: `Titular ${bienesDemo()[i]?.codigo ?? ''}`, documento: String(80000000 + i) })
 
@@ -66,7 +94,44 @@ function asistente(n: number, indices: number[], extra: Partial<Asistente> = {},
   }
 }
 
-const base = (r: Reunion): ReunionDemo => ({ reunion: r, puntos: [], documentos: [], asistentes: [], poderes: [], morosos: new Set(), constancias: [] })
+const base = (r: Reunion): ReunionDemo => ({ reunion: r, preguntas: [], puntos: [], documentos: [], asistentes: [], poderes: [], morosos: new Set(), constancias: [] })
+
+/** Opciones de una pregunta nueva (sí/no: «Sí», «No» y «Abstención» si se pide). */
+function opcionesDe(n: number, d: NuevaPregunta) {
+  const textos = d.tipo === 'si_no' ? ['Sí', 'No', ...(d.con_abstencion === false ? [] : ['Abstención'])].map((texto) => ({ texto, en_blanco: false, candidatos: [] as string[] })) : (d.opciones ?? [])
+  return textos.map((o, k) => ({ id: id(n * 10 + k), orden: k + 1, texto: o.texto, en_blanco: o.en_blanco ?? false, candidatos: o.candidatos ?? [] }))
+}
+
+function pregunta(n: number, orden: number, d: NuevaPregunta, extra: Partial<Pregunta> = {}): Pregunta {
+  return {
+    id: id(n), orden, enunciado: d.enunciado, tipo: d.tipo, tipo_voto: d.tipo_voto ?? 'nominal', base_computo: d.base_computo ?? 'coeficiente',
+    regla_mayoria: d.regla_mayoria ?? { regla: 'simple' }, max_selecciones: d.tipo === 'seleccion_multiple' ? (d.max_selecciones ?? 2) : 1,
+    cupos: d.cupos ?? null, cargo: d.cargo ?? null, estado: 'borrador', punto_id: d.punto_id ?? null,
+    temporizador_segundos: d.temporizador_segundos ?? null, opciones: opcionesDe(n, d), ...extra,
+  }
+}
+
+/** Mismas reglas que `Pregunta::validar_definicion` del backend. */
+function problemaDefinicion(p: Pregunta): string | null {
+  if (!p.enunciado?.trim()) return 'Escriba la pregunta.'
+  const validas = p.opciones.filter((o) => !o.en_blanco).length
+  if (p.opciones.length < 2) return 'La pregunta necesita al menos dos opciones.'
+  if (new Set(p.opciones.map((o) => o.texto.toLowerCase())).size !== p.opciones.length) return 'Las opciones no pueden repetirse.'
+  if (p.tipo !== 'eleccion' && validas !== p.opciones.length) return 'El voto en blanco solo aplica en elecciones.'
+  if (p.tipo === 'seleccion_multiple' && (p.max_selecciones < 2 || p.max_selecciones > validas)) return 'La selección múltiple permite de 2 al número de opciones.'
+  if (p.tipo === 'eleccion' && (!p.cupos || !validas)) return 'Una elección necesita cupos y al menos una plancha o candidato.'
+  if (p.tipo !== 'eleccion' && (p.cupos != null || p.cargo != null)) return 'Los cupos y el cargo solo aplican a elecciones.'
+  return null
+}
+
+/** Votos de ejemplo: los asistentes `desde..hasta` eligen la opción `k` por todos sus bienes. */
+function votosDemo(r: ReunionDemo, p: Pregunta, reparto: [desde: number, hasta: number, k: number][]): VotoDemo[] {
+  return reparto.flatMap(([desde, hasta, k]) =>
+    r.asistentes.slice(desde, hasta).flatMap((a) =>
+      a.bienes.map((b) => ({ bien: b.bien_privado_id, opciones: [p.opciones[k]?.id ?? ''], canal: 'presencial' as const, asistente: a, apoderado: b.calidad === 'apoderado', en: enDias(0, 12) })),
+    ),
+  )
+}
 
 export function iniciarAsambleas(): void {
   consecutivo = 4800
@@ -87,9 +152,36 @@ export function iniciarAsambleas(): void {
   const instalada = base(reunion(4004, 'Asamblea ordinaria de mitad de año', 'instalada', { fecha_programada: enDias(0, 12), instalada_en: enDias(0, 12), convocada_en: enDias(-25) }))
   instalada.puntos = [punto(4041, 1, 'Verificación del quórum', 'terminado'), punto(4042, 2, 'Aprobación de estados financieros', 'en_curso'), punto(4043, 3, 'Proposiciones')]
   instalada.asistentes = Array.from({ length: 11 }, (_, k) => asistente(4401 + k, [k * 2, k * 2 + 1]))
-  const cerrada = base(reunion(4005, 'Asamblea ordinaria 2025', 'cerrada', { fecha_programada: enDias(-200), cerrada_en: enDias(-200), acta_estado: 'publicada' }))
+  const estados = pregunta(6001, 1, { enunciado: '¿Aprueba los estados financieros de 2026?', tipo: 'si_no', punto_id: id(4042) }, { estado: 'abierta', abierta_en: enDias(0, 12) })
+  const vigilancia = pregunta(6002, 2, { enunciado: '¿Qué empresa de vigilancia se contrata?', tipo: 'seleccion_unica', opciones: [{ texto: 'Seguridad Andina' }, { texto: 'Vigías del Norte' }] })
+  const consejo = pregunta(6003, 3, {
+    enunciado: 'Elección del consejo de administración', tipo: 'eleccion', cupos: 3, cargo: 'consejero',
+    opciones: [{ texto: 'Plancha 1', candidatos: [titular(0).persona, titular(2).persona] }, { texto: 'Plancha 2', candidatos: [titular(4).persona] }, { texto: 'Voto en blanco', en_blanco: true }],
+  })
+  const cuota = pregunta(6004, 4, { enunciado: '¿Aprueba la cuota extraordinaria para la fachada?', tipo: 'si_no', tipo_voto: 'reservado', regla_mayoria: { regla: 'calificada_70' } }, {
+    estado: 'cerrada', abierta_en: enDias(0, 12), cerrada_en: enDias(0, 12),
+  })
+  instalada.preguntas = [
+    { p: estados, votos: votosDemo(instalada, estados, [[0, 6, 0], [6, 7, 1]]), resultado: null },
+    { p: vigilancia, votos: [], resultado: null },
+    { p: consejo, votos: [], resultado: null },
+    { p: cuota, votos: votosDemo(instalada, cuota, [[0, 8, 0], [8, 10, 1]]), resultado: null },
+  ]
+  const pc = instalada.preguntas[3]
+  if (pc) pc.resultado = escrutinioDe(instalada, pc)
+  const cerrada = base(reunion(4005, 'Asamblea ordinaria 2025', 'cerrada', { fecha_programada: enDias(-200), cerrada_en: enDias(-200), acta_estado: 'publicada', acta_archivo_id: id(4590), acta_firmada_archivo_id: id(4591) }))
+  const parqueaderos = base(reunion(4007, 'Asamblea extraordinaria: parqueaderos', 'cerrada', {
+    tipo: 'extraordinaria', fecha_programada: enDias(-2, 14), instalada_en: enDias(-2, 14), cerrada_en: enDias(-2, 16), convocada_en: enDias(-12),
+  }))
+  parqueaderos.puntos = [punto(4071, 1, 'Verificación del quórum', 'terminado'), punto(4072, 2, 'Reglamento de parqueaderos', 'terminado')]
+  parqueaderos.asistentes = Array.from({ length: 12 }, (_, k) => asistente(4701 + k, [k * 2, k * 2 + 1]))
+  const reglamento = pregunta(6071, 1, { enunciado: '¿Aprueba el reglamento de parqueaderos?', tipo: 'si_no' }, { estado: 'cerrada', abierta_en: enDias(-2, 15), cerrada_en: enDias(-2, 15) })
+  parqueaderos.preguntas = [{ p: reglamento, votos: votosDemo(parqueaderos, reglamento, [[0, 9, 0], [9, 11, 1], [11, 12, 2]]), resultado: null }]
+  const pr = parqueaderos.preguntas[0]
+  if (pr) pr.resultado = escrutinioDe(parqueaderos, pr)
   const cancelada = base(reunion(4006, 'Asamblea extraordinaria (aplazada)', 'cancelada', { fecha_programada: enDias(-40), motivo_cancelacion: 'Cambio de fecha por obras.' }))
-  reuniones = [preparacion, convocada, registro, instalada, cerrada, cancelada]
+  reuniones = [preparacion, convocada, registro, instalada, parqueaderos, cerrada, cancelada]
+  votosPorClave = new Map()
 }
 
 function quorumDe(r: ReunionDemo) {
@@ -104,6 +196,101 @@ function quorumDe(r: ReunionDemo) {
     unidades_presentes: cuentan.length, unidades_total: total, asistentes: r.asistentes.filter((a) => a.presente).length,
   }
 }
+
+/** Bienes que votan: presentes y, si la mora resta el voto, sin los morosos. */
+function habilitadosDe(r: ReunionDemo): string[] {
+  const restaMora = r.reunion.configuracion.efecto_mora !== 'informativo'
+  return r.asistentes.filter((a) => a.presente).flatMap((a) => a.bienes).filter((b) => !(restaMora && r.morosos.has(b.bien_privado_id))).map((b) => b.bien_privado_id)
+}
+
+const conteo = (n: number) => ({ coeficiente: (n * Number(COEF)).toFixed(8), unidades: n })
+const pct = (n: number, de: number) => (de ? ((n / de) * 100).toFixed(4) : '0')
+
+/** Escrutinio como lo calcula `domain::resultados` (todos los bienes pesan 2,5 %). */
+function escrutinioDe(r: ReunionDemo, pd: PreguntaDemo): Escrutinio {
+  const p = pd.p
+  const votantes = new Set(pd.votos.map((v) => v.bien))
+  const habilitados = new Set([...habilitadosDe(r), ...votantes]).size
+  const total = bienesDemo().length
+  const votosDe = (opcion: string) => pd.votos.filter((v) => v.opciones.includes(opcion)).length
+  const umbral = (v: number) => {
+    const reg = p.regla_mayoria
+    if (reg.regla === 'calificada_70') return v >= total * 0.7
+    if (reg.regla === 'personalizada') return v >= ((reg.sobre === 'total' ? total : habilitados) * Number(reg.porcentaje ?? '50')) / 100
+    return v > habilitados / 2
+  }
+  const decide = (k: number) => p.tipo !== 'eleccion' && (p.tipo !== 'si_no' || k === 0)
+  const opciones = p.opciones.map((o, k) => {
+    const v = votosDe(o.id)
+    return {
+      opcion_id: o.id, texto: o.texto, en_blanco: o.en_blanco, votos: conteo(v), porcentaje_coeficiente: pct(v, habilitados), porcentaje_unidades: pct(v, habilitados),
+      aprobada: decide(k) ? umbral(v) : null, aprobada_en_otra_base: decide(k) ? umbral(v) : null, cupos: null,
+    }
+  })
+  let decision: DecisionEscrutinio
+  if (p.tipo === 'si_no') decision = { decision: opciones[0]?.aprobada ? 'aprobada' : 'no_aprobada' }
+  else if (p.tipo === 'seleccion_multiple') decision = { decision: 'por_opcion' }
+  else if (p.tipo === 'seleccion_unica') {
+    const max = Math.max(0, ...opciones.map((o) => o.votos.unidades))
+    const primeras = opciones.filter((o) => max > 0 && o.votos.unidades === max)
+    const g = primeras[0]
+    decision = primeras.length === 1 && g?.aprobada ? { decision: 'ganadora', opcion_id: g.opcion_id } : { decision: 'sin_ganadora', empate: primeras.length > 1 }
+  } else {
+    const cupos = p.cupos ?? 1
+    const planchas = opciones.filter((o) => !o.en_blanco)
+    const suma = planchas.reduce((t, o) => t + o.votos.unidades, 0)
+    const cociente = suma ? suma / cupos : 0
+    const reparto = planchas.map((o) => {
+      const exacto = cociente ? o.votos.unidades / cociente : 0
+      return { opcion_id: o.opcion_id, por_cociente: Math.floor(exacto), por_residuo: 0, residuo: (exacto - Math.floor(exacto)).toFixed(4) }
+    })
+    let libres = suma ? cupos - reparto.reduce((t, c) => t + c.por_cociente, 0) : cupos
+    for (const c of [...reparto].sort((a, b) => Number(b.residuo) - Number(a.residuo))) {
+      if (libres <= 0 || Number(c.residuo) === 0) break
+      c.por_residuo = 1
+      libres--
+    }
+    decision = { decision: 'reparto', cociente: cociente.toFixed(4), cupos: reparto, empate: false, sin_asignar: Math.max(0, libres) }
+  }
+  return {
+    base_computo: p.base_computo, habilitados: conteo(habilitados), total: conteo(total), votantes: conteo(votantes.size), sin_votar: conteo(Math.max(0, habilitados - votantes.size)),
+    opciones, decision, advertencia_unidades: p.base_computo === 'unidades',
+  }
+}
+
+const enVivo = (r: ReunionDemo, pd: PreguntaDemo) => ({ pregunta: pd.p, escrutinio: pd.resultado ?? escrutinioDe(r, pd) })
+
+/** Datos del acta como los arma `datos_acta` del backend. */
+function datosActa(r: ReunionDemo): DatosActa {
+  const reu = r.reunion
+  const hora = (t?: string | null) => (t ? new Date(t).toLocaleString('es-CO', { timeZone: 'America/Bogota' }) : null)
+  const q = quorumDe(r)
+  return {
+    copropiedad: 'Conjunto Demo', nit: '900123456-8', titulo: reu.titulo, tipo: reu.tipo, convocatoria: reu.convocatoria.replace('_', ' '), modalidad: reu.modalidad,
+    lugar: reu.lugar ?? null, fecha: hora(reu.fecha_programada) ?? '', instalada: hora(reu.instalada_en), cerrada: hora(reu.cerrada_en),
+    orden_del_dia: [...r.puntos].sort((a, b) => a.orden - b.orden).map((x) => `${x.orden}. ${x.titulo}`),
+    quorum: [{ momento: 'instalacion', hora: hora(reu.instalada_en) ?? '', coeficiente: q.coeficiente_presente, porcentaje_coeficiente: q.porcentaje_coeficiente, unidades: q.unidades_presentes, unidades_total: q.unidades_total, asistentes: q.asistentes }],
+    asistentes: r.asistentes.map((a) => ({ nombre: a.nombre, bienes: a.bienes.map((b) => b.codigo), coeficiente: (a.bienes.length * Number(COEF)).toFixed(8), poderes: [], entrada: hora(reu.instalada_en) ?? 'no ingresó', salidas: [] })),
+    morosos: bienesDemo().filter((b) => r.morosos.has(b.id)).map((b) => b.codigo), efecto_mora: reu.configuracion.efecto_mora?.replace(/_/g, ' ') ?? 'informativo',
+    preguntas: r.preguntas.filter((x) => x.p.estado !== 'borrador').map((x) => {
+      const e = x.p.estado === 'anulada' ? null : (x.resultado ?? escrutinioDe(r, x))
+      const op = (oid: string) => x.p.opciones.find((o) => o.id === oid)?.texto ?? ''
+      return {
+        orden: x.p.orden, enunciado: x.p.enunciado, tipo: x.p.tipo.replace('_', ' '), tipo_voto: x.p.tipo_voto, abierta: hora(x.p.abierta_en), cerrada: hora(x.p.cerrada_en), escrutinio: e,
+        decision: x.p.estado === 'anulada' ? 'anulada' : e?.decision.decision.replace('_', ' ') ?? 'sin escrutinio',
+        detalle: x.p.tipo_voto === 'nominal' ? x.votos.map((v) => ({ bien: bienesDemo().find((b) => b.id === v.bien)?.codigo ?? '', coeficiente: COEF, opcion: v.opciones.map(op).join(', '), canal: v.canal, hora: hora(v.en) ?? '', apoderado: v.apoderado })) : [],
+        elegidos: [],
+      }
+    }),
+    advertencias: reu.configuracion.efecto_mora && reu.configuracion.efecto_mora !== 'informativo' ? [`Efecto de la mora en esta asamblea: ${reu.configuracion.efecto_mora.replace(/_/g, ' ')} (decidido por la copropiedad).`] : [],
+    generada: hora(ahora()) ?? '',
+  }
+}
+
+const csv = (filas: string[][], nombre: string) =>
+  new Response(filas.map((f) => f.map((c) => `"${c.replace(/"/g, '""')}"`).join(',')).join('\n'), {
+    headers: { 'Content-Type': 'text/csv; charset=utf-8', 'Content-Disposition': `attachment; filename="${nombre}"` },
+  })
 
 const hayQuorum = (r: ReunionDemo) => r.reunion.convocatoria !== 'primera' || Number(quorumDe(r).porcentaje_coeficiente) > 50
 
@@ -169,7 +356,13 @@ export const asambleas: Manejador = async (req, ruta) => {
     if (accion === 'cancelar' && !motivo?.trim()) return error(422, 'validacion', 'Indique el motivo de la cancelación.')
     reu.estado = t.hacia
     if (accion === 'instalar') reu.instalada_en = ahora()
-    if (accion === 'cerrar') reu.cerrada_en = ahora()
+    if (accion === 'cerrar') {
+      reu.cerrada_en = ahora()
+      r.preguntas.filter((x) => x.p.estado === 'abierta').forEach((x) => {
+        x.resultado = escrutinioDe(r, x)
+        Object.assign(x.p, { estado: 'cerrada', cerrada_en: ahora() })
+      })
+    }
     if (accion === 'cancelar') reu.motivo_cancelacion = motivo ?? null
     return json(reu)
   }
@@ -253,7 +446,12 @@ export const asambleas: Manejador = async (req, ruta) => {
   if (m === 'GET' && sub === '/tablero') {
     return json({
       reunion: reu, quorum: quorumDe(r), hay_quorum: hayQuorum(r), punto_en_curso: r.puntos.find((x) => x.estado === 'en_curso')?.titulo ?? null,
-      preguntas_abiertas: [], ultima_cerrada: null, generado_en: ahora(),
+      preguntas_abiertas: r.preguntas.filter((x) => x.p.estado === 'abierta').map((x) => enVivo(r, x)),
+      ultima_cerrada: (() => {
+        const c = r.preguntas.filter((x) => x.p.estado === 'cerrada').sort((x, y) => (y.p.cerrada_en ?? '').localeCompare(x.p.cerrada_en ?? ''))[0]
+        return c ? enVivo(r, c) : null
+      })(),
+      generado_en: ahora(),
     })
   }
 
@@ -338,6 +536,152 @@ export const asambleas: Manejador = async (req, ruta) => {
     Object.assign(x, { estado, motivo, revisado_en: ahora() })
     if (estado === 'rechazado') r.asistentes.forEach((a) => (a.bienes = a.bienes.filter((y) => !(y.bien_privado_id === x.bien_privado_id && y.calidad === 'apoderado'))))
     return json(x)
+  }
+
+  // Preguntas y votos
+  if (sub === '/preguntas') {
+    if (m === 'GET') return json(r.preguntas.map((x) => x.p).sort((a, c) => a.orden - c.orden))
+    if (m === 'POST') {
+      if (['cerrada', 'cancelada'].includes(reu.estado)) return error(409, 'conflicto_estado', 'La reunión ya terminó.')
+      const n = ++consecutivo
+      const nueva = pregunta(n, r.preguntas.length + 1, await cuerpo<NuevaPregunta>(req))
+      const problema = problemaDefinicion(nueva)
+      if (problema) return error(422, 'validacion', problema)
+      r.preguntas.push({ p: nueva, votos: [], resultado: null })
+      return json(nueva, 201)
+    }
+  }
+  const pre = sub.match(/^\/preguntas\/([^/]+)(\/[a-z]+)?$/)
+  if (pre) {
+    const x = r.preguntas.find((y) => y.p.id === pre[1])
+    if (!x) return error(404, 'no_encontrado', 'La pregunta no existe.')
+    const accion = pre[2] ?? ''
+    if (accion === '' && m === 'PUT') {
+      if (x.p.estado !== 'borrador') return error(409, 'conflicto_estado', 'La pregunta ya se abrió: no se puede editar.')
+      const nueva = pregunta(++consecutivo, x.p.orden, await cuerpo<NuevaPregunta>(req), { id: x.p.id })
+      const problema = problemaDefinicion(nueva)
+      if (problema) return error(422, 'validacion', problema)
+      x.p = nueva
+      return json(nueva)
+    }
+    if (accion === '' && m === 'DELETE') {
+      if (x.p.estado !== 'borrador') return error(409, 'conflicto', 'La pregunta ya se abrió: anúlela.')
+      r.preguntas = r.preguntas.filter((y) => y !== x)
+      return sinContenido()
+    }
+    if (accion === '/estado' && m === 'PUT') {
+      const { accion: a, motivo } = await cuerpo<{ accion: 'abrir' | 'cerrar' | 'anular'; motivo?: string | null }>(req)
+      if (a === 'abrir') {
+        if (reu.estado !== 'instalada') return error(409, 'conflicto_estado', 'La asamblea no está instalada.')
+        if (x.p.estado !== 'borrador') return error(409, 'conflicto_estado', 'La pregunta ya se abrió.')
+        const seg = x.p.temporizador_segundos ?? reu.configuracion.temporizador_segundos ?? 0
+        Object.assign(x.p, { estado: 'abierta', abierta_en: ahora(), cierra_en: seg ? new Date(Date.now() + seg * 1000).toISOString() : null })
+      } else if (a === 'cerrar') {
+        if (x.p.estado !== 'abierta') return error(409, 'conflicto_estado', 'La pregunta no está abierta.')
+        x.resultado = escrutinioDe(r, x)
+        Object.assign(x.p, { estado: 'cerrada', cerrada_en: ahora() })
+      } else {
+        if (!['borrador', 'abierta'].includes(x.p.estado)) return error(409, 'conflicto_estado', 'Una pregunta cerrada no se anula.')
+        if (!motivo?.trim()) return error(422, 'validacion', 'Indique el motivo de la anulación.')
+        Object.assign(x.p, { estado: 'anulada' })
+      }
+      return json(x.p)
+    }
+    if (accion === '/votos' && m === 'POST') {
+      const clave = req.headers.get('Idempotency-Key')
+      if (!clave) return error(422, 'validacion', 'Falta la cabecera Idempotency-Key.')
+      const repetido = votosPorClave.get(clave)
+      if (repetido) return json({ ...repetido, registrado: false }, 201)
+      const d = await cuerpo<NuevoVoto>(req)
+      const a = r.asistentes.find((y) => (d.asistente_id ? y.id === d.asistente_id : !!d.rotulo && y.rotulo === d.rotulo))
+      if (!a || !a.presente) return error(403, 'no_inscrito', d.rotulo ? `El rótulo ${d.rotulo} no corresponde a un asistente presente.` : 'El asistente no está presente en la sala.')
+      if (x.p.estado !== 'abierta') return error(409, 'conflicto_estado', 'La votación ya cerró.')
+      const max = x.p.tipo === 'seleccion_multiple' ? x.p.max_selecciones : 1
+      if (!d.opciones.length || d.opciones.length > max || d.opciones.some((o) => !x.p.opciones.some((y) => y.id === o))) {
+        return error(422, 'validacion', 'El número de opciones elegidas no corresponde a la pregunta.')
+      }
+      const restaMora = reu.configuracion.efecto_mora !== 'informativo'
+      const yaVotaron = new Set(x.votos.map((v) => v.bien))
+      const habilitados = a.bienes.filter((b) => !(restaMora && b.moroso) && !yaVotaron.has(b.bien_privado_id))
+      const omitidos = a.bienes.filter((b) => !habilitados.includes(b)).map((b) => b.codigo)
+      if (!habilitados.length) return error(409, 'ya_voto', 'Sus bienes ya votaron esta pregunta.')
+      habilitados.forEach((b) => x.votos.push({ bien: b.bien_privado_id, opciones: d.opciones, canal: d.canal, asistente: a, apoderado: b.calidad === 'apoderado', en: ahora() }))
+      const voto: Voto = { registrado: true, asistente_id: a.id, nombre: a.nombre, bienes: habilitados.map((b) => b.codigo), omitidos }
+      votosPorClave.set(clave, voto)
+      return json(voto, 201)
+    }
+    if (accion === '/resultados' && m === 'GET') return json({ pregunta: x.p, escrutinio: x.resultado ?? escrutinioDe(r, x) })
+    if (accion === '/detalle' && m === 'GET') {
+      return json(x.votos.map((v) => ({
+        bien_privado_id: v.bien, codigo: bienesDemo().find((b) => b.id === v.bien)?.codigo ?? '', coeficiente: COEF, opcion_id: v.opciones[0] ?? '',
+        canal: v.canal, asistente: v.asistente.nombre, apoderado: v.apoderado, registrado_en: v.en,
+      })))
+    }
+    if (accion === '/eleccion' && m === 'POST') {
+      if (x.p.tipo !== 'eleccion' || x.p.estado !== 'cerrada' || !x.p.cargo || x.p.roles_aplicados_en) return error(409, 'conflicto', 'No es una elección cerrada de un cargo o ya se aplicó.')
+      const e = x.resultado
+      const ganadoras = e?.decision.decision === 'reparto' ? e.decision.cupos.filter((c) => c.por_cociente + c.por_residuo > 0).map((c) => c.opcion_id) : []
+      const personas = x.p.opciones.filter((o) => ganadoras.includes(o.id)).flatMap((o) => o.candidatos)
+      x.p.roles_aplicados_en = ahora()
+      return json(personas.map((pid, k) => ({ persona_id: pid, nombre: bienesDemo().map((_, i) => titular(i)).find((t) => t.persona === pid)?.nombre ?? 'Persona elegida', rol_asignado: k !== 1 })))
+    }
+  }
+
+  // Acta
+  if (sub === '/acta') {
+    if (m === 'GET') return json(datosActa(r))
+    if (m === 'POST') {
+      if (reu.estado !== 'cerrada') return error(409, 'conflicto', 'La reunión no está cerrada.')
+      if (['aprobada', 'publicada'].includes(reu.acta_estado)) return error(409, 'conflicto', 'El acta ya se aprobó: no se puede regenerar.')
+      Object.assign(reu, { acta_estado: 'generada', acta_archivo_id: id(++consecutivo) })
+      return json(reu)
+    }
+  }
+  if (sub === '/acta/estado' && m === 'PUT') {
+    const { paso, archivo_id } = await cuerpo<{ paso: 'firmada' | 'aprobar' | 'publicar'; archivo_id?: string | null }>(req)
+    if (paso === 'firmada') {
+      if (reu.acta_estado !== 'generada') return error(409, 'conflicto', 'Primero genere el acta.')
+      if (!archivo_id) return error(422, 'validacion', 'Suba el escaneo firmado.')
+      reu.acta_firmada_archivo_id = archivo_id
+    } else if (paso === 'aprobar') {
+      if (!reu.acta_firmada_archivo_id) return error(409, 'conflicto', 'Suba el acta firmada antes de aprobarla.')
+      if (reu.acta_estado !== 'generada') return error(409, 'conflicto_estado', 'El acta no está generada.')
+      reu.acta_estado = 'aprobada'
+    } else {
+      if (reu.acta_estado !== 'aprobada') return error(409, 'conflicto_estado', 'Solo se publica un acta aprobada.')
+      reu.acta_estado = 'publicada'
+    }
+    return json(reu)
+  }
+
+  // Reportes
+  if (m === 'GET' && sub === '/reportes/asistencia') {
+    const filas = r.asistentes.flatMap((a) => a.bienes.map((b) => ({
+      asistente: a.nombre, bien: b.codigo, coeficiente: b.coeficiente, calidad: b.calidad, metodo: a.metodo, moroso: b.moroso,
+      entrada: reu.instalada_en ?? reu.fecha_programada, salida: a.presente ? null : ahora(), motivo_salida: a.presente ? null : 'se_retiro', whatsapp_confirmado: a.whatsapp_confirmado,
+    })))
+    if (q.get('formato') === 'csv') return csv([['Asistente', 'Bien', 'Coeficiente', 'Calidad'], ...filas.map((f) => [f.asistente, f.bien, f.coeficiente, f.calidad])], 'asistencia.csv')
+    return json(filas)
+  }
+  const rep = sub.match(/^\/reportes\/votos\/([^/]+)$/)
+  if (m === 'GET' && rep) {
+    const x = r.preguntas.find((y) => y.p.id === rep[1])
+    if (!x) return error(404, 'no_encontrado', 'La pregunta no existe.')
+    const op = (oid: string) => x.p.opciones.find((o) => o.id === oid)?.texto ?? ''
+    return csv([['Bien', 'Canal', 'Asistente', 'Opción'], ...x.votos.map((v) => [bienesDemo().find((b) => b.id === v.bien)?.codigo ?? '', v.canal, v.asistente.nombre, v.opciones.map(op).join(' + ')])], 'votos.csv')
+  }
+  if (m === 'GET' && sub === '/reportes/canales') {
+    return json(r.preguntas.filter((x) => x.p.estado !== 'borrador').map((x) => ({
+      pregunta_id: x.p.id, orden: x.p.orden, enunciado: x.p.enunciado,
+      por_canal: x.votos.reduce<Record<string, number>>((t, v) => ({ ...t, [v.canal]: (t[v.canal] ?? 0) + 1 }), {}),
+      primero: x.votos[0]?.en ?? null, ultimo: x.votos.at(-1)?.en ?? null,
+    })))
+  }
+  if (m === 'GET' && sub === '/reportes/costo-whatsapp') {
+    return json({
+      moneda: 'COP', plantillas: 68, servicio: 12, fallidos: 2, tarifa_utilidad: '35.00', tarifa_servicio: '0.00', valor_estimado: '2380.00',
+      por_linea: [{ linea: '+57 601 555 0100', es_plantilla: true, enviados: 68, fallidos: 2 }, { linea: '+57 601 555 0100', es_plantilla: false, enviados: 12, fallidos: 0 }],
+    })
   }
   return null
 }

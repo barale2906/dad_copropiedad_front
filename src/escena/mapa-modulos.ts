@@ -141,6 +141,10 @@ export const SECCIONES: Record<string, Seccion> = {
       a('en-vivo', 'Tablero en vivo', 'Quórum y resultados en tiempo real.', ['asambleas.conducir', 'asambleas.ver']),
       a('registro', 'Mesa de registro', 'Ingreso de asistentes y poderes.', ['asambleas.registrar']),
       a('voto-presencial', 'Voto presencial', 'Registrar votos en la sala.', ['asambleas.votos.registrar']),
+      a('resultados', 'Resultados', 'Escrutinio de cada votación.', ['asambleas.ver']),
+      a('proyeccion', 'Proyección en sala', 'Quórum y votaciones en pantalla grande.', ['asambleas.ver']),
+      a('acta', 'Actas', 'Generar, firmar, aprobar y publicar el acta.', ['asambleas.ver']),
+      a('reportes', 'Reportes', 'Asistencia, votos por canal y costo de WhatsApp.', ['asambleas.ver']),
     ],
   },
   administracion: {

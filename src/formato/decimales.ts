@@ -59,6 +59,12 @@ export function porcentajeDe(monto: string, porcentaje: string): string {
   return dec(monto).times(dec(porcentaje)).dividedBy(100).toFixed(2)
 }
 
+/** Qué porcentaje es `parte` de `total` (texto), redondeado: `("0.3", "0.6")` → `"50.00"`; total cero → `"0"`. */
+export function proporcion(parte: string, total: string, decimales = 2): string {
+  const t = dec(total)
+  return t.isZero() ? '0' : dec(parte).times(100).dividedBy(t).toFixed(decimales)
+}
+
 /** -1, 0 o 1, como `a` es menor, igual o mayor que `b`. */
 export function comparar(a: string, b: string): -1 | 0 | 1 {
   const c = dec(a).comparedTo(dec(b))
