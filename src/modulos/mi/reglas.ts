@@ -11,18 +11,6 @@ import { comparar } from '@/formato/decimales'
 
 type Tono = 'exito' | 'aviso' | 'peligro' | 'info' | 'neutro'
 
-export const TIPO_TICKET: Record<TipoTicket, string> = {
-  peticion: 'Petición',
-  queja: 'Queja',
-  reclamo: 'Reclamo',
-  sugerencia: 'Sugerencia',
-  felicitacion: 'Felicitación',
-  solicitud_mantenimiento: 'Solicitud de mantenimiento',
-  solicitud_administrativa: 'Solicitud administrativa',
-  solicitud_documentos: 'Solicitud de documentos',
-  reporte_convivencia: 'Reporte de convivencia',
-}
-
 /** Tipos que ofrece el formulario del residente (en el orden más usado). */
 export const TIPOS_PARA_RESIDENTE: TipoTicket[] = [
   'solicitud_mantenimiento',

@@ -1,14 +1,12 @@
 /**
  * Demo del portal del propietario y residente: mi cartera (un bien en mora y otro al día), mis
- * comunicados, mis PQRS, mis datos y la autorización de publicidad (las visitas y los paquetes
- * los atiende `porteria.ts`). Se reinicia en cada sesión.
+ * comunicados, mis datos y la autorización de publicidad (las visitas y los paquetes
+ * los atiende `porteria.ts`; las PQRS, `gestion.ts`). Se reinicia en cada sesión.
  */
 import type {
   ComunicadoRecibido,
   CuentaCobro,
-  DetalleTicket,
   Obligacion,
-  Ticket,
 } from '@/api/tipos'
 import { cuerpo, error, json, type Manejador, sinContenido } from './http'
 import { bienesDemo, personasDemo } from './unidades'
@@ -24,7 +22,6 @@ const PERSONA = id(5100)
 
 let obligaciones: Obligacion[] = []
 let comunicados: ComunicadoRecibido[] = []
-let tickets: DetalleTicket[] = []
 let publicidad = false
 let consecutivo = 9500
 
@@ -48,23 +45,6 @@ function comunicado(n: number, titulo: string, dias: number, extra: Partial<Comu
   }
 }
 
-function ticket(n: number, asunto: string, estado: Ticket['estado'], extra: Partial<Ticket> = {}): DetalleTicket {
-  return {
-    ticket: {
-      id: id(n), numero: `PQRS-${2026}-${n}`, tipo: 'solicitud_mantenimiento', prioridad: 'media', canal: 'web', estado, asunto,
-      descripcion: `${asunto}. Por favor revisar.`, bien_privado_id: T1_101, vencido: false, confidencial: false, identidad_oculta: false,
-      creado_en: hace(6), actualizado_en: hace(1), ...extra,
-    },
-    mensajes: [
-      { id: id(n + 1), del_solicitante: false, canal: 'web', interno: false, texto: 'Recibimos su solicitud y la estamos revisando.', adjuntos: [], creado_en: hace(5) },
-      { id: id(n + 2), del_solicitante: false, canal: 'web', interno: true, texto: 'Nota interna: llamar al contratista.', adjuntos: [], creado_en: hace(4) },
-    ],
-    adjuntos: [],
-    eventos: [],
-    transiciones_permitidas: [],
-  }
-}
-
 export function iniciarMi(): void {
   consecutivo = 9500
   obligaciones = [
@@ -76,10 +56,6 @@ export function iniciarMi(): void {
     comunicado(9201, 'Corte de agua el sábado', 0, { importante: true, requiere_confirmacion: true }, false),
     comunicado(9202, 'Mantenimiento de ascensores', 4),
     comunicado(9203, 'Asamblea ordinaria 2027', 12),
-  ]
-  tickets = [
-    ticket(9301, 'Filtración en el techo del baño', 'en_espera_solicitante'),
-    ticket(9311, 'Bombillo del pasillo fundido', 'resuelto', { resuelto_en: hace(1), reabrible_hasta: new Date(Date.now() + 5 * DIA).toISOString() }),
   ]
   publicidad = false
 }
@@ -104,14 +80,6 @@ const cuentaCobro = (n: number, dias: number, total: string): CuentaCobro => ({
 
 export const mi: Manejador = async (req, ruta) => {
   const m = req.method
-  if (m === 'GET' && ruta === '/yo/tickets') {
-    return json(
-      tickets.map((t) => ({
-        copropiedad_id: id(1), copropiedad: 'Conjunto Residencial Los Robles', ticket_id: t.ticket.id, numero: t.ticket.numero,
-        tipo: t.ticket.tipo, estado: t.ticket.estado, asunto: t.ticket.asunto, creado_en: t.ticket.creado_en, actualizado_en: t.ticket.actualizado_en,
-      })),
-    )
-  }
   if (ruta.match(/^\/entidades\/[^/]+\/publicidad\/autorizacion$/)) {
     if (m === 'GET') return json({ autorizada: publicidad, politica: { version: 1, texto: 'Recibirá ofertas de los comercios del directorio según sus preferencias. Puede retirarse cuando quiera.', vigente_desde: hace(90) } })
     if (m === 'POST') {
@@ -167,49 +135,6 @@ export const mi: Manejador = async (req, ruta) => {
       if (!c.comunicado.requiere_confirmacion) return error(409, 'conflicto', 'El comunicado no pide confirmación.')
       c.enterado_en ??= new Date().toISOString()
       return json(c)
-    }
-  }
-
-  // PQRS
-  if (m === 'GET' && base === '/tickets/categorias') {
-    return json([
-      { id: id(9901), nombre: 'Plomería', activa: true },
-      { id: id(9902), nombre: 'Electricidad', activa: true },
-      { id: id(9903), nombre: 'Zonas comunes', activa: true },
-    ])
-  }
-  if (m === 'POST' && base === '/tickets') {
-    const d = await cuerpo<Ticket & { idempotency_key: string; adjuntos?: string[] }>(req)
-    if (!d.asunto?.trim() || !d.descripcion?.trim()) return error(422, 'validacion', 'Escriba el asunto y la descripción.')
-    const t = ticket(++consecutivo * 10, d.asunto, 'abierto', { tipo: d.tipo, descripcion: d.descripcion, creado_en: new Date().toISOString(), actualizado_en: new Date().toISOString() })
-    t.mensajes = []
-    t.adjuntos = (d.adjuntos ?? []).map((a) => ({ archivo_id: a, interno: false }))
-    tickets = [t, ...tickets]
-    return json(t.ticket, 201)
-  }
-  const tic = base.match(/^\/tickets\/([^/]+)(?:\/(mensajes|encuesta|transiciones))?$/)
-  if (tic) {
-    const t = tickets.find((x) => x.ticket.id === tic[1])
-    if (!t) return error(404, 'no_encontrado', 'No existe o no es visible para la cuenta.')
-    if (m === 'GET' && !tic[2]) return json(t)
-    if (m === 'POST' && tic[2] === 'mensajes') {
-      if (['resuelto', 'cerrado'].includes(t.ticket.estado)) return error(409, 'conflicto', 'El ticket terminó.')
-      const { texto } = await cuerpo<{ texto: string }>(req)
-      const msj = { id: id(++consecutivo), del_solicitante: true, canal: 'web' as const, interno: false, texto, adjuntos: [], creado_en: new Date().toISOString() }
-      t.mensajes.push(msj)
-      if (t.ticket.estado === 'en_espera_solicitante') t.ticket.estado = 'en_progreso'
-      return json(msj, 201)
-    }
-    if (m === 'POST' && tic[2] === 'encuesta') {
-      if (!['resuelto', 'cerrado'].includes(t.ticket.estado) || t.ticket.encuesta) return error(409, 'conflicto', 'Aún no está resuelto o ya calificó.')
-      t.ticket.encuesta = await cuerpo<{ calificacion: number; comentario?: string | null }>(req)
-      return json(t.ticket)
-    }
-    if (m === 'POST' && tic[2] === 'transiciones') {
-      const { hacia } = await cuerpo<{ hacia: Ticket['estado'] }>(req)
-      if (t.ticket.estado !== 'resuelto') return error(409, 'conflicto_estado', 'Transición no permitida.')
-      t.ticket.estado = hacia
-      return json(t.ticket)
     }
   }
 

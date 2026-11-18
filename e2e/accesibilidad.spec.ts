@@ -351,3 +351,68 @@ test('portería: biometría y configuración', async ({ page }) => {
   await expect(page.getByRole('list', { name: 'Dispositivos' })).toBeVisible()
   await revisar(page)
 })
+
+/** Entra con la cuenta de una sola PH y abre una pantalla de la administración. */
+async function entrarAAdministracion(page: Page, ruta: string) {
+  await entrar(page, 'uno')
+  await expect(page).toHaveURL(/\/e\/[^/]+$/)
+  await page.goto(`${new URL(page.url()).pathname}/administracion/${ruta}`)
+}
+
+test('administración: tablero, bandeja y detalle de PQRS', async ({ page }) => {
+  await entrarAAdministracion(page, 'tablero')
+  await expect(page.getByRole('list', { name: 'Alertas de mantenimiento' })).toBeVisible()
+  await revisar(page)
+  await page.getByRole('link', { name: /PQRS pendientes/ }).click()
+  await expect(page.getByRole('list', { name: 'PQRS' })).toBeVisible()
+  await revisar(page)
+  await page.getByRole('link', { name: 'Ruido en el ascensor de la torre 2' }).click()
+  await expect(page.getByRole('list', { name: 'Mensajes del ticket' })).toBeVisible()
+  await revisar(page)
+})
+
+test('administración: configuración de PQRS y chat', async ({ page }) => {
+  await entrarAAdministracion(page, 'tickets?vista=configuracion')
+  await expect(page.getByRole('list', { name: 'Categorías de PQRS' })).toBeVisible()
+  await revisar(page)
+  await page.goto(page.url().replace(/tickets.*$/, 'chat'))
+  await page.getByRole('link', { name: '+57 300 555 0101' }).click()
+  await expect(page.getByRole('list', { name: 'Mensajes de la conversación' })).toBeVisible()
+  await revisar(page)
+})
+
+test('administración: comunicados y preguntas frecuentes', async ({ page }) => {
+  await entrarAAdministracion(page, 'comunicados/nuevo')
+  await expect(page.getByLabel('Destinatarios')).toBeVisible()
+  await revisar(page)
+  await page.goto(page.url().replace(/comunicados.*$/, 'comunicados'))
+  await page.getByRole('link', { name: 'Corte de agua el sábado' }).click()
+  await expect(page.getByText('lo leyeron')).toBeVisible()
+  await revisar(page)
+  await page.goto(page.url().replace(/comunicados.*$/, 'preguntas'))
+  await expect(page.getByRole('list', { name: 'Preguntas frecuentes' })).toBeVisible()
+  await revisar(page)
+})
+
+test('administración: mantenimiento', async ({ page }) => {
+  await entrarAAdministracion(page, 'mantenimiento')
+  await expect(page.getByRole('list', { name: 'Órdenes de trabajo' })).toBeVisible()
+  await revisar(page)
+  await page.getByRole('link', { name: 'Revisión de la motobomba' }).click()
+  await expect(page.getByText('Usted ejecutó esta orden: la verifica otra cuenta.')).toBeVisible()
+  await revisar(page)
+  for (const vista of ['planes', 'obligaciones']) {
+    await page.goto(page.url().replace(/mantenimiento.*$/, `mantenimiento?vista=${vista}`))
+    await expect(page.getByRole('list', { name: vista === 'planes' ? 'Planes preventivos' : 'Obligaciones periódicas' })).toBeVisible()
+    await revisar(page)
+  }
+})
+
+test('administración: inventario y hoja de vida', async ({ page }) => {
+  await entrarAAdministracion(page, 'inventario')
+  await expect(page.getByRole('list', { name: 'Activos' })).toBeVisible()
+  await revisar(page)
+  await page.getByRole('link', { name: 'Ascensor torre 1' }).click()
+  await expect(page.getByRole('list', { name: 'Movimientos del activo' })).toBeVisible()
+  await revisar(page)
+})

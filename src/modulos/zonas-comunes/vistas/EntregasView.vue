@@ -5,12 +5,12 @@
  * que el solicitante no asistió.
  */
 import { computed, onMounted, ref, watch } from 'vue'
-import { abrirArchivo, subirArchivo } from '@/api/archivos'
 import { mensajeDeError } from '@/api/errores'
 import type { Reserva } from '@/api/tipos'
 import { useAccion } from '@/composables/useAccion'
+import { useAdjuntos } from '@/composables/useAdjuntos'
 import { aUtc, hoyEn, sumarDias } from '@/formato/fechas'
-import HudAdjuntos, { type Adjunto } from '@/hud/componentes/HudAdjuntos.vue'
+import HudAdjuntos from '@/hud/componentes/HudAdjuntos.vue'
 import HudBoton from '@/hud/componentes/HudBoton.vue'
 import HudCampo from '@/hud/componentes/HudCampo.vue'
 import HudCampoMonto from '@/hud/componentes/HudCampoMonto.vue'
@@ -48,16 +48,14 @@ const abierto = computed({
 })
 const novedad = ref('')
 const danos = ref('')
-const fotos = ref<Adjunto[]>([])
-const subiendo = ref(false)
-const errorFotos = ref<string | null>(null)
+const fotos = useAdjuntos(id, 'interno')
 
 const visibles = computed(() => ordenarReservas(reservas.value.filter((r) => r.estado !== 'rechazada' && r.estado !== 'cancelada')))
 const TITULOS: Record<Paso, string> = { entregar: 'Entregar la zona', recibir: 'Recibir la zona', no_asistio: 'No asistió' }
 
 const accion = useAccion((_c, p: Paso) => {
   const r = elegida.value?.id ?? ''
-  const datos = { fotos: fotos.value.map((f) => f.id), novedad: novedad.value.trim() || null, valor_danos: danos.value || null }
+  const datos = { fotos: fotos.ids(), novedad: novedad.value.trim() || null, valor_danos: danos.value || null }
   if (p === 'entregar') return entregarReserva(id.value, r, datos)
   if (p === 'recibir') return recibirReserva(id.value, r, datos)
   return noAsistio(id.value, r)
@@ -66,25 +64,9 @@ const accion = useAccion((_c, p: Paso) => {
 function abrir(r: Reserva, p: Paso) {
   elegida.value = r
   novedad.value = danos.value = ''
-  fotos.value = []
-  errorFotos.value = null
+  fotos.limpiar()
   accion.reiniciar()
   paso.value = p
-}
-
-async function subir(archivos: File[]) {
-  subiendo.value = true
-  errorFotos.value = null
-  try {
-    for (const a of archivos) {
-      const f = await subirArchivo(id.value, a, 'interno')
-      fotos.value = [...fotos.value, { id: f.id, nombre: f.nombre }]
-    }
-  } catch (e) {
-    errorFotos.value = mensajeDeError(e)
-  } finally {
-    subiendo.value = false
-  }
 }
 
 async function confirmar() {
@@ -221,19 +203,19 @@ onMounted(cargar)
               Fotos
             </p>
             <HudAdjuntos
-              :adjuntos="fotos"
+              :adjuntos="fotos.adjuntos.value"
               acepta="image/*"
-              :subiendo="subiendo"
-              @subir="subir"
-              @abrir="abrirArchivo(id, $event)"
-              @quitar="fotos = fotos.filter((f) => f.id !== $event)"
+              :subiendo="fotos.subiendo.value"
+              @subir="fotos.subir"
+              @abrir="fotos.abrir"
+              @quitar="fotos.quitar"
             />
             <p
-              v-if="errorFotos"
+              v-if="fotos.error.value"
               class="error"
               role="alert"
             >
-              {{ errorFotos }}
+              {{ fotos.error.value }}
             </p>
           </div>
         </template>
@@ -259,7 +241,7 @@ onMounted(cargar)
           tipo="submit"
           form="formulario-entrega"
           :cargando="accion.cargando.value"
-          :deshabilitado="subiendo"
+          :deshabilitado="fotos.subiendo.value"
         >
           Confirmar
         </HudBoton>

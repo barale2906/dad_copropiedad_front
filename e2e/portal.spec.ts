@@ -72,7 +72,7 @@ test.describe('portal del propietario y residente', () => {
     await dialogo.getByLabel('Asunto').fill('Puerta del parqueadero dañada')
     await dialogo.getByLabel('Descripción').fill('No cierra desde ayer.')
     await dialogo.getByRole('button', { name: 'Radicar' }).click()
-    await expect(page.getByRole('heading', { name: /Solicitud PQRS-/ })).toBeVisible()
+    await expect(page.getByRole('heading', { name: /Solicitud PQR-/ })).toBeVisible()
     await expect(page.getByText('Puerta del parqueadero dañada')).toBeVisible()
     await expect(page.getByText('Nota interna')).toHaveCount(0)
   })

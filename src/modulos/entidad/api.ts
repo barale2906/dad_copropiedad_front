@@ -181,29 +181,13 @@ export async function cambiarHorario(copropiedadId: string, puntoId: string, hor
   )
 }
 
-/**
- * Producto contratado en la suscripción. El contrato hoy lo tipa mal (`LineaRespuesta` choca
- * con la de WhatsApp y la de contabilidad: solicitud S10 al backend); estos son los campos que
- * envía `routes/cobros.rs`.
- */
-export interface LineaSuscripcion {
-  id: string
-  producto_id: string
-  producto: string
-  nombre: string
-  precio_pactado?: string | null
-  motivo_precio?: string | null
-  desde: string
-  hasta?: string | null
-}
-
-export type SuscripcionDeLaEntidad = Omit<MiSuscripcion, 'lineas'> & { lineas: LineaSuscripcion[] }
+/** Plan, consumo y facturas de la entidad (el contrato ya tipa bien sus líneas: S10 atendida). */
+export type SuscripcionDeLaEntidad = MiSuscripcion
 
 /** Plan, consumo y facturas de la entidad con la plataforma; `null` si no tiene suscripción (404). */
 export async function miSuscripcion(entidadId: string): Promise<SuscripcionDeLaEntidad | null> {
   try {
-    const r = await exigir(api().GET('/api/v1/entidades/{entidad_id}/suscripcion', { params: ruta(entidadId) }))
-    return r as unknown as SuscripcionDeLaEntidad
+    return await exigir(api().GET('/api/v1/entidades/{entidad_id}/suscripcion', { params: ruta(entidadId) }))
   } catch (e) {
     if (e instanceof ErrorApi && e.estado === 404) return null
     throw e

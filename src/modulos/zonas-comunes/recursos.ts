@@ -110,6 +110,7 @@ const ZONAS: Record<string, FiltroZona> = {
   cancha: { nombre: 'cancha', categorias: ['cancha'] },
   gimnasio: { nombre: 'gimnasio', categorias: ['gimnasio'] },
   parqueaderos: { nombre: 'parqueaderos para reservar', tipo: 'parqueadero' },
+  administracion: { nombre: 'citas con la administración', tipo: 'agenda_administracion' },
 }
 
 /** Zona de la maqueta → qué recursos mostrar; `null` sin zona o si no se conoce. */

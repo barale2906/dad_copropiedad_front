@@ -125,6 +125,12 @@ export function iniciarZonasComunes(): void {
       politica: { ...POLITICA, modo: 'sorteo' as const }, horario: { franjas: [], excepciones: [] },
       parqueadero: { codigo: `C-0${n}`, tipo_vehiculo: (n === 3 ? 'moto' : 'carro') as 'moto' | 'carro', naturaleza: 'comunal' as const },
     })),
+    {
+      id: id(6150), tipo: 'agenda_administracion', nombre: 'Citas con la administración', estado: 'disponible', ubicacion: 'Oficina de administración',
+      descripcion: 'Atención personal de 30 minutos.',
+      politica: { ...POLITICA, duracion_minima_min: 30, duracion_maxima_min: 30, granularidad_min: 30, anticipacion_minima_horas: 2 },
+      horario: todosLosDias('08:00:00', '17:00:00'),
+    },
   ]
   const salon = id(6001)
   reservas = [

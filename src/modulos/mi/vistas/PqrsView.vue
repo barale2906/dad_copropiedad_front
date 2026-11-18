@@ -6,17 +6,20 @@
  */
 import { computed, onMounted, ref, watch } from 'vue'
 import { type RouteLocationRaw, useRoute, useRouter } from 'vue-router'
-import { abrirArchivo, subirArchivo } from '@/api/archivos'
+import { abrirArchivo } from '@/api/archivos'
 import { mensajeDeError } from '@/api/errores'
 import type { BienPrivado, CategoriaTicket, DetalleTicket, TicketDeCuenta, TipoTicket } from '@/api/tipos'
+import { TIPO_TICKET } from '@/composables/textos-gestion'
 import { useAccion } from '@/composables/useAccion'
+import { useAdjuntos } from '@/composables/useAdjuntos'
 import { fechaHora } from '@/formato/fechas'
-import HudAdjuntos, { type Adjunto } from '@/hud/componentes/HudAdjuntos.vue'
+import HudAdjuntos from '@/hud/componentes/HudAdjuntos.vue'
 import HudBoton from '@/hud/componentes/HudBoton.vue'
 import HudCampo from '@/hud/componentes/HudCampo.vue'
 import HudDialogo from '@/hud/componentes/HudDialogo.vue'
 import HudEstado from '@/hud/componentes/HudEstado.vue'
 import HudInsignia from '@/hud/componentes/HudInsignia.vue'
+import HiloMensajes, { type MensajeHilo } from '@/hud/componentes/HiloMensajes.vue'
 import HudPanel from '@/hud/componentes/HudPanel.vue'
 import HudSelector from '@/hud/componentes/HudSelector.vue'
 import { useBienes } from '@/stores/bienes'
@@ -24,7 +27,7 @@ import { useEntidad } from '@/stores/entidad'
 import IVolver from '~icons/tabler/arrow-left'
 import IMas from '~icons/tabler/plus'
 import { calificarTicket, cambiarEstadoTicket, categoriasTicket, detalleTicket, misTickets, radicarTicket, responderTicket } from '../api'
-import { accionesDelSolicitante, ESTADO_TICKET, TIPO_TICKET, TIPOS_PARA_RESIDENTE } from '../reglas'
+import { accionesDelSolicitante, ESTADO_TICKET, TIPOS_PARA_RESIDENTE } from '../reglas'
 
 const route = useRoute()
 const router = useRouter()
@@ -43,7 +46,11 @@ const detalle = ref<DetalleTicket | null>(null)
 const resultado = ref<string | null>(null)
 
 const propias = computed(() => lista.value.filter((t) => t.copropiedad_id === id.value))
-const mensajes = computed(() => (detalle.value?.mensajes ?? []).filter((m) => !m.interno))
+const hilo = computed<MensajeHilo[]>(() =>
+  (detalle.value?.mensajes ?? [])
+    .filter((m) => !m.interno)
+    .map((m) => ({ id: m.id, texto: m.texto, autor: m.del_solicitante ? 'Usted' : 'Administración', hora: fechaHora(m.creado_en, zona.value), propio: m.del_solicitante })),
+)
 const adjuntosPublicos = computed(() => (detalle.value?.adjuntos ?? []).filter((a) => !a.interno))
 const acciones = computed(() => (detalle.value ? accionesDelSolicitante(detalle.value.ticket) : null))
 
@@ -54,8 +61,7 @@ const categoria = ref('')
 const asunto = ref('')
 const descripcion = ref('')
 const bienId = ref('')
-const adjuntos = ref<Adjunto[]>([])
-const subiendo = ref(false)
+const adjuntos = useAdjuntos(id, 'personal')
 const categorias = ref<CategoriaTicket[]>([])
 const propios = ref<BienPrivado[]>([])
 const intentado = ref(false)
@@ -73,7 +79,7 @@ const radicar = useAccion((clave) =>
       asunto: asunto.value.trim(),
       descripcion: descripcion.value.trim(),
       bien_privado_id: bienId.value || null,
-      adjuntos: adjuntos.value.map((a) => a.id),
+      adjuntos: adjuntos.ids(),
       canal: 'web',
     },
     clave,
@@ -83,7 +89,7 @@ const radicar = useAccion((clave) =>
 async function abrirRadicar() {
   tipo.value = 'solicitud_mantenimiento'
   categoria.value = asunto.value = descripcion.value = ''
-  adjuntos.value = []
+  adjuntos.limpiar()
   intentado.value = false
   radicar.reiniciar()
   radicando.value = true
@@ -91,18 +97,6 @@ async function abrirRadicar() {
   categorias.value = c
   propios.value = p
   bienId.value = p.length === 1 ? (p[0]?.id ?? '') : ''
-}
-
-async function subir(archivos: File[]) {
-  subiendo.value = true
-  try {
-    for (const a of archivos) {
-      const f = await subirArchivo(id.value, a, 'personal')
-      adjuntos.value = [...adjuntos.value, { id: f.id, nombre: f.nombre }]
-    }
-  } finally {
-    subiendo.value = false
-  }
 }
 
 async function enviarRadicacion() {
@@ -248,26 +242,10 @@ onMounted(cargar)
       </HudPanel>
 
       <HudPanel etiqueta="Seguimiento">
-        <p
-          v-if="mensajes.length === 0"
-          class="texto-2"
-        >
-          Aún no hay respuestas.
-        </p>
-        <ol
-          v-else
-          class="mensajes"
-          aria-label="Mensajes"
-        >
-          <li
-            v-for="m in mensajes"
-            :key="m.id"
-            :class="{ propio: m.del_solicitante }"
-          >
-            <small>{{ m.del_solicitante ? 'Usted' : 'Administración' }} · {{ fechaHora(m.creado_en, zona) }}</small>
-            <p>{{ m.texto }}</p>
-          </li>
-        </ol>
+        <HiloMensajes
+          :mensajes="hilo"
+          vacio="Aún no hay respuestas."
+        />
         <form
           v-if="acciones.responder"
           class="campos"
@@ -413,13 +391,20 @@ onMounted(cargar)
             Fotos o documentos (opcional)
           </p>
           <HudAdjuntos
-            :adjuntos="adjuntos"
+            :adjuntos="adjuntos.adjuntos.value"
             acepta="image/*,application/pdf"
-            :subiendo="subiendo"
-            @subir="subir"
-            @abrir="abrirArchivo(id, $event)"
-            @quitar="adjuntos = adjuntos.filter((a) => a.id !== $event)"
+            :subiendo="adjuntos.subiendo.value"
+            @subir="adjuntos.subir"
+            @abrir="adjuntos.abrir"
+            @quitar="adjuntos.quitar"
           />
+          <p
+            v-if="adjuntos.error.value"
+            class="error"
+            role="alert"
+          >
+            {{ adjuntos.error.value }}
+          </p>
         </div>
         <p
           v-if="errorRadicar || radicar.error.value"
@@ -440,7 +425,7 @@ onMounted(cargar)
           tipo="submit"
           form="formulario-pqrs"
           :cargando="radicar.cargando.value"
-          :deshabilitado="subiendo"
+          :deshabilitado="adjuntos.subiendo.value"
         >
           Radicar
         </HudBoton>
@@ -531,27 +516,6 @@ h2 {
   white-space: pre-wrap;
 }
 
-.mensajes {
-  display: grid;
-  gap: 8px;
-  margin: 0 0 12px;
-  padding: 0;
-  list-style: none;
-}
-
-.mensajes li {
-  padding: 10px 12px;
-  border: 1px solid var(--linea);
-}
-
-.mensajes li.propio {
-  border-color: var(--cian);
-}
-
-.mensajes p {
-  margin: 4px 0 0;
-  white-space: pre-wrap;
-}
 
 .adjuntos {
   display: flex;

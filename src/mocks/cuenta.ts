@@ -6,10 +6,17 @@ let perfil: Perfil | null = null
 let dispositivos: DispositivoPush[] = []
 
 /** Perfil del usuario que inició sesión en el demo. */
+/**
+ * Cuenta de cada usuario demo: `revisor` es otra persona (Rosa Revisora, para los cuatro ojos);
+ * los demás comparten la cuenta del administrador.
+ */
+export const cuentaDemoId = (usuario: string) =>
+  usuario.includes('revisor') ? '01930000-0000-7000-8000-00000000c002' : '01930000-0000-7000-8000-00000000c001'
+
 export function iniciarCuenta(usuario: string): void {
   perfil = {
-    id: '01930000-0000-7000-8000-00000000c001',
-    nombre: usuario.includes('empresa') ? 'Laura Contadora' : 'Andrés Administrador',
+    id: cuentaDemoId(usuario),
+    nombre: usuario.includes('empresa') ? 'Laura Contadora' : usuario.includes('revisor') ? 'Rosa Revisora' : 'Andrés Administrador',
     usuario,
     correo: `${usuario.replace(/[^a-z0-9]/g, '') || 'demo'}@demo.dad`,
     correo_verificado: !usuario.includes('sinverificar'),

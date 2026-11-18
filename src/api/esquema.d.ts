@@ -6060,7 +6060,7 @@ export interface paths {
             };
             requestBody: {
                 content: {
-                    "application/json": components["schemas"]["TarifaDto"];
+                    "application/json": components["schemas"]["TarifaCobroDto"];
                 };
             };
             responses: {
@@ -6070,7 +6070,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["TarifaDto"];
+                        "application/json": components["schemas"]["TarifaCobroDto"];
                     };
                 };
                 /** @description Sin sesión o token vencido (`no_autenticado`) */
@@ -6400,7 +6400,7 @@ export interface paths {
             };
             requestBody: {
                 content: {
-                    "application/json": components["schemas"]["LineaPeticion"];
+                    "application/json": components["schemas"]["LineaSuscripcionPeticion"];
                 };
             };
             responses: {
@@ -6410,7 +6410,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["LineaRespuesta"];
+                        "application/json": components["schemas"]["LineaSuscripcionRespuesta"];
                     };
                 };
                 /** @description Sin sesión o token vencido (`no_autenticado`) */
@@ -12446,7 +12446,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["LiquidacionRespuesta"][];
+                        "application/json": components["schemas"]["LiquidacionCarteraRespuesta"][];
                     };
                 };
                 /** @description Sin sesión o token vencido (`no_autenticado`) */
@@ -12656,7 +12656,7 @@ export interface paths {
             };
             requestBody: {
                 content: {
-                    "application/json": components["schemas"]["MotivoPeticion"];
+                    "application/json": components["schemas"]["MotivoCarteraPeticion"];
                 };
             };
             responses: {
@@ -12666,7 +12666,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["LiquidacionRespuesta"];
+                        "application/json": components["schemas"]["LiquidacionCarteraRespuesta"];
                     };
                 };
                 /** @description Sin sesión o token vencido (`no_autenticado`) */
@@ -13109,7 +13109,7 @@ export interface paths {
             };
             requestBody: {
                 content: {
-                    "application/json": components["schemas"]["MotivoPeticion"];
+                    "application/json": components["schemas"]["MotivoCarteraPeticion"];
                 };
             };
             responses: {
@@ -13362,7 +13362,7 @@ export interface paths {
             };
             requestBody: {
                 content: {
-                    "application/json": components["schemas"]["MotivoPeticion"];
+                    "application/json": components["schemas"]["MotivoCarteraPeticion"];
                 };
             };
             responses: {
@@ -14173,7 +14173,7 @@ export interface paths {
             };
             requestBody: {
                 content: {
-                    "application/json": components["schemas"]["MotivoPeticion"];
+                    "application/json": components["schemas"]["MotivoCarteraPeticion"];
                 };
             };
             responses: {
@@ -17937,7 +17937,7 @@ export interface paths {
             };
             requestBody: {
                 content: {
-                    "application/json": components["schemas"]["MotivoPeticion"];
+                    "application/json": components["schemas"]["MotivoReservaPeticion"];
                 };
             };
             responses: {
@@ -18021,7 +18021,7 @@ export interface paths {
             };
             requestBody: {
                 content: {
-                    "application/json": components["schemas"]["MotivoPeticion"];
+                    "application/json": components["schemas"]["MotivoReservaPeticion"];
                 };
             };
             responses: {
@@ -21912,7 +21912,7 @@ export interface paths {
                         "application/json": components["schemas"]["ErrorRespuesta"];
                     };
                 };
-                /** @description Transición no permitida (`conflicto_estado`) */
+                /** @description Transición no permitida (`conflicto_estado`) o quien la ejecutó intenta verificarla (`conflicto`) */
                 409: {
                     headers: {
                         [name: string]: unknown;
@@ -22115,7 +22115,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["ObligacionRespuesta"][];
+                        "application/json": components["schemas"]["ObligacionMantenimientoRespuesta"][];
                     };
                 };
                 /** @description Sin sesión o token vencido (`no_autenticado`) */
@@ -22171,7 +22171,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["ObligacionRespuesta"];
+                        "application/json": components["schemas"]["ObligacionMantenimientoRespuesta"];
                     };
                 };
                 /** @description Sin sesión o token vencido (`no_autenticado`) */
@@ -22265,7 +22265,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["ObligacionRespuesta"];
+                        "application/json": components["schemas"]["ObligacionMantenimientoRespuesta"];
                     };
                 };
                 /** @description Sin sesión o token vencido (`no_autenticado`) */
@@ -22385,7 +22385,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["ObligacionRespuesta"];
+                        "application/json": components["schemas"]["ObligacionMantenimientoRespuesta"];
                     };
                 };
                 /** @description Sin sesión o token vencido (`no_autenticado`) */
@@ -26176,7 +26176,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["MorososRespuesta"];
+                        "application/json": components["schemas"]["MorososAsambleaRespuesta"];
                     };
                 };
                 /** @description Sin sesión o token vencido (`no_autenticado`) */
@@ -26259,7 +26259,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["MorososRespuesta"];
+                        "application/json": components["schemas"]["MorososAsambleaRespuesta"];
                     };
                 };
                 /** @description Sin sesión o token vencido (`no_autenticado`) */
@@ -30862,7 +30862,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["VerificacionRespuesta"];
+                        "application/json": components["schemas"]["VerificacionCredencialRespuesta"];
                     };
                 };
                 /** @description Sin sesión o token vencido (`no_autenticado`) */
@@ -37877,7 +37877,7 @@ export interface paths {
             };
             requestBody: {
                 content: {
-                    "application/json": components["schemas"]["DocumentoPeticion"];
+                    "application/json": components["schemas"]["DocumentoContablePeticion"];
                 };
             };
             responses: {
@@ -39771,7 +39771,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["CertificadoRespuesta"];
+                        "application/json": components["schemas"]["CertificadoRetencionRespuesta"];
                     };
                 };
                 /** @description Sin sesión o token vencido (`no_autenticado`) */
@@ -42468,7 +42468,7 @@ export interface paths {
             };
             requestBody: {
                 content: {
-                    "application/json": components["schemas"]["NotaCreditoPeticion"];
+                    "application/json": components["schemas"]["NotaCreditoVentaPeticion"];
                 };
             };
             responses: {
@@ -42638,7 +42638,7 @@ export interface paths {
             };
             requestBody: {
                 content: {
-                    "application/json": components["schemas"]["NotaCreditoPeticion"];
+                    "application/json": components["schemas"]["NotaCreditoVentaPeticion"];
                 };
             };
             responses: {
@@ -43358,7 +43358,7 @@ export interface paths {
             };
             requestBody: {
                 content: {
-                    "application/json": components["schemas"]["RechazoPeticion"];
+                    "application/json": components["schemas"]["RechazoDocumentoPeticion"];
                 };
             };
             responses: {
@@ -44121,7 +44121,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["CertificadoRespuesta"];
+                        "application/json": components["schemas"]["CertificadoFirmaRespuesta"];
                     };
                 };
                 /** @description Sin sesión o token vencido (`no_autenticado`) */
@@ -44788,7 +44788,7 @@ export interface components {
         /** @description Alertas de mantenimiento a hoy (hora local de la copropiedad). */
         AlertasMantenimientoRespuesta: {
             /** @description Obligaciones vencidas o dentro de su ventana de alerta. */
-            obligaciones: components["schemas"]["ObligacionRespuesta"][];
+            obligaciones: components["schemas"]["ObligacionMantenimientoRespuesta"][];
             /** @description Garantías vencidas hace poco o por vencer (30 días). */
             garantias: components["schemas"]["ActivoRespuesta"][];
             ordenes_vencidas: components["schemas"]["OrdenRespuesta"][];
@@ -44946,7 +44946,7 @@ export interface components {
         /** @description Asiento validado (previsualización). */
         AsientoRespuesta: {
             total: string;
-            lineas: components["schemas"]["LineaRespuesta"][];
+            lineas: components["schemas"]["LineaAsientoRespuesta"][];
         };
         /** @description Rol para una persona del personal de la organización. */
         AsignacionContratoPeticion: {
@@ -45286,7 +45286,7 @@ export interface components {
             /** Format: date */
             fecha: string;
             descripcion: string;
-            lineas: components["schemas"]["LineaPeticion"][];
+            lineas: components["schemas"]["LineaAsientoPeticion"][];
         };
         /** @description Lo que busca el residente. */
         BusquedaPeticion: {
@@ -45350,7 +45350,7 @@ export interface components {
         CambioConceptoPeticion: {
             nombre: string;
             valor_fijo?: string | null;
-            tarifas?: components["schemas"]["TarifaDto"][];
+            tarifas?: components["schemas"]["TarifaCarteraDto"][];
             genera_interes?: boolean;
             concepto_contable: string;
             activo?: boolean;
@@ -45918,6 +45918,22 @@ export interface components {
             /** @description El PDF en Base64. */
             pdf_base64: string;
         };
+        /** @description Certificado de firma activo (sin secretos). */
+        CertificadoFirmaRespuesta: {
+            /** Format: uuid */
+            id: string;
+            /** @description Titular (RFC 2253). */
+            sujeto: string;
+            /** @description Entidad de certificación (RFC 2253). */
+            emisor: string;
+            serial: string;
+            /** Format: date-time */
+            vigente_desde: string;
+            /** Format: date-time */
+            vigente_hasta: string;
+            /** @description Vence en menos de 30 días (o ya venció): cargue uno nuevo. */
+            por_vencer: boolean;
+        };
         /** @description Certificado de firma (`.p12`) en Base64 con su contraseña. */
         CertificadoPeticion: {
             /** @description El `.p12` o `.pfx` en Base64 (hasta 64 KB). */
@@ -45940,6 +45956,21 @@ export interface components {
             pdf_sha256: string;
             /** Format: date-time */
             emitido_en: string;
+        };
+        /** @description Certificado de retenciones de un tercero. */
+        CertificadoRetencionRespuesta: {
+            entidad: string;
+            entidad_nit?: string | null;
+            tercero: string;
+            /** @description Dato personal si el tercero es persona natural. */
+            tercero_documento?: string | null;
+            /** Format: date */
+            desde: string;
+            /** Format: date */
+            hasta: string;
+            filas: components["schemas"]["FilaCertificadoRespuesta"][];
+            total_base: string;
+            total_retenido: string;
         };
         /** @description Elemento del checklist. */
         ChecklistDto: {
@@ -46112,7 +46143,7 @@ export interface components {
             /** Format: uuid */
             revertido_por?: string | null;
             /** @description Vacío en los listados. */
-            lineas: components["schemas"]["LineaRespuesta"][];
+            lineas: components["schemas"]["LineaAsientoRespuesta"][];
             /** Format: date-time */
             creado_en: string;
             /** Format: date-time */
@@ -46184,7 +46215,7 @@ export interface components {
             /** Format: uuid */
             modulo_id?: string | null;
             valor_fijo?: string | null;
-            tarifas: components["schemas"]["TarifaDto"][];
+            tarifas: components["schemas"]["TarifaCarteraDto"][];
             genera_interes: boolean;
             concepto_contable: string;
             activo: boolean;
@@ -47171,7 +47202,7 @@ export interface components {
         };
         /** @description Liquidación con sus obligaciones. */
         DetalleLiquidacionRespuesta: {
-            liquidacion: components["schemas"]["LiquidacionRespuesta"];
+            liquidacion: components["schemas"]["LiquidacionCarteraRespuesta"];
             obligaciones: components["schemas"]["ObligacionRespuesta"][];
         };
         /** @description Orden con sus evidencias. */
@@ -47205,7 +47236,7 @@ export interface components {
         /** @description Suscripción con sus líneas. */
         DetalleSuscripcionRespuesta: {
             suscripcion: components["schemas"]["SuscripcionRespuesta"];
-            lineas: components["schemas"]["LineaRespuesta"][];
+            lineas: components["schemas"]["LineaSuscripcionRespuesta"][];
             /** @description Módulos habilitados en la entidad sin un producto que los cobre. */
             modulos_sin_cobro: components["schemas"]["Modulo"][];
         };
@@ -47272,6 +47303,15 @@ export interface components {
             nombre?: string | null;
             /** Format: date-time */
             registrado_en: string;
+        };
+        /** @description Documento origen para previsualizar su asiento con la regla vigente. */
+        DocumentoContablePeticion: {
+            /** @example ventas.factura */
+            evento: string;
+            /** Format: date */
+            fecha: string;
+            descripcion: string;
+            importes: components["schemas"]["ImportePeticion"][];
         };
         /** @description Documento electrónico con su historia. */
         DocumentoDetalleRespuesta: {
@@ -47616,6 +47656,16 @@ export interface components {
             enviado_en: string;
             /** Format: date-time */
             consultado_en?: string | null;
+        };
+        /** @description Error de una fila (sin el valor de la celda). */
+        ErrorFilaImportacionRespuesta: {
+            /**
+             * Format: int32
+             * @description Fila como se ve en la hoja de cálculo (la 1 es el encabezado).
+             */
+            fila: number;
+            columna?: string | null;
+            mensaje: string;
         };
         /** @description Error de una fila. */
         ErrorFilaRespuesta: {
@@ -48869,7 +48919,7 @@ export interface components {
             test_set_id?: string | null;
             estado?: components["schemas"]["EstadoHabilitacion"] | null;
             ambiente?: components["schemas"]["AmbienteDian"] | null;
-            certificado?: components["schemas"]["CertificadoRespuesta"] | null;
+            certificado?: components["schemas"]["CertificadoFirmaRespuesta"] | null;
             envios: components["schemas"]["EnvioSetRespuesta"][];
         };
         /** @description Contrato de un módulo para una copropiedad. */
@@ -48923,7 +48973,7 @@ export interface components {
             total_filas: number;
             /** Format: int32 */
             filas_validas: number;
-            errores: components["schemas"]["ErrorFilaRespuesta"][];
+            errores: components["schemas"]["ErrorFilaImportacionRespuesta"][];
             resumen: components["schemas"]["ResumenRespuesta"];
             /** Format: date-time */
             creada_en: string;
@@ -49066,6 +49116,36 @@ export interface components {
             nombre: string;
             telefono?: string | null;
         };
+        /** @description Línea de entrada (por códigos). */
+        LineaAsientoPeticion: {
+            /** @example 110505 */
+            cuenta: string;
+            /** Format: uuid */
+            persona_id?: string | null;
+            /** @description Código del centro de costo. */
+            centro_costo?: string | null;
+            /** @example 150000 */
+            debito?: string;
+            /** @example 0 */
+            credito?: string;
+            base?: string | null;
+            descripcion?: string | null;
+        };
+        /** @description Línea de un asiento. */
+        LineaAsientoRespuesta: {
+            /** Format: uuid */
+            cuenta_id: string;
+            /** Format: uuid */
+            persona_id?: string | null;
+            /** Format: uuid */
+            centro_costo_id?: string | null;
+            /** @example 150000.00 */
+            debito: string;
+            /** @example 0 */
+            credito: string;
+            base?: string | null;
+            descripcion?: string | null;
+        };
         /** @description Línea de un corte. */
         LineaCorteDto: {
             producto: string;
@@ -49204,6 +49284,31 @@ export interface components {
              */
             franquicia_disponible: number;
         };
+        /** @description Línea nueva. */
+        LineaSuscripcionPeticion: {
+            /** Format: uuid */
+            producto_id: string;
+            /** Format: date */
+            desde: string;
+            /** @description Precio pactado que reemplaza la tarifa (exige `motivo_precio`). */
+            precio_pactado?: string | null;
+            motivo_precio?: string | null;
+        };
+        /** @description Línea (producto contratado). */
+        LineaSuscripcionRespuesta: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            producto_id: string;
+            producto: string;
+            nombre: string;
+            precio_pactado?: string | null;
+            motivo_precio?: string | null;
+            /** Format: date */
+            desde: string;
+            /** Format: date */
+            hasta?: string | null;
+        };
         /** @description Línea de una factura de venta nueva. */
         LineaVentaPeticion: {
             /**
@@ -49259,6 +49364,28 @@ export interface components {
             iva: string;
             clasificacion: components["schemas"]["ClasificacionTributaria"];
         };
+        /** @description Liquidación de expensas. */
+        LiquidacionCarteraRespuesta: {
+            /** Format: uuid */
+            id: string;
+            /** Format: date */
+            periodo: string;
+            estado: components["schemas"]["EstadoLiquidacionExpensas"];
+            /** Format: uuid */
+            presupuesto_id?: string | null;
+            /** Format: uuid */
+            politica_id: string;
+            total: string;
+            /** Format: date */
+            vencimiento: string;
+            /** Format: uuid */
+            comprobante_id: string;
+            motivo_anulacion?: string | null;
+            /** Format: date-time */
+            liquidada_en: string;
+            /** Format: date-time */
+            anulada_en?: string | null;
+        };
         /** @description Liquidación de un anunciante en un mes (sin reparto a las copropiedades). */
         LiquidacionRespuesta: {
             /** Format: uuid */
@@ -49280,7 +49407,7 @@ export interface components {
         };
         /** @description Resultado de liquidar. */
         LiquidadoRespuesta: {
-            liquidacion: components["schemas"]["LiquidacionRespuesta"];
+            liquidacion: components["schemas"]["LiquidacionCarteraRespuesta"];
             cuentas_cobro: components["schemas"]["CuentaCobroRespuesta"][];
             /** @description Anticipos que se aplicaron a lo liquidado. */
             anticipos_aplicados: number;
@@ -49384,7 +49511,7 @@ export interface components {
             /** Format: uuid */
             persona_id?: string | null;
             saldo_inicial: string;
-            movimientos: components["schemas"]["MovimientoRespuesta"][];
+            movimientos: components["schemas"]["MovimientoContableRespuesta"][];
             saldo_final: string;
         };
         /**
@@ -49511,7 +49638,7 @@ export interface components {
         /** @description Plan, consumo y facturas de la entidad. */
         MiSuscripcionRespuesta: {
             suscripcion: components["schemas"]["SuscripcionRespuesta"];
-            lineas: components["schemas"]["LineaRespuesta"][];
+            lineas: components["schemas"]["LineaSuscripcionRespuesta"][];
             consumo: components["schemas"]["ConsumoRespuesta"][];
             /** @description Aprobados, facturados y pagados, los más recientes primero. */
             cortes: components["schemas"]["CorteRespuesta"][];
@@ -49611,6 +49738,13 @@ export interface components {
          * @enum {string}
          */
         MomentoEvidencia: "antes" | "despues" | "soporte";
+        /** @description Resultado de fijar los morosos. */
+        MorososAsambleaRespuesta: {
+            /** Format: int32 */
+            marcados: number;
+            /** @description Códigos que no están en el padrón. */
+            no_encontrados: string[];
+        };
         /** @description Listado de morosos que entrega la copropiedad. */
         MorososPeticion: {
             /**
@@ -49629,6 +49763,11 @@ export interface components {
             /** @description Bienes con cartera vencida que no están en el padrón. */
             no_encontrados: string[];
         };
+        /** @description Anulación con motivo. */
+        MotivoCarteraPeticion: {
+            /** @example Se liquidó con el presupuesto equivocado */
+            motivo: string;
+        };
         /** @description Motivo. */
         MotivoCortePeticion: {
             motivo: string;
@@ -49638,11 +49777,32 @@ export interface components {
             /** @example La titular confirmó su identidad por teléfono */
             motivo: string;
         };
+        /** @description Motivo opcional. */
+        MotivoReservaPeticion: {
+            motivo?: string | null;
+        };
         /**
          * @description Motivo de salida de un asistente: sus bienes dejan el quórum y las preguntas que se abran después; sus votos ya emitidos se conservan.
          * @enum {string}
          */
         MotivoSalida: "se_retiro" | "delego_poder" | "problema_tecnico" | "otro";
+        /** @description Movimiento del libro mayor. */
+        MovimientoContableRespuesta: {
+            /** Format: uuid */
+            comprobante_id: string;
+            tipo: string;
+            /** Format: int32 */
+            numero: number;
+            /** Format: date */
+            fecha: string;
+            descripcion: string;
+            /** Format: uuid */
+            persona_id?: string | null;
+            /** Format: uuid */
+            centro_costo_id?: string | null;
+            debito: string;
+            credito: string;
+        };
         /** @description Movimiento del extracto. */
         MovimientoExtractoRespuesta: {
             /** Format: uuid */
@@ -49739,6 +49899,11 @@ export interface components {
              * @description Fecha contable (por defecto, hoy).
              */
             fecha?: string | null;
+        };
+        /** @description Motivo de una nota crédito. */
+        NotaCreditoVentaPeticion: {
+            /** @example Se facturó un valor equivocado */
+            motivo: string;
         };
         /** @description Nota débito de una factura de venta. */
         NotaDebitoPeticion: {
@@ -50214,7 +50379,7 @@ export interface components {
             /** @description Solo con el criterio `valor_fijo` (valor mensual por bien). */
             valor_fijo?: string | null;
             /** @description Solo con el criterio `por_tipo_bien`. */
-            tarifas?: components["schemas"]["TarifaDto"][];
+            tarifas?: components["schemas"]["TarifaCarteraDto"][];
             genera_interes?: boolean;
             /**
              * @description Concepto de las reglas `ph.*` del contador (elige las cuentas).
@@ -50509,6 +50674,25 @@ export interface components {
          * @enum {string}
          */
         ObjetivoCampana: "visibilidad" | "trafico" | "cupones" | "leads";
+        /** @description Obligación periódica. */
+        ObligacionMantenimientoRespuesta: {
+            /** Format: uuid */
+            id: string;
+            codigo_sugerido?: string | null;
+            nombre: string;
+            descripcion?: string | null;
+            /** Format: int32 */
+            periodicidad_meses: number;
+            /** Format: date */
+            proxima: string;
+            /** Format: int32 */
+            dias_alerta: number;
+            /** Format: uuid */
+            activo_id?: string | null;
+            /** Format: uuid */
+            responsable_organizacion_id?: string | null;
+            activa: boolean;
+        };
         /** @description Datos de una obligación. Con `codigo_sugerido` los campos omitidos salen del catálogo. */
         ObligacionPeticion: {
             /** @example lavado_tanques */
@@ -50638,6 +50822,11 @@ export interface components {
             iniciada_en?: string | null;
             /** Format: date-time */
             ejecutada_en?: string | null;
+            /**
+             * Format: uuid
+             * @description Cuenta que la ejecutó: no puede verificarla (otra cuenta lo hace).
+             */
+            ejecutada_por?: string | null;
             /** Format: date-time */
             verificada_en?: string | null;
             /** Format: uuid */
@@ -51281,6 +51470,11 @@ export interface components {
                 iniciada_en?: string | null;
                 /** Format: date-time */
                 ejecutada_en?: string | null;
+                /**
+                 * Format: uuid
+                 * @description Cuenta que la ejecutó: no puede verificarla (otra cuenta lo hace).
+                 */
+                ejecutada_por?: string | null;
                 /** Format: date-time */
                 verificada_en?: string | null;
                 /** Format: uuid */
@@ -52377,7 +52571,7 @@ export interface components {
             item_facturacion_id?: string | null;
             activo: boolean;
             /** @description La más reciente primero. */
-            tarifas: components["schemas"]["TarifaDto"][];
+            tarifas: components["schemas"]["TarifaCobroDto"][];
         };
         /**
          * @description Propuesta de cambio: `tipo` y los `datos` del registro (los mismos campos que en
@@ -52629,6 +52823,11 @@ export interface components {
             anticipo: string;
             /** @description Descuento por pronto pago ganado. */
             descuento?: string | null;
+        };
+        /** @description Motivo de un rechazo. */
+        RechazoDocumentoPeticion: {
+            /** @example La factura no corresponde a un servicio prestado */
+            motivo: string;
         };
         /** @description Motivo del rechazo. */
         RechazoPeticion: {
@@ -53512,7 +53711,7 @@ export interface components {
             /** @description Código del tipo de comprobante; por defecto `AP`. */
             tipo?: string | null;
             descripcion?: string | null;
-            lineas: components["schemas"]["LineaPeticion"][];
+            lineas: components["schemas"]["LineaAsientoPeticion"][];
         };
         /** @description Salida del asistente. */
         SalidaPeticion: {
@@ -53880,6 +54079,32 @@ export interface components {
              * @description Promedio de la encuesta (1 a 5).
              */
             satisfaccion_promedio?: number | null;
+        };
+        /** @description Valor mensual de un concepto para un tipo de bien. */
+        TarifaCarteraDto: {
+            tipo_bien: components["schemas"]["TipoBienPrivado"];
+            /** @example 20000.00 */
+            valor: string;
+        };
+        /** @description Tarifa de un producto desde una fecha. */
+        TarifaCobroDto: {
+            modelo: components["schemas"]["ModeloTarifa"];
+            /** @example 90000 */
+            valor: string;
+            /**
+             * Format: int32
+             * @description Unidades incluidas (solo `por_paquete`).
+             */
+            incluidas?: number | null;
+            /** @description Valor de cada unidad de excedente (solo `por_paquete`). */
+            valor_excedente?: string | null;
+            /**
+             * @description `ph.bienes_privados`, `facturacion.documentos`, `whatsapp.mensajes` o `usuarios.cuentas`
+             *     (obligatoria en `por_unidad`, `por_paquete` y `por_consumo`).
+             */
+            metrica?: string | null;
+            /** Format: date */
+            vigente_desde: string;
         };
         /** @description Tarifa de Meta. */
         TarifaDto: {
@@ -54535,6 +54760,21 @@ export interface components {
             vigente_hasta?: string | null;
             /** @description Franjas semanales (hora local de la PH); `null` = a toda hora. */
             horario?: Record<string, never> | null;
+        };
+        /** @description Resultado de la verificación. */
+        VerificacionCredencialRespuesta: {
+            /**
+             * @description `permitido` o `denegado`.
+             * @example permitido
+             */
+            resultado: string;
+            motivo: string;
+            titular?: components["schemas"]["TitularDto"] | null;
+            /**
+             * Format: uuid
+             * @description Visita del QR temporal: registrar el ingreso con `/visitas/ingreso-qr`.
+             */
+            visita_id?: string | null;
         };
         /** @description Código por verificar. */
         VerificacionPeticion: {

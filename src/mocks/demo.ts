@@ -10,6 +10,8 @@
  *  - que contenga `uno` → una sola entidad (entra directo)
  *  - que contenga `empresa` → solo la empresa (maqueta de oficina)
  *  - que contenga `nuevo` → sin entidades (cuenta aún sin roles)
+ *  - que contenga `revisor` → otra cuenta con las mismas entidades (cuatro ojos: verifica lo que
+ *    ejecutó el administrador)
  *  - que contenga `porteria` → guarda y jefe de seguridad de la PH (portería, plan 06)
  *  - que contenga `residente` → propietario y residente de la PH (portal «Mi hogar», plan 05)
  */
@@ -19,6 +21,7 @@ import { cuenta, cuentaPublica, iniciarCuenta } from './cuenta'
 import { entidad, iniciarEntidad, permisos } from './entidad'
 import { ficha, iniciarFicha } from './ficha'
 import { iniciarProteccion, proteccion } from './proteccion'
+import { gestion, iniciarGestion } from './gestion'
 import { iniciarMi, mi } from './mi'
 import { iniciarPorteria, porteria } from './porteria'
 import { iniciarUnidades, unidades } from './unidades'
@@ -26,7 +29,7 @@ import { iniciarZonasComunes, zonasComunes } from './zonas-comunes'
 import { error, json, type Manejador } from './http'
 
 /** Manejadores que exigen sesión, en orden; el primero que responda gana. */
-const CON_SESION: Manejador[] = [cuenta, archivos, ficha, unidades, mi, porteria, proteccion, zonasComunes, entidad, permisos]
+const CON_SESION: Manejador[] = [cuenta, archivos, ficha, unidades, mi, gestion, porteria, proteccion, zonasComunes, entidad, permisos]
 /** Manejadores sin sesión (además del inicio de sesión). */
 const SIN_SESION: Manejador[] = [cuentaPublica]
 
@@ -36,7 +39,9 @@ const TODOS: Permiso[] = [
   'titulares.ver', 'censo.ver', 'censo.editar', 'bienes_comunes.ver', 'bienes_comunes.editar',
   'reservas.crear', 'reservas.aprobar', 'reservas.ver_todas', 'parqueaderos.ver', 'sorteos.gestionar',
   'tickets.crear', 'tickets.ver_todos', 'tickets.atender', 'conversaciones.atender',
-  'inventario.ver', 'mantenimiento.planificar', 'comunicados.gestionar', 'asambleas.ver',
+  'inventario.ver', 'inventario.editar', 'mantenimiento.planificar', 'mantenimiento.ejecutar',
+  'mantenimiento.verificar', 'tickets.asignar', 'tickets.configurar', 'preguntas_frecuentes.editar',
+  'comunicados.gestionar', 'asambleas.ver',
   'asambleas.convocar', 'asambleas.conducir', 'acceso.registrar', 'acceso.bitacora.ver',
   'acceso.correspondencia.entregar', 'acceso.minuta.ver', 'acceso.configurar',
   'contabilidad.ver', 'contabilidad.configurar', 'contabilidad.comprobantes.crear',
@@ -178,6 +183,7 @@ export async function fetchDemo(req: Request): Promise<Response> {
     iniciarUnidades()
     iniciarMi()
     iniciarPorteria(usuario.includes('residente'))
+    iniciarGestion(usuario, usuario.includes('residente'))
     iniciarFicha(ENTIDADES)
     iniciarProteccion()
     iniciarZonasComunes()
@@ -199,6 +205,7 @@ export async function fetchDemo(req: Request): Promise<Response> {
     iniciarUnidades()
     iniciarMi()
     iniciarPorteria(usuario.includes('residente'))
+    iniciarGestion(usuario, usuario.includes('residente'))
     iniciarFicha(ENTIDADES)
     iniciarProteccion()
     iniciarZonasComunes()

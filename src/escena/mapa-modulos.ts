@@ -150,7 +150,8 @@ export const SECCIONES: Record<string, Seccion> = {
     modulos: ['gestion_administrativa'],
     soloPH: true,
     acciones: [
-      a('tickets', 'PQRS y tickets', 'Solicitudes, reportes y su atención.', ['tickets.ver_todos', 'tickets.atender', 'tickets.crear']),
+      a('tablero', 'Tablero', 'Pendientes del día: PQRS, alertas y mantenimiento.', ['tickets.ver_todos', 'mantenimiento.planificar', 'inventario.ver']),
+      a('tickets', 'PQRS y tickets', 'Solicitudes, reportes y su atención.', ['tickets.ver_todos', 'tickets.atender']),
       a('comunicados', 'Comunicados', 'Avisos a residentes.', ['comunicados.gestionar']),
       a('chat', 'Chat de WhatsApp', 'Conversaciones con residentes.', ['conversaciones.atender']),
       a('preguntas', 'Preguntas frecuentes', 'Respuestas del asistente.', ['preguntas_frecuentes.editar']),
@@ -160,6 +161,7 @@ export const SECCIONES: Record<string, Seccion> = {
         'mantenimiento.verificar',
       ]),
       a('inventario', 'Inventario', 'Activos de la copropiedad.', ['inventario.ver']),
+      a('citas', 'Citas', 'Agendar una cita con la administración.', ['reservas.crear'], { modulos: ['bienes_comunes'] }),
     ],
   },
   cartera: {

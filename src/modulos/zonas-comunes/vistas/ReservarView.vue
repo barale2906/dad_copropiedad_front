@@ -38,7 +38,9 @@ const zona = computed(() => entidad.zonaHoraria)
 const estado = ref<'cargando' | 'listo' | 'error'>('cargando')
 const error = ref<string | null>(null)
 
-const filtro = computed(() => filtroDeZona(route.query.zona))
+/** Desde «Administración → Citas» la misma vista agenda con la administración. */
+const esCita = computed(() => route.params.seccion === 'administracion')
+const filtro = computed(() => filtroDeZona(esCita.value ? 'administracion' : route.query.zona))
 const candidatos = computed(() =>
   zonas.recursos.filter((r) => {
     if (!esReservable(r.politica)) return false
@@ -192,7 +194,7 @@ onMounted(cargar)
   >
     <header>
       <h1 id="titulo-reservar">
-        {{ recurso ? `Reservar: ${recurso.nombre}` : 'Reservar' }}
+        {{ recurso ? `${esCita ? 'Agendar' : 'Reservar'}: ${recurso.nombre}` : esCita ? 'Citas con la administración' : 'Reservar' }}
       </h1>
       <p
         v-if="!recurso"
@@ -268,7 +270,7 @@ onMounted(cargar)
       </div>
       <div class="botones">
         <HudBoton
-          :a="{ name: 'modulo', params: { ...$route.params, accion: 'mis-reservas' } }"
+          :a="{ name: 'modulo', params: { entidadId: $route.params.entidadId, seccion: 'zonas-comunes', accion: 'mis-reservas' } }"
           variante="secundario"
         >
           Ver mis reservas

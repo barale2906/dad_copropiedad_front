@@ -79,9 +79,10 @@ const intentado = ref(false)
 const qr = ref<{ texto: string; visita: Pick<Visita, 'visitante_nombre' | 'ventana_hasta'> } | null>(null)
 const opcionesTipo = (Object.keys(TIPO_VISITA) as TipoVisita[]).map((valor) => ({ valor, etiqueta: TIPO_VISITA[valor] }))
 const opcionesBien = computed(() => propios.value.map((b) => ({ valor: b.id, etiqueta: b.codigo })))
+const cargandoPropios = ref(false)
 const errorForm = computed(() => {
   if (!intentado.value) return null
-  if (!bienId.value) return 'Elija el bien que visita.'
+  if (!bienId.value) return propios.value.length ? 'Elija el bien que visita.' : 'No encontramos bienes a su nombre: comuníquese con la administración.'
   if (!nombre.value.trim()) return 'Escriba el nombre del visitante.'
   if (!desde.value || !hasta.value || hasta.value <= desde.value) return 'Indique desde y hasta cuándo puede ingresar.'
   if (!/^[1-9]\d?$/.test(usos.value.trim())) return 'Los ingresos permitidos van de 1 a 99.'
@@ -118,11 +119,15 @@ async function abrirPreautorizar() {
   qr.value = null
   autorizar.reiniciar()
   abierto.value = true
+  // Hasta tener los bienes no se envía: sin ellos la validación fallaría y el aviso se borraría solo.
+  cargandoPropios.value = true
   propios.value = await bienes.asegurarPropios().catch(() => [])
   bienId.value = propios.value.length === 1 ? (propios.value[0]?.id ?? '') : ''
+  cargandoPropios.value = false
 }
 
 async function enviar() {
+  if (cargandoPropios.value) return
   intentado.value = true
   if (errorForm.value) return
   const r = await autorizar.ejecutar()
@@ -414,7 +419,7 @@ onMounted(cargar)
           v-if="!qr"
           tipo="submit"
           form="formulario-visita"
-          :cargando="autorizar.cargando.value"
+          :cargando="autorizar.cargando.value || cargandoPropios"
         >
           Generar QR
         </HudBoton>
