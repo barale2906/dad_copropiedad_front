@@ -191,9 +191,11 @@ export const SECCIONES: Record<string, Seccion> = {
     resumen: 'Comprobantes, PUC, periodos y reportes.',
     modulos: ['contabilidad'],
     acciones: [
+      a('inicio', 'Inicio', 'Periodo en curso, borradores y pendientes.', ['contabilidad.ver']),
       a('comprobantes', 'Comprobantes', 'Registrar, contabilizar y revertir.', ['contabilidad.ver', 'contabilidad.comprobantes.crear']),
       a('puc', 'Plan de cuentas', 'PUC, cuentas y centros de costo.', ['contabilidad.ver']),
-      a('periodos', 'Periodos y cierre', 'Apertura y cierre contable.', ['contabilidad.ver']),
+      a('periodos', 'Periodos', 'Revisión, cierre y reapertura de los meses.', ['contabilidad.ver']),
+      a('apertura', 'Apertura y cierre anual', 'Saldos iniciales y cierre del ejercicio.', ['contabilidad.comprobantes.contabilizar']),
       a('reportes', 'Reportes', 'Balance, estado de resultados y libros.', ['contabilidad.ver']),
       a('configuracion', 'Configuración y plantillas', 'Parámetros y plantillas contables.', ['contabilidad.configurar']),
     ],

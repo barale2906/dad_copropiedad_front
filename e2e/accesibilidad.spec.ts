@@ -487,3 +487,24 @@ test('contabilidad: comprobantes, editor, plan de cuentas y periodos', async ({ 
   await revisar(page)
 })
 
+test('contabilidad: inicio, reportes, configuración y apertura', async ({ page }) => {
+  await entrar(page, 'uno')
+  await expect(page).toHaveURL(/\/e\/[^/]+$/)
+  const base = `${new URL(page.url()).pathname}/contabilidad`
+  await page.goto(`${base}/inicio`)
+  await expect(page.getByRole('list', { name: 'Resumen contable' })).toBeVisible()
+  await revisar(page)
+  await page.goto(`${base}/reportes?vista=balance`)
+  await expect(page.getByRole('table', { name: 'Balance de prueba' })).toBeVisible()
+  await revisar(page)
+  await page.goto(`${base}/reportes?vista=estados`)
+  await expect(page.getByRole('table', { name: 'Estado de resultados' })).toBeVisible()
+  await revisar(page)
+  await page.goto(`${base}/configuracion?vista=reglas`)
+  await expect(page.getByRole('list', { name: 'Reglas por evento' })).toBeVisible()
+  await revisar(page)
+  await page.goto(`${base}/apertura`)
+  await expect(page.getByRole('list', { name: 'Líneas del comprobante' })).toBeVisible()
+  await revisar(page)
+})
+

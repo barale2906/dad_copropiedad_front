@@ -10,10 +10,14 @@ import type {
   EstadoComprobante,
   EstadoPeriodo,
   EstadoReapertura,
+  FilaBalance,
+  LibroMayor,
+  MarcoTecnico,
+  Naturaleza,
   NivelCuenta,
   PeriodoContable,
 } from '@/api/tipos'
-import { comparar, restar, sumar } from '@/formato/decimales'
+import { comparar, leerDecimal, restar, sumar } from '@/formato/decimales'
 
 type Tono = 'exito' | 'aviso' | 'peligro' | 'info' | 'neutro'
 
@@ -246,4 +250,143 @@ export const TEXTO_ACCION_PERIODO: Record<AccionPeriodo, string> = {
   cerrar: 'Cerrar el periodo',
   devolver: 'Devolver a abierto',
   reabrir: 'Solicitar reapertura',
+}
+
+// Configuración ------------------------------------------------------------------------------
+
+export const MARCO_TECNICO: Record<MarcoTecnico, string> = {
+  grupo_1: 'Grupo 1 (NIIF plenas)',
+  grupo_2: 'Grupo 2 (NIIF para pymes)',
+  grupo_3: 'Grupo 3 (microempresas)',
+  otro: 'Otro marco',
+}
+
+export const ESTADO_RUBRO: Record<'situacion_financiera' | 'resultados', string> = { situacion_financiera: 'Estado de situación financiera', resultados: 'Estado de resultados' }
+
+/** «11, 12» → `['11', '12']` (solo dígitos, sin repetir). */
+export function leerPrefijos(texto: string): string[] {
+  return [...new Set(texto.split(/[\s,;]+/).map((p) => p.trim()).filter((p) => /^\d+$/.test(p)))]
+}
+
+// Reportes -----------------------------------------------------------------------------------
+
+const NIVELES: NivelCuenta[] = ['clase', 'grupo', 'cuenta', 'subcuenta', 'auxiliar']
+
+export interface FilaArbol {
+  clave: string
+  codigo: string
+  nombre: string
+  /** 0 = clase … 4 = auxiliar; las filas por tercero o centro van un nivel debajo de su cuenta. */
+  nivel: number
+  /** Código del padre en el árbol (`null` en las clases). */
+  padre: string | null
+  tieneHijas: boolean
+  /** Fila con movimiento (no agregada). */
+  hoja: boolean
+  saldo_inicial: string
+  debitos: string
+  creditos: string
+  saldo_final: string
+}
+
+/**
+ * Árbol del balance de prueba: las filas del backend (cuentas con movimiento, o por tercero o
+ * centro de costo) suman en sus ancestros del PUC hasta la clase. Ordenado por código.
+ */
+export function arbolBalance(
+  filas: FilaBalance[],
+  nombres: Map<string, string>,
+  etiqueta: (f: FilaBalance) => string | null = () => null,
+): FilaArbol[] {
+  const nodos = new Map<string, FilaArbol>()
+  const vacio = (codigo: string, padre: string | null): FilaArbol => ({
+    clave: codigo, codigo, nombre: nombres.get(codigo) ?? codigo, nivel: NIVELES.indexOf(nivelDeCodigo(codigo)), padre,
+    tieneHijas: false, hoja: false, saldo_inicial: '0', debitos: '0', creditos: '0', saldo_final: '0',
+  })
+  const sumarEn = (n: FilaArbol, f: FilaBalance) => {
+    n.saldo_inicial = sumar(n.saldo_inicial, f.saldo_inicial)
+    n.debitos = sumar(n.debitos, f.debitos)
+    n.creditos = sumar(n.creditos, f.creditos)
+    n.saldo_final = sumar(n.saldo_final, f.saldo_final)
+  }
+  for (const f of filas) {
+    const detalle = etiqueta(f)
+    const cuenta = nodos.get(f.codigo) ?? { ...vacio(f.codigo, padreDeCodigo(f.codigo)), nombre: f.nombre }
+    nodos.set(f.codigo, cuenta)
+    if (detalle) {
+      const clave = `${f.codigo}|${f.persona_id ?? ''}|${f.centro_costo_id ?? ''}`
+      const hija = { ...vacio(f.codigo, f.codigo), clave, nombre: detalle, nivel: cuenta.nivel + 1, hoja: true }
+      sumarEn(hija, f)
+      nodos.set(clave, hija)
+      cuenta.tieneHijas = true
+    } else cuenta.hoja = true
+    sumarEn(cuenta, f)
+    for (let p = padreDeCodigo(f.codigo); p; p = padreDeCodigo(p)) {
+      const ancestro = nodos.get(p) ?? vacio(p, padreDeCodigo(p))
+      nodos.set(p, ancestro)
+      ancestro.tieneHijas = true
+      sumarEn(ancestro, f)
+    }
+  }
+  return [...nodos.values()].sort((a, b) => (a.codigo === b.codigo ? (a.hoja === b.hoja ? a.clave.localeCompare(b.clave) : a.hoja ? 1 : -1) : a.codigo.localeCompare(b.codigo)))
+}
+
+/** Filas visibles: hasta `nivelMaximo` y sin los descendientes de las plegadas. */
+export function filasVisibles(arbol: FilaArbol[], nivelMaximo: number, plegadas: Set<string>): FilaArbol[] {
+  const porClave = new Map(arbol.map((f) => [f.clave, f]))
+  const oculta = (f: FilaArbol): boolean => {
+    for (let p = f.padre; p; p = porClave.get(p)?.padre ?? null) if (plegadas.has(p)) return true
+    return false
+  }
+  return arbol.filter((f) => f.nivel <= nivelMaximo && !oculta(f))
+}
+
+/** Totales del balance (solo las filas del backend): los débitos y créditos deben ser iguales. */
+export function totalesBalance(filas: FilaBalance[]) {
+  const debitos = sumar('0', ...filas.map((f) => f.debitos))
+  const creditos = sumar('0', ...filas.map((f) => f.creditos))
+  return { debitos, creditos, cuadra: comparar(debitos, creditos) === 0 }
+}
+
+/** Saldo en el sentido de la naturaleza de la cuenta (el backend envía débitos − créditos). */
+export const saldoNatural = (debitosMenosCreditos: string, n: Naturaleza) => (n === 'debito' ? debitosMenosCreditos : restar('0', debitosMenosCreditos))
+
+/** Movimientos del mayor con el saldo acumulado en el sentido de la cuenta. */
+export function saldoCorrido(m: LibroMayor) {
+  let saldo = m.saldo_inicial
+  return m.movimientos.map((x) => {
+    saldo = sumar(saldo, x.debito, restar('0', x.credito))
+    return { ...x, saldo: saldoNatural(saldo, m.cuenta.naturaleza) }
+  })
+}
+
+// Saldos iniciales desde CSV ----------------------------------------------------------------
+
+/**
+ * Lee un CSV de saldos iniciales: `cuenta, débito, crédito[, centro]` (coma o punto y coma,
+ * con o sin encabezado; montos como «1.234,56» o «1234.56»). Devuelve las líneas y los errores
+ * por fila (numeradas como en el archivo).
+ */
+export function leerCsvSaldos(texto: string): { lineas: LineaEditable[]; errores: string[] } {
+  const lineas: LineaEditable[] = []
+  const errores: string[] = []
+  texto.split(/\r?\n/).forEach((fila, i) => {
+    if (!fila.trim()) return
+    const separador = fila.includes(';') ? ';' : ','
+    const [cuenta = '', debito = '', credito = '', centro = ''] = fila.split(separador).map((c) => c.trim().replace(/^"|"$/g, ''))
+    if (i === 0 && !/^\d+$/.test(cuenta)) return
+    const n = `Fila ${i + 1}`
+    if (!/^\d+$/.test(cuenta)) {
+      errores.push(`${n}: la cuenta «${cuenta}» no es un código PUC.`)
+      return
+    }
+    const d = debito ? leerDecimal(debito) : '0'
+    const c = credito ? leerDecimal(credito) : '0'
+    if (d === null || c === null) {
+      errores.push(`${n}: un monto no es válido.`)
+      return
+    }
+    lineas.push({ ...lineaVacia(), cuenta, debito: comparar(d, '0') === 0 ? '' : d, credito: comparar(c, '0') === 0 ? '' : c, centro })
+  })
+  return { lineas, errores }
 }

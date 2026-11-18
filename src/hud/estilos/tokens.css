@@ -28,6 +28,10 @@
   --verde: #3ddc97;
   --gris-apagado: #6b7484;
 
+  /* Impresión de reportes (papel blanco). */
+  --impresion-texto: #000;
+  --impresion-linea: #999;
+
   --brillo: 0 0 0.5px var(--cian), 0 0 14px rgb(56 232 255 / 35%);
   --sombra: 0 18px 48px rgb(0 0 0 / 45%);
 

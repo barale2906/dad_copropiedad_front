@@ -152,7 +152,7 @@ describe('contabilidad contra el demo', { timeout: 25_000 }, () => {
     expect((await a.previsualizar(PH, cuadrado)).total).toBe('50000.00')
     await a.guardarComprobante(PH, c.id, cuadrado)
     const hecho = await a.contabilizar(PH, c.id)
-    expect(hecho).toMatchObject({ estado: 'contabilizado', numero: 2 })
+    expect(hecho).toMatchObject({ estado: 'contabilizado', numero: 4 })
     await expect(a.guardarComprobante(PH, c.id, cuadrado)).rejects.toMatchObject({ estado: 409 })
     await expect(a.borrarComprobante(PH, c.id)).rejects.toMatchObject({ estado: 409 })
     await expect(a.revertir(PH, c.id, '')).rejects.toMatchObject({ estado: 422 })

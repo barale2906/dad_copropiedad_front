@@ -4,17 +4,25 @@
  * cerrados, el anterior en revisión, el actual abierto y una reapertura pendiente que pidió
  * otra cuenta), comprobantes en borrador y contabilizados y terceros. Valida lo que valida el
  * backend: partida doble y cuentas que admiten movimiento (`regla_contable`), periodo abierto
- * al contabilizar, reversos y cuatro ojos en la reapertura. Se reinicia en cada inicio de sesión.
+ * al contabilizar, reversos y cuatro ojos en la reapertura. También configuración, reglas,
+ * rubros, notas y plantillas, saldos iniciales, cierre anual y los reportes (balance de prueba,
+ * libros y estados financieros) calculados con los comprobantes contabilizados; los CSV llevan
+ * `X-Contenido-Sha256`. Se reinicia en cada inicio de sesión.
  */
 import type {
   BorradorComprobante,
   CentroCosto,
   Comprobante,
+  ConfiguracionContable,
   CuentaContable,
   LineaAsiento,
   Naturaleza,
+  NotaEstados,
   PeriodoContable,
+  PlantillaContableResumen,
   Reapertura,
+  ReglaContable,
+  Rubro,
   Tercero,
   TipoComprobante,
 } from '@/api/tipos'
@@ -60,6 +68,10 @@ let tipos: TipoComprobante[] = []
 let periodos: PeriodoContable[] = []
 let reaperturas: Reapertura[] = []
 let comprobantes: Comprobante[] = []
+let configuracion: ConfiguracionContable | null = null
+let reglas: ReglaContable[] = []
+let rubros: Rubro[] = []
+let notas: NotaEstados[] = []
 let consecutivo = 20000
 let numeros: Record<string, number> = {}
 /** Cuenta con la que se inició la sesión demo (cuatro ojos en la reapertura). */
@@ -107,6 +119,7 @@ export function iniciarContabilidad(usuario: string): void {
     { id: id(22103), codigo: 'RC', nombre: 'Recibo de caja', manual: false, activo: true },
     { id: id(22104), codigo: 'CE', nombre: 'Comprobante de egreso', manual: false, activo: true },
     { id: id(22105), codigo: 'AP', nombre: 'Apertura', manual: false, activo: true },
+    { id: id(22106), codigo: 'CI', nombre: 'Cierre anual', manual: false, activo: true },
   ]
   const f = new Date()
   const anio = f.getFullYear()
@@ -126,7 +139,7 @@ export function iniciarContabilidad(usuario: string): void {
     nuevoComprobante(23001, 'CC', dia, 'Causación de la vigilancia del mes', [
       linea('513505', '4200000.00', '0', { centro_costo_id: id(22001), persona_id: vigilancia }),
       linea('233550', '0', '4200000.00', { persona_id: vigilancia }),
-    ], { estado: 'contabilizado', numero: 1, contabilizado_en: ahora() }),
+    ], { estado: 'contabilizado', numero: 3, contabilizado_en: ahora() }),
     nuevoComprobante(23002, 'NC', dia, 'Reclasificación de gastos bancarios', [
       linea('530505', '85000.00', '0'),
       linea('11100501', '0', '85000.00'),
@@ -136,7 +149,108 @@ export function iniciarContabilidad(usuario: string): void {
       linea('11100502', '0', '1200000.00'),
     ]),
   ]
-  numeros = { CC: 1 }
+  const enero = `${anio}-01-02`
+  const marzo = `${anio}-03-15`
+  comprobantes.push(
+    nuevoComprobante(23010, 'AP', enero, 'Saldos iniciales', [
+      linea('110505', '2000000.00', '0'), linea('11100501', '58000000.00', '0'),
+      linea('310505', '0', '60000000.00'),
+    ], { estado: 'contabilizado', numero: 1, contabilizado_en: `${enero}T15:00:00Z` }),
+    nuevoComprobante(23011, 'CC', marzo, 'Cuotas de administración de marzo', [
+      linea('130505', '18000000.00', '0', { persona_id: id(5002) }), linea('417005', '0', '18000000.00'),
+    ], { estado: 'contabilizado', numero: 1, contabilizado_en: `${marzo}T15:00:00Z` }),
+    nuevoComprobante(23012, 'CC', marzo, 'Energía de marzo', [
+      linea('513530', '1100000.00', '0', { centro_costo_id: id(22001) }), linea('233550', '0', '1100000.00', { persona_id: id(5503) }),
+    ], { estado: 'contabilizado', numero: 2, contabilizado_en: `${marzo}T16:00:00Z` }),
+  )
+  numeros = { CC: 3, AP: 1 }
+  configuracion = {
+    version: 1, marco_tecnico: 'grupo_2', cuenta_resultado_id: cuentaPorCodigo('360505')?.id ?? null, plantilla_origen: 'Propiedad horizontal v3',
+    vigente_desde: `${anio}-01-01`, creada_en: `${anio}-01-01T12:00:00Z`,
+  }
+  reglas = [
+    { id: id(22401), evento: 'cartera.cuota', version: 1, tipo_comprobante_id: id(22101), descripcion: 'Causación de cuotas', vigente_desde: `${anio}-01-01`, creada_en: ahora(),
+      lineas: [{ concepto: 'cuota', cara: 'debito', cuenta_id: cuentaPorCodigo('130505')?.id ?? '', tercero: 'documento', centro: 'ninguno' }, { concepto: 'cuota', cara: 'credito', cuenta_id: cuentaPorCodigo('417005')?.id ?? '', tercero: 'ninguno', centro: 'ninguno' }] },
+    { id: id(22402), evento: 'tesoreria.recibo', version: 1, tipo_comprobante_id: id(22103), descripcion: 'Recibo de caja', vigente_desde: `${anio}-01-01`, creada_en: ahora(),
+      lineas: [{ concepto: 'recaudo', cara: 'debito', cuenta_id: cuentaPorCodigo('11100501')?.id ?? '', tercero: 'ninguno', centro: 'ninguno' }, { concepto: 'recaudo', cara: 'credito', cuenta_id: cuentaPorCodigo('130505')?.id ?? '', tercero: 'documento', centro: 'ninguno' }] },
+  ]
+  rubros = [
+    { estado: 'situacion_financiera', codigo: 'efectivo', nombre: 'Efectivo y equivalentes', orden: 1, prefijos: ['11'] },
+    { estado: 'situacion_financiera', codigo: 'deudores', nombre: 'Deudores', orden: 2, prefijos: ['13'] },
+    { estado: 'situacion_financiera', codigo: 'cuentas_pagar', nombre: 'Cuentas por pagar', orden: 3, prefijos: ['22', '23', '24'] },
+    { estado: 'situacion_financiera', codigo: 'patrimonio', nombre: 'Patrimonio', orden: 4, prefijos: ['3'] },
+    { estado: 'resultados', codigo: 'ingresos', nombre: 'Ingresos operacionales', orden: 1, prefijos: ['41'] },
+    { estado: 'resultados', codigo: 'gastos', nombre: 'Gastos de administración', orden: 2, prefijos: ['51', '53'] },
+  ]
+  notas = [{ id: id(22501), anio, numero: 1, version: 1, titulo: 'Entidad y marco', texto: 'La copropiedad aplica el marco técnico del grupo 2.', rubro_id: null, creada_en: ahora() }]
+}
+
+const PLANTILLAS: PlantillaContableResumen[] = [
+  { id: id(22601), ambito: 'plataforma', organizacion: null, nombre: 'Propiedad horizontal', tipo_empresa: 'propiedad_horizontal', version: 3, estado: 'publicada', publicada_en: '2026-06-01T12:00:00Z' },
+  { id: id(22602), ambito: 'organizacion', organizacion: 'DAD Servicios Contables S.A.S.', nombre: 'PH con fondo de imprevistos', tipo_empresa: 'propiedad_horizontal', version: 1, estado: 'publicada', publicada_en: '2026-09-15T12:00:00Z' },
+]
+
+const contabilizados = () => comprobantes.filter((c) => c.estado === 'contabilizado')
+const codigoDe = (cuentaId: string) => cuentas.find((x) => x.id === cuentaId)?.codigo ?? ''
+const n2 = (x: number) => x.toFixed(2)
+
+/** Débitos − créditos por cuenta (y tercero o centro) en un rango. */
+function saldos(desde: string, hasta: string, porTercero: boolean, porCentro: boolean) {
+  const filas = new Map<string, { cuenta: CuentaContable; persona: string | null; centro: string | null; inicial: number; d: number; c: number }>()
+  for (const comp of contabilizados()) {
+    if (comp.fecha > hasta) continue
+    for (const l of comp.lineas) {
+      const cuenta = cuentas.find((x) => x.id === l.cuenta_id)
+      if (!cuenta) continue
+      const persona = porTercero ? (l.persona_id ?? null) : null
+      const centro = porCentro ? (l.centro_costo_id ?? null) : null
+      const clave = `${cuenta.id}|${persona}|${centro}`
+      const f = filas.get(clave) ?? { cuenta, persona, centro, inicial: 0, d: 0, c: 0 }
+      if (comp.fecha < desde) f.inicial += Number(l.debito) - Number(l.credito)
+      else {
+        f.d += Number(l.debito)
+        f.c += Number(l.credito)
+      }
+      filas.set(clave, f)
+    }
+  }
+  return [...filas.values()].sort((a, b) => a.cuenta.codigo.localeCompare(b.cuenta.codigo)).map((f) => ({
+    cuenta_id: f.cuenta.id, codigo: f.cuenta.codigo, nombre: f.cuenta.nombre, naturaleza: f.cuenta.naturaleza, persona_id: f.persona, centro_costo_id: f.centro,
+    saldo_inicial: n2(f.inicial), debitos: n2(f.d), creditos: n2(f.c), saldo_final: n2(f.inicial + f.d - f.c),
+  }))
+}
+
+const csv = (filas: (string | number)[][], nombre: string) =>
+  new Response(filas.map((f) => f.join(';')).join('\n'), {
+    headers: { 'Content-Type': 'text/csv; charset=utf-8', 'Content-Disposition': `attachment; filename="${nombre}"`, 'X-Contenido-Sha256': 'a3f1c2e4'.repeat(8), 'X-Request-Id': 'demo' },
+  })
+
+/** Valor de un rubro a la fecha (situación: acumulado; resultados: del año del corte). */
+function valorRubro(r: Rubro, corte: string) {
+  const anio = corte.slice(0, 4)
+  let total = 0
+  for (const comp of contabilizados()) {
+    if (comp.fecha > corte || (r.estado === 'resultados' && (!comp.fecha.startsWith(anio) || comp.mes === 13))) continue
+    for (const l of comp.lineas) {
+      const cod = codigoDe(l.cuenta_id)
+      if (!r.prefijos.some((p) => cod.startsWith(p))) continue
+      total += naturaleza(cod) === 'debito' ? Number(l.debito) - Number(l.credito) : Number(l.credito) - Number(l.debito)
+    }
+  }
+  return n2(total)
+}
+
+function resultadoDelAnio(anio: string) {
+  let r = 0
+  for (const comp of contabilizados()) {
+    if (!comp.fecha.startsWith(anio) || comp.mes === 13) continue
+    for (const l of comp.lineas) {
+      const clase = codigoDe(l.cuenta_id)[0]
+      if (clase === '4') r += Number(l.credito) - Number(l.debito)
+      if (clase === '5' || clase === '6' || clase === '7') r -= Number(l.debito) - Number(l.credito)
+    }
+  }
+  return r
 }
 
 /** Valida como `domain::contabilidad::Asiento`; devuelve el error o las líneas por id. */
@@ -303,6 +417,163 @@ export const contabilidad: Manejador = async (req, ruta) => {
       comprobantes = [reverso, ...comprobantes]
       return json(reverso, 201)
     }
+  }
+
+  // Configuración, reglas, rubros, notas y plantillas
+  if (r === '/configuracion') {
+    if (m === 'GET') return json(configuracion)
+    if (m === 'PUT') {
+      const d = await cuerpo<{ marco_tecnico: ConfiguracionContable['marco_tecnico']; cuenta_resultado?: string | null; vigente_desde: string }>(req)
+      const resultado = d.cuenta_resultado ? cuentaPorCodigo(d.cuenta_resultado) : undefined
+      if (d.cuenta_resultado && (!resultado || !resultado.codigo.startsWith('3') || !resultado.acepta_movimiento)) {
+        return error(422, 'validacion', 'La cuenta de resultado debe ser de la clase 3 y aceptar movimientos.')
+      }
+      if (!d.vigente_desde) return error(422, 'validacion', 'Indique desde cuándo rige.')
+      configuracion = {
+        version: (configuracion?.version ?? 0) + 1, marco_tecnico: d.marco_tecnico, cuenta_resultado_id: resultado?.id ?? null,
+        plantilla_origen: configuracion?.plantilla_origen ?? null, vigente_desde: d.vigente_desde, creada_en: ahora(),
+      }
+      return json(configuracion)
+    }
+  }
+  if (r === '/tipos-comprobante' && m === 'POST') {
+    const d = await cuerpo<{ codigo: string; nombre: string; manual?: boolean; activo?: boolean }>(req)
+    if (!/^[A-Z0-9]{1,6}$/i.test(d.codigo ?? '') || !d.nombre?.trim()) return error(422, 'validacion', 'Escriba un código corto (letras o dígitos) y el nombre.')
+    if (tipos.some((t) => t.codigo === d.codigo.toUpperCase())) return error(409, 'conflicto', `El tipo ${d.codigo} ya existe.`)
+    const nuevo = { id: id(++consecutivo), codigo: d.codigo.toUpperCase(), nombre: d.nombre.trim(), manual: d.manual ?? true, activo: d.activo ?? true }
+    tipos.push(nuevo)
+    return json(nuevo, 201)
+  }
+  const tip = r.match(/^\/tipos-comprobante\/([^/]+)$/)
+  if (tip && m === 'PUT') {
+    const t = tipos.find((x) => x.id === tip[1])
+    if (!t) return error(404, 'no_encontrado', 'El tipo no existe.')
+    const d = await cuerpo<{ nombre: string; manual?: boolean; activo?: boolean }>(req)
+    Object.assign(t, { nombre: d.nombre?.trim() || t.nombre, manual: d.manual ?? t.manual, activo: d.activo ?? t.activo })
+    return json(t)
+  }
+  if (r === '/reglas') {
+    if (m === 'GET') return json(reglas)
+    if (m === 'POST') {
+      const d = await cuerpo<{ evento: string; tipo_comprobante: string; descripcion?: string | null; vigente_desde: string; lineas: { concepto: string; cara: 'debito' | 'credito'; cuenta: string; tercero: 'documento' | 'ninguno'; centro: 'documento' | 'fijo' | 'ninguno'; centro_costo?: string | null }[] }>(req)
+      const tipo = tipos.find((t) => t.codigo === d.tipo_comprobante)
+      if (!d.evento?.trim() || !tipo) return error(422, 'validacion', 'Indique el evento y un tipo de comprobante existente.')
+      if (!d.lineas?.some((l) => l.cara === 'debito') || !d.lineas.some((l) => l.cara === 'credito')) return error(422, 'regla_contable', 'La regla necesita al menos una línea débito y una crédito.')
+      const malas = d.lineas.filter((l) => !cuentaPorCodigo(l.cuenta)?.acepta_movimiento)
+      if (malas.length) return error(422, 'regla_contable', `La cuenta ${malas[0]?.cuenta} no admite movimientos.`)
+      const version = Math.max(0, ...reglas.filter((x) => x.evento === d.evento).map((x) => x.version)) + 1
+      const nueva: ReglaContable = {
+        id: id(++consecutivo), evento: d.evento.trim(), version, tipo_comprobante_id: tipo.id, descripcion: d.descripcion ?? null, vigente_desde: d.vigente_desde, creada_en: ahora(),
+        lineas: d.lineas.map((l) => ({ concepto: l.concepto, cara: l.cara, cuenta_id: cuentaPorCodigo(l.cuenta)?.id ?? '', tercero: l.tercero, centro: l.centro, centro_costo_id: centros.find((c) => c.codigo === l.centro_costo)?.id ?? null })),
+      }
+      reglas.push(nueva)
+      return json(nueva, 201)
+    }
+  }
+  if (r === '/rubros') {
+    if (m === 'GET') return json(rubros)
+    if (m === 'PUT') {
+      const lista = await cuerpo<Rubro[]>(req)
+      if (lista.some((x) => !x.codigo?.trim() || !x.nombre?.trim() || !x.prefijos.length)) return error(422, 'validacion', 'Cada rubro lleva código, nombre y al menos un prefijo.')
+      rubros = lista
+      return json(rubros)
+    }
+  }
+  if (r === '/notas') {
+    if (m === 'GET') return json(notas.filter((n) => n.anio === Number(q.get('anio'))))
+    if (m === 'POST') {
+      const d = await cuerpo<{ anio: number; numero: number; titulo: string; texto: string }>(req)
+      if (!d.titulo?.trim() || !d.texto?.trim()) return error(422, 'validacion', 'Escriba el título y el texto de la nota.')
+      const previa = notas.find((n) => n.anio === d.anio && n.numero === d.numero)
+      const nueva: NotaEstados = { id: previa?.id ?? id(++consecutivo), anio: d.anio, numero: d.numero, version: (previa?.version ?? 0) + 1, titulo: d.titulo.trim(), texto: d.texto.trim(), rubro_id: null, creada_en: ahora() }
+      notas = [...notas.filter((n) => n !== previa), nueva]
+      return json(nueva, 201)
+    }
+  }
+  if (m === 'GET' && r === '/plantillas') return json(PLANTILLAS)
+  if (m === 'POST' && r === '/plantillas/aplicar') {
+    const d = await cuerpo<{ plantilla_id: string; previsualizar?: boolean }>(req)
+    if (!PLANTILLAS.some((p) => p.id === d.plantilla_id)) return error(404, 'no_encontrado', 'La plantilla no existe.')
+    const resumen = { cuentas_creadas: 12, cuentas_existentes: cuentas.length, tipos_creados: 1, tipos_existentes: tipos.length, reglas_creadas: 3, rubros: 6, configuracion: !configuracion, previsualizacion: !!d.previsualizar }
+    if (!d.previsualizar && configuracion) configuracion = { ...configuracion, plantilla_origen: PLANTILLAS.find((p) => p.id === d.plantilla_id)?.nombre ?? null }
+    return json(resumen)
+  }
+  if (m === 'POST' && r === '/plantillas/guardar') {
+    const d = await cuerpo<{ nombre: string; tipo_empresa: string }>(req)
+    if (!d.nombre?.trim()) return error(422, 'validacion', 'Escriba el nombre de la plantilla.')
+    return json({ id: id(++consecutivo), nombre: d.nombre.trim(), tipo_empresa: d.tipo_empresa, version: 1, estado: 'borrador', contenido: {}, creada_en: ahora() }, 201)
+  }
+
+  // Apertura y cierre
+  if (m === 'POST' && r === '/saldos-iniciales') {
+    const d = await cuerpo<{ fecha: string; descripcion?: string | null; lineas: BorradorComprobante['lineas'] }>(req)
+    const v = validar({ tipo: 'CC', fecha: d.fecha, descripcion: d.descripcion || 'Saldos iniciales', lineas: d.lineas })
+    if ('error' in v) return v.error
+    if (periodoDe(d.fecha)?.estado === 'cerrado') return error(422, 'regla_contable', 'El periodo de la fecha está cerrado.')
+    numeros.AP = (numeros.AP ?? 0) + 1
+    const c = nuevoComprobante(++consecutivo, 'AP', d.fecha, d.descripcion || 'Saldos iniciales', v.lineas, { estado: 'contabilizado', numero: numeros.AP, contabilizado_en: ahora(), creado_en: ahora() })
+    comprobantes = [c, ...comprobantes]
+    return json(c, 201)
+  }
+  if (m === 'POST' && r === '/cierre-anual') {
+    const { anio } = await cuerpo<{ anio: number }>(req)
+    if (comprobantes.some((c) => c.tipo === 'CI' && c.anio === anio)) return error(409, 'conflicto', `El cierre de ${anio} ya está contabilizado.`)
+    const resultado = configuracion?.cuenta_resultado_id ? cuentas.find((c) => c.id === configuracion?.cuenta_resultado_id) : undefined
+    if (!resultado) return error(422, 'regla_contable', 'Configure la cuenta de resultado del ejercicio antes del cierre.')
+    const lineas: LineaAsiento[] = []
+    for (const f of saldos(`${anio}-01-01`, `${anio}-12-31`, false, false)) {
+      if (!['4', '5', '6', '7'].includes(f.codigo[0] ?? '')) continue
+      const neto = Number(f.saldo_inicial) + Number(f.debitos) - Number(f.creditos)
+      if (Math.abs(neto) < 0.005) continue
+      lineas.push({ cuenta_id: f.cuenta_id, debito: n2(neto < 0 ? -neto : 0), credito: n2(neto > 0 ? neto : 0) })
+    }
+    const total = resultadoDelAnio(String(anio))
+    lineas.push({ cuenta_id: resultado.id, debito: n2(total < 0 ? -total : 0), credito: n2(total > 0 ? total : 0) })
+    numeros.CI = (numeros.CI ?? 0) + 1
+    const c = nuevoComprobante(++consecutivo, 'CI', `${anio}-12-31`, `Cierre del ejercicio ${anio}`, lineas, { mes: 13, estado: 'contabilizado', numero: numeros.CI, contabilizado_en: ahora(), creado_en: ahora() })
+    comprobantes = [c, ...comprobantes]
+    return json(c, 201)
+  }
+
+  // Reportes
+  const desde = q.get('desde') ?? '0000-01-01'
+  const hasta = q.get('hasta') ?? '9999-12-31'
+  const enCsv = q.get('formato') === 'csv'
+  if (m === 'GET' && r === '/reportes/balance-prueba') {
+    const filas = saldos(desde, hasta, q.get('por_tercero') === 'true', q.get('por_centro_costo') === 'true')
+    if (enCsv) return csv([['cuenta', 'nombre', 'saldo_inicial', 'debitos', 'creditos', 'saldo_final'], ...filas.map((f) => [f.codigo, f.nombre, f.saldo_inicial, f.debitos, f.creditos, f.saldo_final])], 'balance-prueba.csv')
+    return json(filas)
+  }
+  if (m === 'GET' && r === '/reportes/libro-diario') {
+    const lista = contabilizados().filter((c) => c.fecha >= desde && c.fecha <= hasta).sort((a, b) => a.fecha.localeCompare(b.fecha))
+    if (enCsv) return csv([['fecha', 'comprobante', 'cuenta', 'debito', 'credito'], ...lista.flatMap((c) => c.lineas.map((l) => [c.fecha, `${c.tipo}-${c.numero}`, codigoDe(l.cuenta_id), l.debito, l.credito]))], 'libro-diario.csv')
+    return json(lista)
+  }
+  if (m === 'GET' && r === '/reportes/libro-mayor') {
+    const cuenta = cuentaPorCodigo(q.get('cuenta') ?? '')
+    if (!cuenta) return error(422, 'validacion', 'La cuenta no existe.')
+    const persona = q.get('persona_id')
+    let inicial = 0
+    const movimientos = []
+    for (const c of contabilizados().sort((a, b) => a.fecha.localeCompare(b.fecha))) {
+      if (c.fecha > hasta) continue
+      for (const l of c.lineas) {
+        if (!codigoDe(l.cuenta_id).startsWith(cuenta.codigo) || (persona && l.persona_id !== persona)) continue
+        if (c.fecha < desde) inicial += Number(l.debito) - Number(l.credito)
+        else movimientos.push({ comprobante_id: c.id, tipo: c.tipo, numero: c.numero ?? 0, fecha: c.fecha, descripcion: c.descripcion, persona_id: l.persona_id ?? null, centro_costo_id: l.centro_costo_id ?? null, debito: l.debito, credito: l.credito })
+      }
+    }
+    const final = movimientos.reduce((t, x) => t + Number(x.debito) - Number(x.credito), inicial)
+    if (enCsv) return csv([['fecha', 'comprobante', 'descripcion', 'debito', 'credito'], ...movimientos.map((x) => [x.fecha, `${x.tipo}-${x.numero}`, x.descripcion, x.debito, x.credito])], 'libro-mayor.csv')
+    return json({ cuenta, persona_id: persona, saldo_inicial: n2(inicial), movimientos, saldo_final: n2(final) })
+  }
+  if (m === 'GET' && r === '/reportes/estados-financieros') {
+    const corte = q.get('corte') ?? hoy()
+    const de = (estado: string) => rubros.filter((x) => x.estado === estado).sort((a, b) => a.orden - b.orden).map((x) => ({ codigo: x.codigo, nombre: x.nombre, valor: valorRubro(x, corte) }))
+    return json({
+      corte, situacion_financiera: de('situacion_financiera'), resultados: de('resultados'), resultado_ejercicio: n2(resultadoDelAnio(corte.slice(0, 4))),
+      cierre_contabilizado: comprobantes.some((c) => c.tipo === 'CI' && String(c.anio) === corte.slice(0, 4)), notas: notas.filter((n) => String(n.anio) === corte.slice(0, 4)),
+    })
   }
 
   // Periodos y reaperturas

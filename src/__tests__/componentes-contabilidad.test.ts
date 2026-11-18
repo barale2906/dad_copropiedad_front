@@ -107,3 +107,23 @@ describe('EditorComprobante', () => {
     w.unmount()
   })
 })
+
+describe('ReporteContable', () => {
+  it('pliega filas y limita el nivel mostrado', async () => {
+    const { arbolBalance } = await import('@/modulos/contabilidad/reglas')
+    const ReporteContable = (await import('@/modulos/contabilidad/componentes/ReporteContable.vue')).default
+    const f = (codigo: string, d: string) => ({ cuenta_id: codigo, codigo, nombre: `C${codigo}`, naturaleza: 'debito' as const, saldo_inicial: '0', debitos: d, creditos: '0', saldo_final: d })
+    const arbol = arbolBalance([f('110505', '1000'), f('111005', '500')], new Map([['1', 'Activo'], ['11', 'Disponible']]))
+    const w = mount(ReporteContable, { props: { arbol, titulo: 'Balance' } })
+    expect(w.findAll('tbody tr')).toHaveLength(6)
+    expect(w.get('tbody tr').text()).toContain('$ 1.500,00')
+    const plegar = w.get('button[aria-expanded="true"]')
+    expect(plegar.text()).toContain('Plegar 1')
+    await plegar.trigger('click')
+    expect(w.findAll('tbody tr')).toHaveLength(1)
+    expect(w.get('button[aria-expanded="false"]').text()).toContain('Desplegar 1')
+    await w.get('button[aria-expanded="false"]').trigger('click')
+    await w.get('select').setValue('1')
+    expect(w.findAll('tbody tr .codigo').map((c) => c.text())).toEqual(['1', '11'])
+  })
+})

@@ -133,3 +133,49 @@ textarea {
   opacity: 0;
   transform: scale(1.01);
 }
+
+/*
+ * Impresión de reportes («Imprimir / Guardar como PDF» del navegador): solo se imprime el
+ * contenedor `.area-impresion`, en blanco y negro y sin el marco de la app. `.solo-impresion`
+ * aparece solo en papel (encabezado con la entidad y el corte); `.no-imprimir` se omite.
+ */
+.solo-impresion {
+  display: none;
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  .area-impresion,
+  .area-impresion * {
+    visibility: visible;
+    color: var(--impresion-texto) !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  .area-impresion {
+    position: absolute;
+    inset: 0 auto auto 0;
+    width: 100%;
+  }
+
+  .area-impresion .solo-impresion {
+    display: block;
+  }
+
+  .area-impresion .no-imprimir {
+    display: none !important;
+  }
+
+  .area-impresion table {
+    border-collapse: collapse;
+  }
+
+  .area-impresion th,
+  .area-impresion td {
+    border-bottom: 1px solid var(--impresion-linea);
+  }
+}
