@@ -416,3 +416,34 @@ test('administración: inventario y hoja de vida', async ({ page }) => {
   await expect(page.getByRole('list', { name: 'Movimientos del activo' })).toBeVisible()
   await revisar(page)
 })
+
+/** Entra con la cuenta de una sola PH y abre una pantalla de las asambleas. */
+async function entrarAAsambleas(page: Page, ruta: string) {
+  await entrar(page, 'uno')
+  await expect(page).toHaveURL(/\/e\/[^/]+$/)
+  await page.goto(`${new URL(page.url()).pathname}/asambleas/${ruta}`)
+}
+const reunionDemo = (n: number) => `01930000-0000-7000-8000-${String(n).padStart(12, '0')}`
+
+test('asambleas: reuniones, detalle y preparación', async ({ page }) => {
+  await entrarAAsambleas(page, 'reuniones')
+  await expect(page.getByRole('list', { name: 'Reuniones' })).toBeVisible()
+  await revisar(page)
+  await page.getByRole('link', { name: 'Asamblea ordinaria de mitad de año' }).click()
+  await expect(page.getByRole('list', { name: 'Orden del día' })).toBeVisible()
+  await revisar(page)
+  await page.goto(page.url().replace(/reuniones.*$/, `convocar/${reunionDemo(4001)}`))
+  await expect(page.getByRole('navigation', { name: 'Pasos para convocar' })).toBeVisible()
+  await revisar(page)
+})
+
+test('asambleas: mesa de registro y conducción', async ({ page }) => {
+  await entrarAAsambleas(page, `registro/${reunionDemo(4003)}`)
+  await expect(page.getByRole('list', { name: 'Asistentes' })).toBeVisible()
+  await page.getByLabel('Buscar en el padrón').fill('T1-40')
+  await expect(page.getByRole('list', { name: 'Coincidencias en el padrón' })).toBeVisible()
+  await revisar(page)
+  await page.goto(page.url().replace(/registro.*$/, `en-vivo/${reunionDemo(4004)}`))
+  await expect(page.getByRole('meter', { name: 'Quórum por coeficiente' })).toBeVisible()
+  await revisar(page)
+})

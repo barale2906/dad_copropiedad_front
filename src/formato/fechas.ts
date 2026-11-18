@@ -112,3 +112,13 @@ export function aUtc(local: string, zona: string): string {
   instante = comoUtc - desfase(instante, zona)
   return new Date(instante).toISOString().replace('.000Z', 'Z')
 }
+
+/**
+ * Lo inverso de `aUtc`: un instante UTC → `YYYY-MM-DDTHH:MM` en la zona de la entidad, para
+ * llenar un `<input type="datetime-local">` al editar.
+ */
+export function aLocal(utc: string | Date, zona: string): string {
+  const partes = formateador(zona, { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).formatToParts(new Date(utc))
+  const v = (t: Intl.DateTimeFormatPartTypes) => partes.find((p) => p.type === t)?.value ?? '00'
+  return `${v('year')}-${v('month')}-${v('day')}T${v('hour')}:${v('minute')}`
+}

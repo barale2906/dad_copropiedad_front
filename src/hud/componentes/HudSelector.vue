@@ -72,11 +72,17 @@ const id = useId()
 <style scoped>
 .hud-selector {
   display: grid;
+  /* Una opción larga no ensancha la página: el selector se ajusta al ancho disponible. */
+  grid-template-columns: minmax(0, 1fr);
   gap: 6px;
+  min-width: 0;
 }
 
 select {
+  width: 100%;
+  min-width: 0;
   min-height: 46px;
+  text-overflow: ellipsis;
   padding: 0 12px;
   border: 1px solid var(--linea);
   border-left: 3px solid var(--linea-fuerte);

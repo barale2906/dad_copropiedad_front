@@ -1,7 +1,7 @@
 <script setup lang="ts">
 /**
- * Lectura de un código QR por dos vías: el **lector físico** (escribe como un teclado y termina en
- * Enter) en un campo siempre disponible, y la **cámara** con `BarcodeDetector` donde el navegador
+ * Lectura de un código (QR o, con `formatos`, Code 128) por dos vías: el **lector físico**
+ * (escribe como un teclado y termina en Enter) en un campo siempre disponible, y la **cámara** con `BarcodeDetector` donde el navegador
  * lo tenga (sin librerías). Emite `leido` con el texto.
  */
 import { onBeforeUnmount, ref, useTemplateRef } from 'vue'
@@ -14,7 +14,16 @@ interface Detector {
 }
 type ConstructorDetector = new (o: { formats: string[] }) => Detector
 
-withDefaults(defineProps<{ etiqueta?: string; cargando?: boolean }>(), { etiqueta: 'Código QR', cargando: false })
+const props = withDefaults(
+  defineProps<{
+    etiqueta?: string
+    cargando?: boolean
+    /** Formatos de `BarcodeDetector` (`qr_code`, `code_128` para los rótulos de la asamblea). */
+    formatos?: string[]
+    ayuda?: string
+  }>(),
+  { etiqueta: 'Código QR', cargando: false, formatos: () => ['qr_code'], ayuda: 'Pase el código por el lector (termina solo) o escríbalo y presione Enter.' },
+)
 const emit = defineEmits<{ leido: [texto: string] }>()
 
 const texto = ref('')
@@ -46,7 +55,7 @@ async function escanear() {
     if (!video.value) return
     video.value.srcObject = transmision.value
     await video.value.play()
-    const detector = new ConDetector({ formats: ['qr_code'] })
+    const detector = new ConDetector({ formats: props.formatos })
     buscando = true
     while (buscando) {
       const [codigo] = await detector.detect(video.value).catch(() => [])
@@ -81,7 +90,7 @@ onBeforeUnmount(apagar)
         v-model="texto"
         :etiqueta="etiqueta"
         autocompletar="off"
-        ayuda="Pase el código por el lector (termina solo) o escríbalo y presione Enter."
+        :ayuda="ayuda"
       />
       <HudBoton
         tipo="submit"

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { coeficiente, comparar, esDecimal, leerDecimal, moneda, porcentaje, restar, sumar } from '@/formato/decimales'
-import { aUtc, fecha, fechaCalendario, fechaHora, hora, hoyEn } from '@/formato/fechas'
+import { aLocal, aUtc, fecha, fechaCalendario, fechaHora, hora, hoyEn } from '@/formato/fechas'
 
 const normal = (s: string) => s.replace(/\s/g, ' ')
 
@@ -36,6 +36,13 @@ describe('fechas', () => {
   it('convierte la hora local de la entidad a UTC', () => {
     expect(aUtc('2026-11-16T10:00', 'America/Bogota')).toBe('2026-11-16T15:00:00Z')
     expect(aUtc('2026-07-01T09:30:15', 'Europe/Madrid')).toBe('2026-07-01T07:30:15Z')
+  })
+
+  it('convierte un instante UTC a la hora local del formulario, y vuelve igual', () => {
+    expect(aLocal('2026-11-16T15:00:00Z', 'America/Bogota')).toBe('2026-11-16T10:00')
+    expect(aLocal('2026-11-17T04:30:00Z', 'America/Bogota')).toBe('2026-11-16T23:30')
+    expect(aLocal('2026-07-01T07:30:00Z', 'Europe/Madrid')).toBe('2026-07-01T09:30')
+    expect(aUtc(aLocal('2026-03-29T01:30:00Z', 'Europe/Madrid'), 'Europe/Madrid')).toBe('2026-03-29T01:30:00Z')
   })
 
   it('rechaza entradas inválidas', () => {
