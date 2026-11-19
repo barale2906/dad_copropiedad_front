@@ -25,6 +25,7 @@ import { iniciarProteccion, proteccion } from './proteccion'
 import { asambleas, iniciarAsambleas } from './asambleas'
 import { cartera, iniciarCartera } from './cartera'
 import { contabilidad, iniciarContabilidad } from './contabilidad'
+import { directorio, iniciarDirectorio } from './directorio'
 import { facturacion, iniciarFacturacion } from './facturacion'
 import { iniciarTesoreria, tesoreria } from './tesoreria'
 import { iniciarTributario, tributario } from './tributario'
@@ -36,7 +37,7 @@ import { iniciarZonasComunes, zonasComunes } from './zonas-comunes'
 import { error, json, ZONA_DEMO, type Manejador } from './http'
 
 /** Manejadores que exigen sesión, en orden; el primero que responda gana. */
-const CON_SESION: Manejador[] = [cuenta, archivos, ficha, unidades, mi, gestion, asambleas, cartera, facturacion, tesoreria, tributario, contabilidad, porteria, proteccion, zonasComunes, entidad, permisos]
+const CON_SESION: Manejador[] = [cuenta, archivos, ficha, unidades, mi, directorio, gestion, asambleas, cartera, facturacion, tesoreria, tributario, contabilidad, porteria, proteccion, zonasComunes, entidad, permisos]
 /** Manejadores sin sesión (además del inicio de sesión). */
 const SIN_SESION: Manejador[] = [cuentaPublica]
 
@@ -61,7 +62,7 @@ const TODOS: Permiso[] = [
   'tesoreria.conciliar', 'cartera.ver', 'cartera.liquidar', 'cartera.certificados.emitir',
   'presupuesto.gestionar', 'cartera.ajustar', 'tributario.preparar', 'terceros.gestionar', 'facturacion.ver',
   'facturacion.facturas.gestionar', 'facturacion.emitir', 'facturacion.items.gestionar', 'facturacion.exportar',
-  'facturacion.configurar', 'facturacion.certificado.gestionar', 'facturacion.recibir', 'directorio.ver', 'directorio.compartir',
+  'facturacion.configurar', 'facturacion.certificado.gestionar', 'facturacion.recibir', 'directorio.ver', 'directorio.compartir', 'directorio.resenar',
   'importaciones.ejecutar',
   'roles.asignar', 'proteccion_datos.gestionar', 'tributario.configurar',
   'copropiedad.datos.editar', 'archivos.personales.ver', 'suscripcion.ver', 'organizaciones.crear',
@@ -140,7 +141,7 @@ function tokens(): Tokens {
  */
 const CAPACIDADES_RESIDENTE: Capacidades = {
   tipo: 'propiedad_horizontal',
-  permisos: ['reservas.crear', 'bienes_comunes.ver', 'tickets.crear', 'acceso.visitantes.autorizar', 'directorio.ver', 'asambleas.ver'],
+  permisos: ['reservas.crear', 'bienes_comunes.ver', 'tickets.crear', 'acceso.visitantes.autorizar', 'directorio.ver', 'directorio.resenar', 'asambleas.ver'],
   modulos: ['bienes_comunes', 'asambleas', 'gestion_administrativa', 'contabilidad', 'contabilidad_ph', 'control_acceso'],
   modo_soporte: false,
   entidad_suspendida: false,
@@ -221,6 +222,7 @@ export async function fetchDemo(req: Request): Promise<Response> {
     iniciarArchivos()
     iniciarFacturacion()
     iniciarCartera(usuario)
+    iniciarDirectorio()
     if (usuario.includes('2fa')) {
       return json({ resultado: 'segundo_factor', desafio: 'demo-desafio', desafio_expira_en: new Date(Date.now() + 300_000).toISOString() })
     }
@@ -250,6 +252,7 @@ export async function fetchDemo(req: Request): Promise<Response> {
     iniciarArchivos()
     iniciarFacturacion()
     iniciarCartera(usuario)
+    iniciarDirectorio()
     return json(tokens())
   }
   if (m === 'POST' && ruta === '/auth/contrasena/recuperar') return new Response(null, { status: 202 })

@@ -13,6 +13,7 @@ import { TIPO_TICKET } from '@/composables/textos-gestion'
 import { useAccion } from '@/composables/useAccion'
 import { useAdjuntos } from '@/composables/useAdjuntos'
 import { fechaHora } from '@/formato/fechas'
+import ElegirCalificacion from '@/hud/componentes/ElegirCalificacion.vue'
 import HudAdjuntos from '@/hud/componentes/HudAdjuntos.vue'
 import HudBoton from '@/hud/componentes/HudBoton.vue'
 import HudCampo from '@/hud/componentes/HudCampo.vue'
@@ -441,21 +442,10 @@ onMounted(cargar)
         class="campos"
         @submit.prevent="enviarCalificacion"
       >
-        <fieldset class="estrellas">
-          <legend>¿Cómo fue la atención?</legend>
-          <label
-            v-for="n in 5"
-            :key="n"
-          >
-            <input
-              v-model="calificacion"
-              type="radio"
-              name="calificacion"
-              :value="n"
-            >
-            {{ n }}
-          </label>
-        </fieldset>
+        <ElegirCalificacion
+          v-model="calificacion"
+          etiqueta="¿Cómo fue la atención?"
+        />
         <HudCampo
           v-model="comentario"
           etiqueta="Comentario (opcional)"
@@ -537,33 +527,5 @@ h2 {
 
 .lista a {
   color: var(--texto);
-}
-
-.estrellas {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px 14px;
-  margin: 0;
-  padding: 0;
-  border: 0;
-}
-
-.estrellas legend {
-  width: 100%;
-  margin-bottom: 6px;
-  font-weight: 600;
-}
-
-.estrellas label {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  min-height: 44px;
-}
-
-.estrellas input {
-  width: 20px;
-  height: 20px;
-  accent-color: var(--cian);
 }
 </style>

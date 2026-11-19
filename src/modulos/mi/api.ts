@@ -23,7 +23,6 @@ import type {
   TicketDeCuenta,
   TipoCambioCenso,
   TipoSolicitudTitular,
-  AutorizacionPublicidad,
 } from '@/api/tipos'
 
 const ph = (id: string) => ({ path: { copropiedad_id: id } })
@@ -238,20 +237,5 @@ export function radicarMiSolicitud(id: string, personaId: string, tipo: TipoSoli
       headers: idempotencia(clave),
     }),
   )
-}
-
-export function autorizacionPublicidad(id: string): Promise<AutorizacionPublicidad> {
-  return exigir(api().GET('/api/v1/entidades/{entidad_id}/publicidad/autorizacion', { params: { path: { entidad_id: id } } }))
-}
-
-/** Acepta la política de publicidad vigente (solo el titular). */
-export async function autorizarPublicidad(id: string, version: number): Promise<void> {
-  await exigir(
-    api().POST('/api/v1/entidades/{entidad_id}/publicidad/autorizacion', { params: { path: { entidad_id: id } }, body: { version, medio: 'web' } }),
-  )
-}
-
-export async function retirarPublicidad(id: string): Promise<void> {
-  await exigir(api().DELETE('/api/v1/entidades/{entidad_id}/publicidad/autorizacion', { params: { path: { entidad_id: id } } }))
 }
 

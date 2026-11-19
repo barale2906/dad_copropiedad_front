@@ -35,6 +35,11 @@ export function moneda(texto: string, decimales = 2): string {
   return f.startsWith('-') ? `-$ ${f.slice(1)}` : `$ ${f}`
 }
 
+/** Número sin unidad en formato colombiano: `numero("4.5", 1)` → `"4,5"`, `numero("1250.4", 0)` → `"1.250"`. */
+export function numero(texto: string, decimales = 2): string {
+  return agrupar(dec(texto).toFixed(decimales))
+}
+
 /** `"19"` → `"19,00 %"` (el texto ya es el porcentaje, no la fracción). */
 export function porcentaje(texto: string, decimales = 2): string {
   return `${agrupar(dec(texto).toFixed(decimales))} %`

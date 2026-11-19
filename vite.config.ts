@@ -55,6 +55,7 @@ export default defineConfig({
         'src/modulos/zonas-comunes/{reservas,recursos,store}.ts',
         'src/modulos/unidades/{coeficientes,titulares,censo,bienes}.ts',
         'src/modulos/mi/reglas.ts',
+        'src/modulos/directorio/{reglas,store,useEventosPiezas}.ts',
         'src/pantallas/navegacion.ts',
         'src/pantallas/textos-entidad.ts',
       ],

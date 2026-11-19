@@ -628,3 +628,40 @@ test('cartera: ajustes, acuerdos, certificados, presupuesto, informes y configur
     ['configuracion', 'Configuración de la cartera'],
   ])
 })
+
+test('directorio: listado, ficha con reseñas, ofertas y «Busco …»', async ({ page }) => {
+  const PH = '01930000-0000-7000-8000-000000000001'
+  await entrar(page, 'residente')
+  await expect(page).toHaveURL(/\/e\//)
+  const pantallas: [string, string][] = [
+    ['inicio', 'Directorio'],
+    ['inicio/01930000-0000-7000-8000-000000014001', 'Modistería Rosa'],
+    ['ofertas', 'Ofertas'],
+    ['busco', 'Busco…'],
+  ]
+  for (const [ruta, titulo] of pantallas) {
+    await page.goto(`/e/${PH}/directorio/${ruta}`)
+    await expect(page.getByRole('heading', { name: titulo, exact: true, level: 1 })).toBeVisible()
+    await expect(page.getByText('Cargando')).toHaveCount(0)
+    await revisar(page)
+    if (ruta !== 'ofertas') continue
+    // Ya autorizadas: las piezas y el cupón.
+    await page.getByRole('button', { name: 'Acepto recibir ofertas' }).click()
+    await page.getByRole('button', { name: 'Obtener cupón de 10 % en arreglos de ropa' }).click()
+    await expect(page.getByText('ROSA10')).toBeVisible()
+    await revisar(page)
+  }
+  await page.getByLabel('¿Qué busca?').fill('busco costurera')
+  await page.getByRole('button', { name: 'Buscar proveedores' }).click()
+  await expect(page.getByRole('heading', { name: /Sugerencias/ })).toBeVisible()
+  await revisar(page)
+})
+
+test('directorio: enlace para los grupos', async ({ page }) => {
+  await entrar(page, 'uno')
+  await expect(page).toHaveURL(/\/e\/[^/]+$/)
+  await page.goto(`${new URL(page.url()).pathname}/directorio/enlace`)
+  await expect(page.getByRole('heading', { name: 'Enlace para los grupos', level: 1 })).toBeVisible()
+  await expect(page.getByText('Cargando')).toHaveCount(0)
+  await revisar(page)
+})

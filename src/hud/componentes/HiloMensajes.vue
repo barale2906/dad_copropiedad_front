@@ -2,7 +2,8 @@
 /**
  * Hilo de mensajes (tickets, chat, reseñas): autor y hora, los propios a la derecha y las
  * **notas internas** marcadas con texto y estilo propio (no solo con color). Genérico: el padre
- * le pasa los mensajes ya con su autor y su hora formateada.
+ * le pasa los mensajes ya con su autor y su hora formateada. El slot `pie` agrega lo propio de
+ * cada mensaje (calificación, «Reportar»…).
  */
 import ICandado from '~icons/tabler/lock'
 
@@ -20,6 +21,7 @@ withDefaults(defineProps<{ mensajes: MensajeHilo[]; etiqueta?: string; vacio?: s
   etiqueta: 'Mensajes',
   vacio: 'Aún no hay mensajes.',
 })
+defineSlots<{ pie?: (props: { mensaje: MensajeHilo }) => unknown }>()
 </script>
 
 <template>
@@ -46,7 +48,18 @@ withDefaults(defineProps<{ mensajes: MensajeHilo[]; etiqueta?: string; vacio?: s
         ><ICandado aria-hidden="true" /> Nota interna ·</span>
         {{ m.autor }} · {{ m.hora }}
       </small>
-      <p>{{ m.texto }}</p>
+      <p v-if="m.texto">
+        {{ m.texto }}
+      </p>
+      <div
+        v-if="$slots.pie"
+        class="pie"
+      >
+        <slot
+          name="pie"
+          :mensaje="m"
+        />
+      </div>
     </li>
   </ol>
 </template>
@@ -99,5 +112,13 @@ p {
 
 .vacio {
   margin: 0;
+}
+
+.pie {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 12px;
+  margin-top: 6px;
 }
 </style>

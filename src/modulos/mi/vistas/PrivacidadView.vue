@@ -6,6 +6,7 @@
  */
 import { computed, onMounted, ref } from 'vue'
 import { mensajeDeError } from '@/api/errores'
+import { autorizacionPublicidad, autorizarPublicidad, retirarPublicidad } from '@/api/publicidad'
 import type { AutorizacionPublicidad, DatosTitular, Politica, TipoSolicitudTitular } from '@/api/tipos'
 import { useAccion } from '@/composables/useAccion'
 import { fechaCalendario, fechaHora } from '@/formato/fechas'
@@ -17,7 +18,7 @@ import HudInsignia from '@/hud/componentes/HudInsignia.vue'
 import HudPanel from '@/hud/componentes/HudPanel.vue'
 import HudSelector from '@/hud/componentes/HudSelector.vue'
 import { useEntidad } from '@/stores/entidad'
-import { autorizacionPublicidad, autorizarPublicidad, misDatos, politicaVigente, radicarMiSolicitud, retirarPublicidad } from '../api'
+import { misDatos, politicaVigente, radicarMiSolicitud } from '../api'
 
 const FINALIDAD: Record<string, string> = {
   administracion: 'Administración de la copropiedad',

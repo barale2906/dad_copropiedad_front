@@ -45,6 +45,11 @@ function comunicado(n: number, titulo: string, dias: number, extra: Partial<Comu
   }
 }
 
+/** ¿La cuenta demo autorizó la publicidad? (las piezas del directorio dependen de esto). */
+export function publicidadAutorizada(): boolean {
+  return publicidad
+}
+
 export function iniciarMi(): void {
   consecutivo = 9500
   obligaciones = [

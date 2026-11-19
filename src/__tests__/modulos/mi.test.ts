@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest'
+import * as publicidad from '@/api/publicidad'
 import type { Ticket, Visita } from '@/api/tipos'
 import { limpiar } from '@/api/tokens'
 import { accionesVisibles, SECCIONES } from '@/escena/mapa-modulos'
@@ -158,13 +159,13 @@ describe('portal contra el demo', () => {
     expect((await mi.politicaVigente(PH))?.version).toBe(1)
     const s = await mi.radicarMiSolicitud(PH, d.persona.id, 'consulta', null, 'k')
     expect(s.estado).toBe('radicada')
-    const p = await mi.autorizacionPublicidad(PH)
+    const p = await publicidad.autorizacionPublicidad(PH)
     expect(p.autorizada).toBe(false)
-    await expect(mi.autorizarPublicidad(PH, 9)).rejects.toMatchObject({ estado: 422 })
-    await mi.autorizarPublicidad(PH, p.politica!.version)
-    expect((await mi.autorizacionPublicidad(PH)).autorizada).toBe(true)
-    await mi.retirarPublicidad(PH)
-    expect((await mi.autorizacionPublicidad(PH)).autorizada).toBe(false)
+    await expect(publicidad.autorizarPublicidad(PH, 9)).rejects.toMatchObject({ estado: 422 })
+    await publicidad.autorizarPublicidad(PH, p.politica!.version)
+    expect((await publicidad.autorizacionPublicidad(PH)).autorizada).toBe(true)
+    await publicidad.retirarPublicidad(PH)
+    expect((await publicidad.autorizacionPublicidad(PH)).autorizada).toBe(false)
   })
 
   it('propone cambios del censo de su bien y los ve como propios', async () => {
