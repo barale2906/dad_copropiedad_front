@@ -67,8 +67,18 @@ describe('store de sesión', () => {
     await e.entrar(s.entidades[0]!.entidad_id)
     expect(e.esPH).toBe(false)
     expect(e.tieneModulo('contabilidad')).toBe(true)
-    expect(e.tieneModulo('facturacion_electronica')).toBe(false)
+    expect(e.tieneModulo('facturacion_electronica')).toBe(true)
     expect(e.ultima()).toBe(s.entidades[0]!.entidad_id)
+  })
+
+  it('el facturador entra a una empresa con factura electrónica y sin contabilidad', async () => {
+    const s = useSesion()
+    await s.iniciar('facturador', 'x')
+    expect(s.entidades.map((x) => x.nombre)).toEqual(['Comercial Andina S.A.S.'])
+    const e = useEntidad()
+    await e.entrar(s.entidades[0]!.entidad_id)
+    expect(e.tieneModulo('facturacion_electronica')).toBe(true)
+    expect(e.tieneModulo('contabilidad')).toBe(false)
   })
 
   it('no permite entrar a una entidad ajena', async () => {

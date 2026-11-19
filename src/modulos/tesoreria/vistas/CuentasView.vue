@@ -296,7 +296,7 @@ onMounted(cargar)
   </section>
 </template>
 
-<style scoped src="./tesoreria.css"></style>
+<style scoped src="@/hud/estilos/modulo.css"></style>
 <style scoped>
 .saldo {
   font-size: 18px;

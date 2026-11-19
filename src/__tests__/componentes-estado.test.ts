@@ -1,6 +1,6 @@
 import { flushPromises, mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
-import { nextTick } from 'vue'
+import { defineComponent, h, nextTick } from 'vue'
 import ConfirmarConMotivo from '@/hud/componentes/ConfirmarConMotivo.vue'
 import HudCampoMonto from '@/hud/componentes/HudCampoMonto.vue'
 import HudDialogo from '@/hud/componentes/HudDialogo.vue'
@@ -68,6 +68,19 @@ describe('ConfirmarConMotivo', () => {
     await w.get('textarea').setValue('  Error de digitación  ')
     await w.get('form').trigger('submit')
     expect(w.emitted('confirmar')).toEqual([['Error de digitación']])
+    w.unmount()
+  })
+
+  it('dos confirmaciones en la misma pantalla: cada botón apunta a su propio formulario', () => {
+    const props = { titulo: 'A', accion: 'Confirmar', abierto: true }
+    // Las dos en la misma app, como en una vista (anular y nota crédito en el detalle de una factura).
+    const w = mount(defineComponent({ render: () => [h(ConfirmarConMotivo, props), h(ConfirmarConMotivo, { ...props, titulo: 'B' })] }), { attachTo: document.body })
+    const formularios = w.findAll('form').map((f) => f.attributes('id'))
+    const botones = w.findAll('button[type="submit"]').map((b) => b.attributes('form'))
+    expect(formularios).toHaveLength(2)
+    expect(formularios[0]).toBeTruthy()
+    expect(formularios[0]).not.toBe(formularios[1])
+    expect(botones).toEqual(formularios)
     w.unmount()
   })
 })

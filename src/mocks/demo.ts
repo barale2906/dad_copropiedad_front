@@ -8,7 +8,8 @@
  * Usuarios: cualquiera con cualquier contraseña.
  *  - que contenga `2fa` → pide segundo factor (código 123456)
  *  - que contenga `uno` → una sola entidad (entra directo)
- *  - que contenga `empresa` → solo la empresa (maqueta de oficina)
+ *  - que contenga `empresa` → solo la empresa con contabilidad y factura electrónica (oficina)
+ *  - que contenga `facturador` → solo «Comercial Andina»: factura electrónica sin contabilidad
  *  - que contenga `nuevo` → sin entidades (cuenta aún sin roles)
  *  - que contenga `revisor` → otra cuenta con las mismas entidades (cuatro ojos: verifica lo que
  *    ejecutó el administrador)
@@ -23,6 +24,7 @@ import { ficha, iniciarFicha } from './ficha'
 import { iniciarProteccion, proteccion } from './proteccion'
 import { asambleas, iniciarAsambleas } from './asambleas'
 import { contabilidad, iniciarContabilidad } from './contabilidad'
+import { facturacion, iniciarFacturacion } from './facturacion'
 import { iniciarTesoreria, tesoreria } from './tesoreria'
 import { iniciarTributario, tributario } from './tributario'
 import { gestion, iniciarGestion } from './gestion'
@@ -33,7 +35,7 @@ import { iniciarZonasComunes, zonasComunes } from './zonas-comunes'
 import { error, json, ZONA_DEMO, type Manejador } from './http'
 
 /** Manejadores que exigen sesión, en orden; el primero que responda gana. */
-const CON_SESION: Manejador[] = [cuenta, archivos, ficha, unidades, mi, gestion, asambleas, tesoreria, tributario, contabilidad, porteria, proteccion, zonasComunes, entidad, permisos]
+const CON_SESION: Manejador[] = [cuenta, archivos, ficha, unidades, mi, gestion, asambleas, facturacion, tesoreria, tributario, contabilidad, porteria, proteccion, zonasComunes, entidad, permisos]
 /** Manejadores sin sesión (además del inicio de sesión). */
 const SIN_SESION: Manejador[] = [cuentaPublica]
 
@@ -57,7 +59,8 @@ const TODOS: Permiso[] = [
   'contabilidad.exportar', 'tesoreria.recibos.registrar', 'tesoreria.egresos.registrar',
   'tesoreria.conciliar', 'cartera.ver', 'cartera.liquidar', 'cartera.certificados.emitir',
   'presupuesto.gestionar', 'tributario.preparar', 'terceros.gestionar', 'facturacion.ver',
-  'facturacion.facturas.gestionar', 'facturacion.emitir', 'directorio.ver', 'directorio.compartir',
+  'facturacion.facturas.gestionar', 'facturacion.emitir', 'facturacion.items.gestionar', 'facturacion.exportar',
+  'facturacion.configurar', 'facturacion.certificado.gestionar', 'facturacion.recibir', 'directorio.ver', 'directorio.compartir',
   'importaciones.ejecutar',
   'roles.asignar', 'proteccion_datos.gestionar', 'tributario.configurar',
   'copropiedad.datos.editar', 'archivos.personales.ver', 'suscripcion.ver', 'organizaciones.crear',
@@ -102,7 +105,17 @@ const ENTIDADES: (EntidadDeLaCuenta & { capacidades: Capacidades })[] = [
     tipo: 'empresa',
     estado: 'activa',
     roles: ['contador'],
-    capacidades: { tipo: 'empresa', permisos: TODOS, modulos: ['contabilidad'], modo_soporte: false, entidad_suspendida: false, zona_horaria: ZONA_DEMO },
+    capacidades: { tipo: 'empresa', permisos: TODOS, modulos: ['contabilidad', 'facturacion_electronica'], modo_soporte: false, entidad_suspendida: false, zona_horaria: ZONA_DEMO },
+  },
+  {
+    // Solo factura electrónica (sin contabilidad): la facturación del plan 12 sin cuentas.
+    entidad_id: '01930000-0000-7000-8000-000000000004',
+    nombre: 'Comercial Andina S.A.S.',
+    nit: '901777888-1',
+    tipo: 'empresa',
+    estado: 'activa',
+    roles: ['administrador'],
+    capacidades: { tipo: 'empresa', permisos: TODOS, modulos: ['facturacion_electronica'], modo_soporte: false, entidad_suspendida: false, zona_horaria: ZONA_DEMO },
   },
 ]
 
@@ -163,8 +176,10 @@ function entidadesDe(u: string): EntidadDeLaCuenta[] {
     const e = ENTIDADES[0]!
     return [{ entidad_id: e.entidad_id, nombre: e.nombre, nit: e.nit, tipo: e.tipo, estado: e.estado, roles }]
   }
-  const lista = u.includes('empresa')
-    ? ENTIDADES.filter((e) => e.tipo === 'empresa')
+  const lista = u.includes('facturador')
+    ? ENTIDADES.filter((e) => e.nombre.startsWith('Comercial Andina'))
+    : u.includes('empresa')
+    ? ENTIDADES.filter((e) => e.nombre.startsWith('DAD Servicios'))
     : u.includes('uno')
       ? ENTIDADES.slice(0, 1)
       : ENTIDADES
@@ -203,6 +218,7 @@ export async function fetchDemo(req: Request): Promise<Response> {
     iniciarProteccion()
     iniciarZonasComunes()
     iniciarArchivos()
+    iniciarFacturacion()
     if (usuario.includes('2fa')) {
       return json({ resultado: 'segundo_factor', desafio: 'demo-desafio', desafio_expira_en: new Date(Date.now() + 300_000).toISOString() })
     }
@@ -230,6 +246,7 @@ export async function fetchDemo(req: Request): Promise<Response> {
     iniciarProteccion()
     iniciarZonasComunes()
     iniciarArchivos()
+    iniciarFacturacion()
     return json(tokens())
   }
   if (m === 'POST' && ruta === '/auth/contrasena/recuperar') return new Response(null, { status: 202 })

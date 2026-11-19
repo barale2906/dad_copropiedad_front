@@ -73,13 +73,19 @@ describe('mapa de módulos', () => {
   it('una acción con módulo propio se oculta sin apagar la sección', () => {
     const permisos: Permiso[] = ['facturacion.ver', 'facturacion.emitir', 'facturacion.recibir']
     const soloContabilidad = consulta(['contabilidad'], permisos)
-    expect(ids('facturacion', soloContabilidad)).toEqual(['facturas'])
+    expect(ids('facturacion', soloContabilidad)).toEqual(['inicio', 'facturas', 'catalogo'])
     expect(estadoSeccion(SECCIONES.facturacion!, soloContabilidad)).toBe('activa')
     expect(ids('facturacion', consulta(['facturacion_electronica'], permisos))).toEqual([
+      'inicio',
       'facturas',
-      'emitir',
+      'catalogo',
+      'documentos',
       'recibidas',
     ])
+    // Contabilizar lo facturado exige el módulo de contabilidad (además del permiso).
+    const contabilizar: Permiso[] = ['contabilidad.comprobantes.contabilizar']
+    expect(ids('facturacion', consulta(['facturacion_electronica'], contabilizar))).toEqual([])
+    expect(ids('facturacion', consulta(['facturacion_electronica', 'contabilidad'], contabilizar))).toEqual(['contabilizacion'])
   })
 
   it('las declaraciones tributarias solo aparecen con contabilidad', () => {

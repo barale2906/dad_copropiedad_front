@@ -179,7 +179,7 @@ watch(anio, cargar, { immediate: true })
   </section>
 </template>
 
-<style scoped src="./tributario.css"></style>
+<style scoped src="@/hud/estilos/modulo.css"></style>
 <style scoped>
 .ok p {
   margin: 0;

@@ -57,10 +57,13 @@ const CONCEPTOS: ConceptoRetencion[] = [
 ]
 const UVT = fechaDemo().slice(0, 4)
 
-/** Factura de venta mínima para aplicar recibos (lo que usa la interfaz). */
-const FACTURAS_VENTA = [
-  { id: id(32001), persona_id: PEDRO, numero: 'FV-120', fecha: dias(-40), vencimiento: dias(-10), descripcion: 'Alquiler del salón social', subtotal: '420168.07', iva: '79831.93', total: '500000.00', pagado: '200000.00', estado: 'emitida', creada_en: ahora(), lineas: [] },
-  { id: id(32002), persona_id: PEDRO, numero: 'FV-131', fecha: dias(-5), vencimiento: dias(25), descripcion: 'Parqueadero de visitantes', subtotal: '84033.61', iva: '15966.39', total: '100000.00', pagado: '0', estado: 'emitida', creada_en: ahora(), lineas: [] },
+/**
+ * Facturas de venta de la PH para aplicar recibos. Las atiende `./facturacion` (es la misma
+ * lista: los abonos de un recibo se ven en la factura).
+ */
+export const FACTURAS_VENTA = [
+  { id: id(32001), persona_id: PEDRO, numero: 120, fecha: dias(-40), vencimiento: dias(-10), descripcion: 'Alquiler del salón social', subtotal: '420168.07', iva: '79831.93', total: '500000.00', pagado: '200000.00', estado: 'emitida', creada_en: ahora(), lineas: [] },
+  { id: id(32002), persona_id: PEDRO, numero: 131, fecha: dias(-5), vencimiento: dias(25), descripcion: 'Parqueadero de visitantes', subtotal: '84033.61', iva: '15966.39', total: '100000.00', pagado: '0', estado: 'emitida', creada_en: ahora(), lineas: [] },
 ]
 
 function cuenta(n: number, tipo: CuentaTesoreria['tipo'], nombre: string, codigo: string, extra: Partial<CuentaTesoreria> = {}): CuentaTesoreria {
@@ -194,8 +197,6 @@ const pendientesLibros = (cuentaId: string) => libros.filter((l) => l.cuenta ===
 export const tesoreria: Manejador = async (req, ruta) => {
   const m = req.method
   const q = new URL(req.url).searchParams
-  const fv = ruta.match(/^\/entidades\/[^/]+\/facturacion\/facturas$/)
-  if (fv && m === 'GET') return json(FACTURAS_VENTA.filter((f) => !q.get('persona_id') || f.persona_id === q.get('persona_id')))
   const b = ruta.match(/^\/entidades\/[^/]+\/contabilidad\/(tesoreria|cuentas-por-pagar|cuentas-por-cobrar)(\/.*)?$/)
   if (!b) return null
   const r = `/${b[1]}${b[2] ?? ''}`

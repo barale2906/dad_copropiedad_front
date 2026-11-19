@@ -211,7 +211,7 @@ onMounted(async () => {
   </FlujoDosPasos>
 </template>
 
-<style scoped src="../vistas/tesoreria.css"></style>
+<style scoped src="@/hud/estilos/modulo.css"></style>
 <style scoped>
 .subir {
   display: inline-flex;

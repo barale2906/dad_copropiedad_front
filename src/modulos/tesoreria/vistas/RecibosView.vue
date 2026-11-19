@@ -10,6 +10,7 @@ import { mensajeDeError } from '@/api/errores'
 import type { CuentaTesoreria, FacturaVenta, NuevoRecibo, Recibo } from '@/api/tipos'
 import { useAccion } from '@/composables/useAccion'
 import { comparar, moneda, restar } from '@/formato/decimales'
+import { numeroFacturaVenta } from '@/formato/facturacion'
 import { fechaCalendario, fechaHora } from '@/formato/fechas'
 import ConfirmarConMotivo from '@/hud/componentes/ConfirmarConMotivo.vue'
 import HudBoton from '@/hud/componentes/HudBoton.vue'
@@ -67,7 +68,12 @@ const crear = useAccion((clave, datos: NuevoRecibo) => crearRecibo(id.value, dat
 const anular = useAccion((_c, motivo: string) => anularRecibo(id.value, reciboId.value, motivo))
 const aplicar = useAccion(() => aplicarRecibo(id.value, reciboId.value, facturaElegida.value, valorAplicar.value))
 const pendientes = computed(() => facturas.value.filter((f) => comparar(restar(f.total, f.pagado), '0') > 0))
-const opcionesFactura = computed(() => pendientes.value.map((f) => ({ valor: f.id, etiqueta: `${f.numero} · saldo ${moneda(restar(f.total, f.pagado))}` })))
+/** Número de la factura a la que se aplicó el recibo (si se conoce). */
+function textoFactura(facturaId: string | null | undefined): string {
+  const f = facturas.value.find((x) => x.id === facturaId)
+  return f ? numeroFacturaVenta(f) : 'Factura de venta'
+}
+const opcionesFactura = computed(() => pendientes.value.map((f) => ({ valor: f.id, etiqueta: `${numeroFacturaVenta(f)} · saldo ${moneda(restar(f.total, f.pagado))}` })))
 const puedeAplicar = computed(() => !!actual.value && actual.value.estado === 'registrado' && !!actual.value.persona_id && comparar(actual.value.sin_aplicar, '0') > 0 && registra.value && entidad.tienePermiso('facturacion.ver'))
 
 async function alCrear(datos: NuevoRecibo) {
@@ -219,7 +225,7 @@ onMounted(cargar)
               :key="a.id"
             >
               <span class="crece">
-                <strong>{{ facturas.find((f) => f.id === a.factura_venta_id)?.numero ?? 'Factura de venta' }}</strong>
+                <strong>{{ textoFactura(a.factura_venta_id) }}</strong>
                 <small>{{ fechaHora(a.aplicada_en, zona) }}{{ a.anulada_en ? ' · anulada' : '' }}</small>
               </span>
               <span class="cifra">{{ moneda(a.valor) }}</span>
@@ -344,4 +350,4 @@ onMounted(cargar)
   </section>
 </template>
 
-<style scoped src="./tesoreria.css"></style>
+<style scoped src="@/hud/estilos/modulo.css"></style>

@@ -548,3 +548,46 @@ test('tributario: terceros, perfil, resoluciones, impuestos, exógena y benefici
   }
 })
 
+
+/** Revisa con axe las pantallas de facturación de Comercial Andina (factura electrónica sin contabilidad). */
+async function revisarFacturacion(page: Page, pantallas: [string, string][]) {
+  await entrar(page, 'facturador')
+  await expect(page).toHaveURL(/\/e\/[^/]+$/)
+  const base = `${new URL(page.url()).pathname}/facturacion`
+  for (const [ruta, titulo] of pantallas) {
+    await page.goto(`${base}/${ruta}`)
+    await expect(page.getByRole('heading', { name: titulo, level: 1 })).toBeVisible()
+    await expect(page.getByText('Cargando')).toHaveCount(0)
+    await revisar(page)
+  }
+}
+
+test('facturación: inicio, facturas, factura nueva y detalle, catálogo', async ({ page }) => {
+  await revisarFacturacion(page, [
+    ['inicio', 'Facturación'],
+    ['facturas', 'Facturas de venta'],
+    ['facturas/nueva', 'Factura nueva'],
+    ['facturas/01930000-0000-7000-8000-000000074002', 'Factura de venta'],
+    ['catalogo', 'Catálogo de productos'],
+  ])
+})
+
+test('facturación: compras, documentos, recibidas, libros y habilitación', async ({ page }) => {
+  await revisarFacturacion(page, [
+    ['compras', 'Compras y documento soporte'],
+    ['documentos', 'Documentos electrónicos'],
+    ['recibidas', 'Facturas recibidas'],
+    ['recibidas/01930000-0000-7000-8000-000000077002', 'Factura recibida'],
+    ['libros', 'Libros y paquete para el contador'],
+    ['habilitacion', 'Habilitación DIAN'],
+  ])
+})
+
+test('facturación con contabilidad: contabilizar lo facturado', async ({ page }) => {
+  await entrar(page, 'empresa')
+  await expect(page).toHaveURL(/\/e\/[^/]+$/)
+  await page.goto(`${new URL(page.url()).pathname}/facturacion/contabilizacion`)
+  await page.getByRole('button', { name: 'Contabilizar el periodo' }).click()
+  await expect(page.getByText('Contabilizadas')).toBeVisible()
+  await revisar(page)
+})

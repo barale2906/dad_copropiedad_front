@@ -36,13 +36,14 @@ del contrato (`src/mocks/demo.ts`). Cualquier usuario y contraseña entran:
 
 | Usuario contiene | Resultado |
 |---|---|
-| (cualquiera) | 3 entidades → selector |
+| (cualquiera) | 4 entidades → selector |
 | `uno` | 1 PH → entra directo a la maqueta del conjunto |
-| `empresa` | 1 empresa → maqueta de oficina |
+| `empresa` | 1 empresa con contabilidad y factura electrónica → maqueta de oficina |
+| `facturador` | 1 empresa solo con factura electrónica (sin contabilidad y sin habilitar ante la DIAN) |
 | `2fa` | pide segundo factor (código `123456`) |
 
-En el demo, el conjunto no tiene contratados `publicidad` ni `facturacion_electronica`, y la
-empresa solo tiene `contabilidad`: así se ven las zonas apagadas.
+En el demo, el conjunto no tiene contratados `control_acceso` ni `facturacion_electronica`, y la
+empresa del `facturador` no lleva contabilidad: así se ven las zonas y acciones apagadas.
 
 ## Despliegue (pruebas y producción)
 

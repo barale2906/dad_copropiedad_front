@@ -1,5 +1,5 @@
 import { expect, type Page, test } from '@playwright/test'
-import { entrar } from './utilidades'
+import { elegirTercero, entrar } from './utilidades'
 
 const PH = '01930000-0000-7000-8000-000000000001'
 
@@ -10,11 +10,6 @@ async function abrir(page: Page, ruta: string) {
   await entrar(page, 'uno')
   await expect(page).toHaveURL(new RegExp(`/e/${PH}`))
   await page.goto(`/e/${PH}/tesoreria/${ruta}`)
-}
-
-async function elegirTercero(page: Page, etiqueta: string, texto: string, nombre: string) {
-  await page.getByRole('searchbox', { name: etiqueta, exact: true }).fill(texto)
-  await page.getByRole('button', { name: new RegExp(nombre) }).first().click()
 }
 
 test.describe('tesorería', () => {

@@ -236,7 +236,7 @@ const signo = (v: string) => (v.startsWith('-') ? 'sale' : 'entra')
   </div>
 </template>
 
-<style scoped src="../vistas/tesoreria.css"></style>
+<style scoped src="@/hud/estilos/modulo.css"></style>
 <style scoped>
 .conciliador {
   display: grid;

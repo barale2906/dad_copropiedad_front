@@ -21,3 +21,10 @@ export async function esperarMaqueta(page: Page): Promise<void> {
 export async function elegirZona(page: Page, nombre: string | RegExp): Promise<void> {
   await page.getByRole('listitem').filter({ hasText: nombre }).click()
 }
+
+/** Busca y elige un tercero en un `SelectorTercero` (cliente, proveedor, pagador…). */
+export async function elegirTercero(page: Page, etiqueta: string, texto: string, nombre: string): Promise<void> {
+  await page.getByRole('searchbox', { name: etiqueta, exact: true }).fill(texto)
+  // Anclado al inicio: otros botones de la página pueden mencionar el mismo nombre.
+  await page.getByRole('button', { name: new RegExp(`^${nombre}`) }).first().click()
+}

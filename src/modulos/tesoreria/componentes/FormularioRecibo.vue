@@ -8,6 +8,7 @@ import { computed, ref, watch } from 'vue'
 import type { CuentaTesoreria, FacturaVenta, MedioRecibo, NuevoRecibo } from '@/api/tipos'
 import { opcionesDe } from '@/composables/textos-acceso'
 import { comparar, moneda, restar, sumar } from '@/formato/decimales'
+import { numeroFacturaVenta } from '@/formato/facturacion'
 import { fechaCalendario, hoyEn } from '@/formato/fechas'
 import HudBoton from '@/hud/componentes/HudBoton.vue'
 import HudCampo from '@/hud/componentes/HudCampo.vue'
@@ -116,12 +117,12 @@ function guardar() {
         class="aplicacion"
       >
         <span class="crece">
-          <strong>{{ f.numero }} · {{ f.descripcion }}</strong>
+          <strong>{{ numeroFacturaVenta(f) }} · {{ f.descripcion }}</strong>
           <small>Vence el {{ fechaCalendario(f.vencimiento) }} · saldo {{ moneda(saldo(f)) }}</small>
         </span>
         <HudCampoMonto
           :model-value="aplicar[f.id] ?? ''"
-          :etiqueta="`Aplicar a ${f.numero}`"
+          :etiqueta="`Aplicar a ${numeroFacturaVenta(f)}`"
           @update:model-value="(v) => (aplicar = { ...aplicar, [f.id]: v })"
         />
       </div>
@@ -147,7 +148,7 @@ function guardar() {
   </form>
 </template>
 
-<style scoped src="../vistas/tesoreria.css"></style>
+<style scoped src="@/hud/estilos/modulo.css"></style>
 <style scoped>
 .aplicaciones {
   display: grid;

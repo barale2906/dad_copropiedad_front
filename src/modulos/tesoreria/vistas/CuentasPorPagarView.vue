@@ -343,4 +343,4 @@ onMounted(cargar)
   </section>
 </template>
 
-<style scoped src="./tesoreria.css"></style>
+<style scoped src="@/hud/estilos/modulo.css"></style>

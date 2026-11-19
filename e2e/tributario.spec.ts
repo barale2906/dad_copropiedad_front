@@ -89,7 +89,8 @@ test.describe('tributario', () => {
   test('beneficiarios finales y crear un proveedor en línea desde una factura', async ({ page }) => {
     await abrir(page, 'tributario/beneficiarios')
     await page.getByRole('searchbox', { name: 'Persona', exact: true }).fill('pedro')
-    await page.getByRole('button', { name: /Pedro Pérez/ }).first().click()
+    // Anclado al inicio: la lista también tiene «Terminar la vigencia de Pedro Pérez».
+    await page.getByRole('button', { name: /^Pedro Pérez/ }).first().click()
     await page.getByLabel('Participación (%)').fill('25')
     await page.getByRole('button', { name: 'Registrar' }).click()
     await expect(page.getByRole('status').filter({ hasText: 'Pedro Pérez registrado como beneficiario final' })).toBeVisible()

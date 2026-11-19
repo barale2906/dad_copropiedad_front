@@ -100,6 +100,33 @@ export interface Descarga {
   sha256: string | null
 }
 
+/** Un archivo recibido de un endpoint, sin guardarlo todavía (p. ej. para mostrar un PDF). */
+export interface ArchivoRecibido extends Descarga {
+  blob: Blob
+}
+
+/**
+ * Recibe la respuesta de un endpoint que devuelve un archivo (CSV, ZIP, PDF) con su nombre y
+ * huella, sin guardarlo: lo usa `descargar` y los visores (el PDF de una factura).
+ */
+export async function recibirArchivo(
+  peticion: Promise<{ data?: Blob; error?: unknown; response: Response }>,
+  predeterminado = 'descarga',
+): Promise<ArchivoRecibido> {
+  let r: Awaited<typeof peticion>
+  try {
+    r = await peticion
+  } catch {
+    throw ErrorApi.red()
+  }
+  if (!r.response.ok || !r.data) throw ErrorApi.desde(r.response, r.error)
+  return {
+    blob: r.data,
+    nombre: nombreDeDisposicion(r.response.headers.get('Content-Disposition'), predeterminado),
+    sha256: r.response.headers.get('X-Contenido-Sha256'),
+  }
+}
+
 /**
  * Descarga la respuesta de un endpoint que devuelve un archivo (CSV, ZIP, PDF):
  *
@@ -111,16 +138,9 @@ export async function descargar(
   peticion: Promise<{ data?: Blob; error?: unknown; response: Response }>,
   predeterminado = 'descarga',
 ): Promise<Descarga> {
-  let r: Awaited<typeof peticion>
-  try {
-    r = await peticion
-  } catch {
-    throw ErrorApi.red()
-  }
-  if (!r.response.ok || !r.data) throw ErrorApi.desde(r.response, r.error)
-  const nombre = nombreDeDisposicion(r.response.headers.get('Content-Disposition'), predeterminado)
-  guardarBlob(r.data, nombre)
-  return { nombre, sha256: r.response.headers.get('X-Contenido-Sha256') }
+  const { blob, nombre, sha256 } = await recibirArchivo(peticion, predeterminado)
+  guardarBlob(blob, nombre)
+  return { nombre, sha256 }
 }
 
 /** Contenido de un archivo en Base64 (extractos, XML de recibidas, `.p12`, firmas, fotos). */

@@ -89,4 +89,4 @@ watch(corte, cargar, { immediate: true })
   </section>
 </template>
 
-<style scoped src="./tesoreria.css"></style>
+<style scoped src="@/hud/estilos/modulo.css"></style>

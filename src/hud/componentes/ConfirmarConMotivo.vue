@@ -3,7 +3,7 @@
  * Confirmación de una acción que exige motivo (anular, rechazar, revertir, cancelar). Emite
  * `confirmar` con el motivo ya recortado; el padre ejecuta la acción y cierra el diálogo.
  */
-import { computed, ref, watch } from 'vue'
+import { computed, ref, useId, watch } from 'vue'
 import HudBoton from './HudBoton.vue'
 import HudCampo from './HudCampo.vue'
 import HudDialogo from './HudDialogo.vue'
@@ -23,6 +23,8 @@ const props = withDefaults(
 const abierto = defineModel<boolean>('abierto', { required: true })
 const emit = defineEmits<{ confirmar: [motivo: string] }>()
 
+// Un id por instancia: con dos confirmaciones en la misma pantalla, cada botón envía su formulario.
+const formulario = useId()
 const motivo = ref('')
 const intentado = ref(false)
 const valido = computed(() => motivo.value.trim().length >= props.minimo)
@@ -55,7 +57,7 @@ function confirmar() {
       {{ descripcion }}
     </p>
     <form
-      id="confirmar-con-motivo"
+      :id="formulario"
       @submit.prevent="confirmar"
     >
       <HudCampo
@@ -76,7 +78,7 @@ function confirmar() {
       </HudBoton>
       <HudBoton
         tipo="submit"
-        form="confirmar-con-motivo"
+        :form="formulario"
         :cargando="cargando"
       >
         {{ accion }}

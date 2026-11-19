@@ -455,4 +455,4 @@ watch(corte, () => pestana.value === 'informe' && void cargar())
   </section>
 </template>
 
-<style scoped src="./tesoreria.css"></style>
+<style scoped src="@/hud/estilos/modulo.css"></style>

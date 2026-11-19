@@ -172,4 +172,4 @@ async function alGuardar(datos: DatosFiscales) {
   </section>
 </template>
 
-<style scoped src="./tributario.css"></style>
+<style scoped src="@/hud/estilos/modulo.css"></style>

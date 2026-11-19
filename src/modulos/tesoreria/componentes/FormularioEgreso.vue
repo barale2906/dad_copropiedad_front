@@ -190,7 +190,7 @@ function guardar() {
   </form>
 </template>
 
-<style scoped src="../vistas/tesoreria.css"></style>
+<style scoped src="@/hud/estilos/modulo.css"></style>
 <style scoped>
 .grupo {
   display: grid;

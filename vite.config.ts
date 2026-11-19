@@ -50,6 +50,7 @@ export default defineConfig({
         'src/modulos/contabilidad/reglas.ts',
         'src/modulos/tesoreria/reglas.ts',
         'src/modulos/tributario/reglas.ts',
+        'src/modulos/facturacion/reglas.ts',
         'src/modulos/zonas-comunes/{reservas,recursos,store}.ts',
         'src/modulos/unidades/{coeficientes,titulares,censo,bienes}.ts',
         'src/modulos/mi/reglas.ts',

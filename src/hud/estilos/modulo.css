@@ -1,4 +1,4 @@
-/* Estilos comunes del módulo tributario (escritorio primero; usable desde 360 px). */
+/* Estilos comunes de las vistas de los módulos contables (tesorería, tributario, facturación): escritorio primero, usable desde 360 px. */
 section {
   display: grid;
   gap: 16px;
