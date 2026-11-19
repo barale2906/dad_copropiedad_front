@@ -26,3 +26,11 @@ export function buscarTerceros(id: string, texto: string, despues?: string, limi
     api().GET('/api/v1/entidades/{entidad_id}/terceros', { params: { ...e(id), query: { texto: texto.trim() || undefined, limite, despues } } }),
   )
 }
+
+/** Saldo (débitos − créditos) de una cuenta contable a una fecha, desde el libro mayor. */
+export async function saldoDeCuenta(id: string, codigo: string, hasta: string): Promise<string> {
+  const m = await exigir(
+    api().GET('/api/v1/entidades/{entidad_id}/contabilidad/reportes/libro-mayor', { params: { ...e(id), query: { cuenta: codigo, desde: '1900-01-01', hasta } } }),
+  )
+  return m.saldo_final
+}

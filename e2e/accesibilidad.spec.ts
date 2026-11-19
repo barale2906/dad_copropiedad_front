@@ -508,3 +508,23 @@ test('contabilidad: inicio, reportes, configuración y apertura', async ({ page 
   await revisar(page)
 })
 
+test('tesorería: bancos, recibos, egresos, cuentas por pagar, conciliación y cartera', async ({ page }) => {
+  await entrar(page, 'uno')
+  await expect(page).toHaveURL(/\/e\/[^/]+$/)
+  const base = `${new URL(page.url()).pathname}/tesoreria`
+  const pantallas: [string, string][] = [
+    ['cuentas', 'Bancos y cajas'],
+    ['recibos/nuevo', 'Nuevo recibo de caja'],
+    ['egresos', 'Egresos'],
+    ['cuentas-por-pagar/nueva', 'Nueva factura de proveedor'],
+    ['conciliacion/01930000-0000-7000-8000-000000030001', 'Conciliación: Cuenta corriente principal'],
+    ['cartera-clientes', 'Cartera de clientes'],
+  ]
+  for (const [ruta, titulo] of pantallas) {
+    await page.goto(`${base}/${ruta}`)
+    await expect(page.getByRole('heading', { name: titulo, level: 1 })).toBeVisible()
+    await expect(page.getByText('Cargando')).toHaveCount(0)
+    await revisar(page)
+  }
+})
+

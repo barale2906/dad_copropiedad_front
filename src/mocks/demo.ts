@@ -23,6 +23,7 @@ import { ficha, iniciarFicha } from './ficha'
 import { iniciarProteccion, proteccion } from './proteccion'
 import { asambleas, iniciarAsambleas } from './asambleas'
 import { contabilidad, iniciarContabilidad } from './contabilidad'
+import { iniciarTesoreria, tesoreria } from './tesoreria'
 import { gestion, iniciarGestion } from './gestion'
 import { iniciarMi, mi } from './mi'
 import { iniciarPorteria, porteria } from './porteria'
@@ -31,7 +32,7 @@ import { iniciarZonasComunes, zonasComunes } from './zonas-comunes'
 import { error, json, type Manejador } from './http'
 
 /** Manejadores que exigen sesión, en orden; el primero que responda gana. */
-const CON_SESION: Manejador[] = [cuenta, archivos, ficha, unidades, mi, gestion, asambleas, contabilidad, porteria, proteccion, zonasComunes, entidad, permisos]
+const CON_SESION: Manejador[] = [cuenta, archivos, ficha, unidades, mi, gestion, asambleas, tesoreria, contabilidad, porteria, proteccion, zonasComunes, entidad, permisos]
 /** Manejadores sin sesión (además del inicio de sesión). */
 const SIN_SESION: Manejador[] = [cuentaPublica]
 
@@ -50,6 +51,7 @@ const TODOS: Permiso[] = [
   'contabilidad.ver', 'contabilidad.configurar', 'contabilidad.comprobantes.crear',
   'contabilidad.comprobantes.contabilizar', 'contabilidad.comprobantes.revertir', 'contabilidad.periodos.cerrar',
   'contabilidad.periodos.reabrir', 'contabilidad.periodos.aprobar_reapertura',
+  'tesoreria.configurar', 'tesoreria.egresos.autorizar', 'tesoreria.facturas_proveedor.gestionar',
   'contabilidad.exportar', 'tesoreria.recibos.registrar', 'tesoreria.egresos.registrar',
   'tesoreria.conciliar', 'cartera.ver', 'cartera.liquidar', 'cartera.certificados.emitir',
   'presupuesto.gestionar', 'tributario.preparar', 'terceros.gestionar', 'facturacion.ver',
@@ -191,6 +193,7 @@ export async function fetchDemo(req: Request): Promise<Response> {
     iniciarGestion(usuario, usuario.includes('residente'))
     iniciarAsambleas()
     iniciarContabilidad(usuario)
+    iniciarTesoreria(usuario)
     iniciarFicha(ENTIDADES)
     iniciarProteccion()
     iniciarZonasComunes()
@@ -215,6 +218,7 @@ export async function fetchDemo(req: Request): Promise<Response> {
     iniciarGestion(usuario, usuario.includes('residente'))
     iniciarAsambleas()
     iniciarContabilidad(usuario)
+    iniciarTesoreria(usuario)
     iniciarFicha(ENTIDADES)
     iniciarProteccion()
     iniciarZonasComunes()

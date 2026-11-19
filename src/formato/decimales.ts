@@ -59,6 +59,11 @@ export function porcentajeDe(monto: string, porcentaje: string): string {
   return dec(monto).times(dec(porcentaje)).dividedBy(100).toFixed(2)
 }
 
+/** Producto exacto de dos textos decimales: `multiplicar("4", "52374")` → `"209496"`. */
+export function multiplicar(a: string, b: string): string {
+  return dec(a).times(dec(b)).toString()
+}
+
 /** Qué porcentaje es `parte` de `total` (texto), redondeado: `("0.3", "0.6")` → `"50.00"`; total cero → `"0"`. */
 export function proporcion(parte: string, total: string, decimales = 2): string {
   const t = dec(total)
