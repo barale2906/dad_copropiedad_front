@@ -5,6 +5,7 @@ import * as a from '@/modulos/contabilidad/api'
 import { arbolBalance, filasVisibles, leerCsvSaldos, leerPrefijos, saldoCorrido, saldoNatural, totalesBalance } from '@/modulos/contabilidad/reglas'
 import { useEntidad } from '@/stores/entidad'
 import { useSesion } from '@/stores/sesion'
+import { fechaDemo } from '@/mocks/http'
 import { prepararConDemo } from '../ayudantes'
 
 const PH = '01930000-0000-7000-8000-000000000001'
@@ -99,7 +100,7 @@ describe('configuración, apertura y reportes contra el demo', { timeout: 25_000
   })
 
   it('saldos iniciales y cierre anual', async () => {
-    const hoy = new Date().toISOString().slice(0, 10)
+    const hoy = fechaDemo()
     await expect(a.saldosIniciales(PH, { fecha: hoy, lineas: [{ cuenta: '110505', debito: '10' }, { cuenta: '310505', credito: '9' }] }, 's0')).rejects.toMatchObject({ codigo: 'regla_contable' })
     const ap = await a.saldosIniciales(PH, { fecha: hoy, lineas: [{ cuenta: '110505', debito: '10' }, { cuenta: '310505', credito: '10' }] }, 's1')
     expect(ap).toMatchObject({ tipo: 'AP', estado: 'contabilizado', numero: 2 })

@@ -3,6 +3,9 @@ import { entrar } from './utilidades'
 
 const PH = '01930000-0000-7000-8000-000000000001'
 
+/** Hoy en la zona de las entidades del demo (como la interfaz y el backend simulado). */
+const hoyDemo = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Bogota' }).format(new Date())
+
 async function abrir(page: Page, ruta: string) {
   await entrar(page, 'uno')
   await expect(page).toHaveURL(new RegExp(`/e/${PH}`))
@@ -142,13 +145,13 @@ test.describe('contabilidad', () => {
     })
     await expect(page.getByRole('list', { name: 'Filas del CSV con errores' })).toContainText('Fila 4')
     await expect(page.getByRole('combobox', { name: 'Cuenta de la línea 2' })).toHaveValue(/310505/)
-    await page.getByLabel('Fecha', { exact: true }).fill(new Date().toISOString().slice(0, 10))
+    await page.getByLabel('Fecha', { exact: true }).fill(hoyDemo())
     await page.getByRole('button', { name: 'Registrar los saldos iniciales' }).click()
     await page.getByRole('dialog', { name: 'Registrar los saldos iniciales' }).getByRole('button', { name: 'Registrar' }).click()
     await expect(page.getByRole('status').filter({ hasText: 'Saldos iniciales registrados como AP-2' })).toBeVisible()
 
     await page.getByRole('link', { name: 'Cierre anual' }).click()
-    await page.getByLabel('Año que se cierra').selectOption(String(new Date().getFullYear()))
+    await page.getByLabel('Año que se cierra').selectOption(hoyDemo().slice(0, 4))
     await page.getByRole('button', { name: 'Ver vista previa' }).click()
     await expect(page.getByText(/Excedente de \d{4}/)).toBeVisible()
     await page.getByRole('button', { name: 'Contabilizar el cierre' }).click()

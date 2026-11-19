@@ -25,3 +25,11 @@ export async function cuerpo<T>(req: Request): Promise<T> {
 
 /** Código de verificación que acepta el demo (2FA, correo, definir contraseña). */
 export const CODIGO_DEMO = '123456'
+
+/** Zona de las entidades del demo: las fechas «de hoy» se calculan aquí, como en la interfaz. */
+export const ZONA_DEMO = 'America/Bogota'
+
+/** Fecha `YYYY-MM-DD` en la zona del demo, `dias` días después de hoy. */
+export function fechaDemo(dias = 0): string {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: ZONA_DEMO }).format(new Date(Date.now() + dias * 86_400_000))
+}

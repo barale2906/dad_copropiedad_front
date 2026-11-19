@@ -20,6 +20,7 @@ import {
 import { useEntidad } from '@/stores/entidad'
 import { usePlanCuentas } from '@/stores/plan-cuentas'
 import { useSesion } from '@/stores/sesion'
+import { fechaDemo } from '@/mocks/http'
 import { prepararConDemo } from '../ayudantes'
 
 const PH = '01930000-0000-7000-8000-000000000001'
@@ -140,7 +141,7 @@ describe('contabilidad contra el demo', { timeout: 25_000 }, () => {
   })
 
   it('crea, previsualiza, contabiliza y revierte un comprobante', async () => {
-    const hoy = new Date().toISOString().slice(0, 10)
+    const hoy = fechaDemo()
     const borrador = { tipo: 'CC', fecha: hoy, descripcion: 'Compra de papelería', lineas: [{ cuenta: '513505', debito: '50000', centro_costo: 'ADM' }, { cuenta: '110505', credito: '40000' }] }
     await expect(a.previsualizar(PH, borrador)).rejects.toMatchObject({ estado: 422, codigo: 'regla_contable' })
     await expect(a.previsualizar(PH, { ...borrador, lineas: [{ cuenta: '1105', debito: '1' }, { cuenta: '110505', credito: '1' }] })).rejects.toMatchObject({ codigo: 'regla_contable' })

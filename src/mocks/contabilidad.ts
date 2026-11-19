@@ -27,10 +27,10 @@ import type {
   TipoComprobante,
 } from '@/api/tipos'
 import { cuentaDemoId } from './cuenta'
-import { cuerpo, error, json, type Manejador, sinContenido } from './http'
+import { cuerpo, error, fechaDemo, json, type Manejador, sinContenido } from './http'
 
 const id = (n: number) => `01930000-0000-7000-8000-${String(n).padStart(12, '0')}`
-const hoy = () => new Date().toISOString().slice(0, 10)
+const hoy = () => fechaDemo()
 const ahora = () => new Date().toISOString()
 
 /** [código, nombre] del PUC reducido; la naturaleza sale de la clase (1, 5, 6 débito). */
@@ -86,6 +86,8 @@ export const TERCEROS: Tercero[] = [
 ] as Tercero[]
 
 const cuentaPorCodigo = (c: string) => cuentas.find((x) => x.codigo === c)
+/** Id de una cuenta contable del demo por su código (lo usan otros manejadores). */
+export const idDeCuenta = (codigo: string) => cuentaPorCodigo(codigo)?.id ?? ''
 
 function linea(codigo: string, debito: string, credito: string, extra: Partial<LineaAsiento> = {}): LineaAsiento {
   return { cuenta_id: cuentaPorCodigo(codigo)?.id ?? '', debito, credito, ...extra }
@@ -121,9 +123,8 @@ export function iniciarContabilidad(usuario: string): void {
     { id: id(22105), codigo: 'AP', nombre: 'Apertura', manual: false, activo: true },
     { id: id(22106), codigo: 'CI', nombre: 'Cierre anual', manual: false, activo: true },
   ]
-  const f = new Date()
-  const anio = f.getFullYear()
-  const mes = f.getMonth() + 1
+  const anio = Number(hoy().slice(0, 4))
+  const mes = Number(hoy().slice(5, 7))
   periodos = Array.from({ length: mes }, (_, k) => ({
     id: id(22200 + k + 1), anio, mes: k + 1,
     estado: k + 1 === mes ? 'abierto' : k + 2 === mes ? 'en_revision' : 'cerrado',
