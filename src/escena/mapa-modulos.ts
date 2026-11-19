@@ -221,10 +221,11 @@ export const SECCIONES: Record<string, Seccion> = {
     modulos: ['contabilidad', 'facturacion_electronica'],
     acciones: [
       a('terceros', 'Terceros', 'Clientes, proveedores y datos fiscales.', ['terceros.gestionar', 'contabilidad.ver', 'facturacion.ver']),
-      a('perfil', 'Perfil tributario', 'Responsabilidades de la entidad.', ['tributario.configurar', 'tributario.perfil.confirmar']),
+      a('perfil', 'Perfil tributario', 'Responsabilidades de la entidad.', ['tributario.configurar', 'tributario.perfil.confirmar', 'contabilidad.ver', 'facturacion.ver']),
       a('resoluciones', 'Resoluciones de numeración', 'Rangos autorizados por la DIAN.', ['tributario.configurar']),
       a('impuestos', 'Retención, IVA e ICA', 'Preparación de declaraciones.', ['tributario.preparar'], SOLO_CONTABILIDAD),
       a('exogena', 'Información exógena', 'Formatos para la DIAN.', ['tributario.preparar'], SOLO_CONTABILIDAD),
+      a('beneficiarios', 'Beneficiarios finales', 'Registro Único de Beneficiarios (RUB).', ['tributario.preparar'], SOLO_CONTABILIDAD),
     ],
   },
   facturacion: {

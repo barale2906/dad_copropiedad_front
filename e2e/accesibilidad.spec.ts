@@ -528,3 +528,23 @@ test('tesorería: bancos, recibos, egresos, cuentas por pagar, conciliación y c
   }
 })
 
+test('tributario: terceros, perfil, resoluciones, impuestos, exógena y beneficiarios', async ({ page }) => {
+  await entrar(page, 'uno')
+  await expect(page).toHaveURL(/\/e\/[^/]+$/)
+  const base = `${new URL(page.url()).pathname}/tributario`
+  const pantallas: [string, string][] = [
+    ['terceros', 'Terceros'],
+    ['perfil', 'Perfil tributario'],
+    ['resoluciones', 'Resoluciones de numeración'],
+    ['impuestos', 'Retención, IVA e ICA'],
+    ['exogena', 'Información exógena'],
+    ['beneficiarios', 'Beneficiarios finales'],
+  ]
+  for (const [ruta, titulo] of pantallas) {
+    await page.goto(`${base}/${ruta}`)
+    await expect(page.getByRole('heading', { name: titulo, level: 1 })).toBeVisible()
+    await expect(page.getByText('Cargando')).toHaveCount(0)
+    await revisar(page)
+  }
+})
+

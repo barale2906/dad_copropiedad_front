@@ -85,7 +85,7 @@ describe('mapa de módulos', () => {
   it('las declaraciones tributarias solo aparecen con contabilidad', () => {
     const permisos: Permiso[] = ['tributario.preparar', 'terceros.gestionar']
     expect(ids('tributario', consulta(['facturacion_electronica'], permisos))).toEqual(['terceros'])
-    expect(ids('tributario', consulta(['contabilidad'], permisos))).toEqual(['terceros', 'impuestos', 'exogena'])
+    expect(ids('tributario', consulta(['contabilidad'], permisos))).toEqual(['terceros', 'impuestos', 'exogena', 'beneficiarios'])
   })
 
   it('las acciones solo PH se ocultan en la empresa', () => {

@@ -77,6 +77,7 @@ let numeros: Record<string, number> = {}
 /** Cuenta con la que se inició la sesión demo (cuatro ojos en la reapertura). */
 let cuentaActual = ''
 
+/** Terceros del demo (los atiende `./tributario`; los usan tesorería y certificados). */
 export const TERCEROS: Tercero[] = [
   { persona_id: id(5002), tipo: 'natural', nombre: 'Pedro Pérez', tipo_documento: 'CC', documento: '79876543', fiscal: { responsabilidades: [] } },
   { persona_id: id(5003), tipo: 'natural', nombre: 'Lucía Gómez', tipo_documento: 'CC', documento: '1020304050', fiscal: { responsabilidades: [] } },
@@ -289,11 +290,6 @@ const periodoDe = (fecha: string) => periodos.find((p) => p.anio === Number(fech
 export const contabilidad: Manejador = async (req, ruta) => {
   const m = req.method
   const q = new URL(req.url).searchParams
-  const ter = ruta.match(/^\/entidades\/[^/]+\/terceros$/)
-  if (ter && m === 'GET') {
-    const t = (q.get('texto') ?? '').toLowerCase()
-    return json({ datos: TERCEROS.filter((x) => !t || x.nombre.toLowerCase().includes(t) || (x.documento ?? '').includes(t)).slice(0, Number(q.get('limite') ?? 10)), siguiente: null })
-  }
   const b = ruta.match(/^\/entidades\/[^/]+\/contabilidad(\/.*)$/)
   if (!b) return null
   const r = b[1] ?? ''

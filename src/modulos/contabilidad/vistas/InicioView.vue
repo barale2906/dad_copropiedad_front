@@ -13,11 +13,13 @@ import HudBoton from '@/hud/componentes/HudBoton.vue'
 import HudEstado from '@/hud/componentes/HudEstado.vue'
 import TarjetaResumen from '@/hud/componentes/TarjetaResumen.vue'
 import { useEntidad } from '@/stores/entidad'
+import { usePerfilTributario } from '@/stores/perfil-tributario'
 import { comprobantes, configuracion as pedirConfiguracion, periodos as pedirPeriodos, reaperturas as pedirReaperturas } from '../api'
 import { ESTADO_PERIODO, MARCO_TECNICO, nombrePeriodo } from '../reglas'
 
 const route = useRoute()
 const entidad = useEntidad()
+const perfil = usePerfilTributario()
 const id = computed(() => entidad.activa?.entidad_id ?? '')
 const ruta = (accion: string, extra: Record<string, string> = {}) => ({ name: 'modulo', params: { ...route.params, accion, id: '' }, query: extra })
 
@@ -43,6 +45,7 @@ async function cargar() {
     const cerrados = p.filter((x) => x.estado === 'cerrado')
     pendientes.value = (await Promise.all(cerrados.map((x) => pedirReaperturas(id.value, x.id)))).flat().filter((r) => r.estado === 'pendiente')
     estado.value = 'listo'
+    await perfil.asegurar().catch(() => undefined)
   } catch (e) {
     error.value = mensajeDeError(e)
     estado.value = 'error'
@@ -78,6 +81,18 @@ onMounted(cargar)
           :a="ruta('configuracion')"
         >
           Configurar
+        </HudBoton>
+      </p>
+      <p
+        v-if="perfil.sinConfirmar"
+        class="aviso"
+      >
+        No hay un perfil tributario confirmado: no se calculan retenciones ni IVA automáticamente y no se emiten documentos electrónicos.
+        <HudBoton
+          variante="secundario"
+          :a="{ name: 'modulo', params: { ...route.params, seccion: 'tributario', accion: 'perfil', id: '' }, query: {} }"
+        >
+          Ver el perfil tributario
         </HudBoton>
       </p>
       <ul

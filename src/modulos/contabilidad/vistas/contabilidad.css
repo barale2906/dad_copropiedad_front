@@ -139,3 +139,11 @@ dd {
   text-align: right;
   white-space: nowrap;
 }
+
+/* Un párrafo de totales sí se parte (en móvil desbordaría la página). */
+p.cifra,
+.texto-2.cifra {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-align: left;
+}
