@@ -7,7 +7,6 @@ import type {
   FinalidadTratamiento,
   MedioAutorizacion,
   NuevaPolitica,
-  Persona,
   Politica,
   SolicitudTitular,
   TipoSolicitudTitular,
@@ -99,11 +98,6 @@ export function responderSolicitud(
       body: datos,
     }),
   )
-}
-
-/** Personas de la PH por nombre (sin tildes) o documento (`personas.ver`). */
-export function personaPorId(id: string, personaId: string): Promise<Persona> {
-  return exigir(api().GET('/api/v1/copropiedades/{copropiedad_id}/personas/{persona_id}', { params: persona(id, personaId) }))
 }
 
 export function autorizacionesDe(id: string, personaId: string): Promise<AutorizacionTratamiento[]> {

@@ -253,7 +253,7 @@ function escrutinioDe(r: ReunionDemo, pd: PreguntaDemo): Escrutinio {
     decision = { decision: 'reparto', cociente: cociente.toFixed(4), cupos: reparto, empate: false, sin_asignar: Math.max(0, libres) }
   }
   return {
-    base_computo: p.base_computo, habilitados: conteo(habilitados), total: conteo(total), votantes: conteo(votantes.size), sin_votar: conteo(Math.max(0, habilitados - votantes.size)),
+    base_computo: p.base_computo, regla: p.regla_mayoria, habilitados: conteo(habilitados), total: conteo(total), votantes: conteo(votantes.size), sin_votar: conteo(Math.max(0, habilitados - votantes.size)),
     opciones, decision, advertencia_unidades: p.base_computo === 'unidades',
   }
 }

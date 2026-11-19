@@ -12,7 +12,6 @@ import type { DatosActa, Reunion } from '@/api/tipos'
 import { useAccion } from '@/composables/useAccion'
 import { useAdjuntos } from '@/composables/useAdjuntos'
 import { coeficiente, porcentaje } from '@/formato/decimales'
-import { leerEscrutinio } from '@/formato/escrutinio'
 import EscrutinioPregunta from '@/hud/componentes/EscrutinioPregunta.vue'
 import HudAdjuntos from '@/hud/componentes/HudAdjuntos.vue'
 import HudBoton from '@/hud/componentes/HudBoton.vue'
@@ -48,7 +47,7 @@ const avanzar = useAccion((_c, paso: 'firmada' | 'aprobar' | 'publicar') => avan
 const abrir = useAccion((_c, archivo: string) => abrirArchivo(id.value, archivo))
 const errores = computed(() => [generar.error.value, avanzar.error.value, abrir.error.value, escaneo.error.value].filter(Boolean))
 
-const preguntasActa = computed(() => (datos.value?.preguntas ?? []).map((p) => ({ ...p, e: leerEscrutinio(p.escrutinio) })))
+const preguntasActa = computed(() => (datos.value?.preguntas ?? []).map((p) => ({ ...p, e: p.escrutinio ?? null })))
 const filasAsistentes = computed(() =>
   (datos.value?.asistentes ?? []).map((a, i) => ({ ...a, clave: String(i), bienesTexto: a.bienes.join(', '), salidasTexto: a.salidas.join('; ') || '—' })),
 )

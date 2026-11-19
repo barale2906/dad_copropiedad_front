@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { api, exigir } from '@/api/cliente'
-import type { BienPrivado } from '@/api/tipos'
+import type { BienPrivado, MiResidencia } from '@/api/tipos'
 import { useEntidad } from './entidad'
 
 /** Lo mínimo para mostrar y elegir un bien. */
@@ -16,6 +16,7 @@ export const useBienes = defineStore('bienes', () => {
   const entidadId = ref<string | null>(null)
   const codigos = ref<Record<string, string>>({})
   const propios = ref<BienPrivado[] | null>(null)
+  const residencias = ref<MiResidencia[] | null>(null)
   let pendientes = new Set<string>()
 
   /** Id de la entidad activa; si cambió, olvida lo de la anterior. */
@@ -25,6 +26,7 @@ export const useBienes = defineStore('bienes', () => {
       entidadId.value = id
       codigos.value = {}
       propios.value = null
+      residencias.value = null
       pendientes = new Set()
     }
     return id
@@ -48,6 +50,34 @@ export const useBienes = defineStore('bienes', () => {
       recordar(lista)
     }
     return lista
+  }
+
+  /** Bienes donde la cuenta reside hoy, con su calidad (no exige permisos). */
+  async function asegurarResidencias(): Promise<MiResidencia[]> {
+    const id = actual()
+    if (residencias.value) return residencias.value
+    const lista = await exigir(
+      api().GET('/api/v1/copropiedades/{copropiedad_id}/mis-residencias', { params: { path: { copropiedad_id: id } } }),
+    )
+    if (actual() === id) {
+      residencias.value = lista
+      recordar(lista.map((r) => ({ id: r.bien_privado_id, codigo: r.bien_codigo })))
+    }
+    return lista
+  }
+
+  /**
+   * Bienes a cuyo nombre la cuenta puede actuar (reservar, anunciar visitas, radicar PQRS): los
+   * que tiene como titular y aquellos donde reside (un arrendatario no es titular), sin repetir y
+   * ordenados por código. Si una de las dos consultas falla, se usan los de la otra.
+   */
+  async function asegurarMisBienes(): Promise<BienCorto[]> {
+    const [titular, reside] = await Promise.allSettled([asegurarPropios(), asegurarResidencias()])
+    if (titular.status === 'rejected' && reside.status === 'rejected') throw titular.reason
+    const lista = new Map<string, BienCorto>()
+    if (titular.status === 'fulfilled') titular.value.forEach((b) => lista.set(b.id, { id: b.id, codigo: b.codigo }))
+    if (reside.status === 'fulfilled') reside.value.forEach((r) => lista.set(r.bien_privado_id, { id: r.bien_privado_id, codigo: r.bien_codigo }))
+    return [...lista.values()].sort((a, b) => a.codigo.localeCompare(b.codigo, 'es', { numeric: true }))
   }
 
   /** Página de bienes cuyo código contiene `q` (`bienes_privados.ver`). */
@@ -94,5 +124,5 @@ export const useBienes = defineStore('bienes', () => {
   const codigo = (id: string) =>
     (entidadId.value === (useEntidad().activa?.entidad_id ?? '') ? codigos.value[id] : undefined) ?? 'Bien'
 
-  return { codigos, propios, recordar, asegurarPropios, buscar, resolver, codigo }
+  return { codigos, propios, residencias, recordar, asegurarPropios, asegurarResidencias, asegurarMisBienes, buscar, resolver, codigo }
 })

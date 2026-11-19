@@ -38,14 +38,23 @@ let consecutivo = 6000
 const hace = (dias: number) => new Date(Date.now() - dias * 86_400_000).toISOString()
 const fecha = (dias: number) => new Date(Date.now() + dias * 86_400_000).toISOString().slice(0, 10)
 
-/** Reinicia el demo en cada inicio de sesión. */
+/** Nombre del titular, como lo trae `SolicitudTitularRespuesta.persona_nombre`. */
+const nombreDe = (personaId: string) => personasDemo().find((p) => p.id === personaId)?.nombre ?? 'Titular'
+
+/** La organización contratada, como la trae `ContratoRespuesta.organizacion`. */
+function contratada(organizacionId: string): ContratoServicio['organizacion'] {
+  const o = organizaciones.find((x) => x.id === organizacionId)
+  return { id: organizacionId, razon_social: o?.razon_social ?? '', nit: o?.nit ?? '' }
+}
+
+/** Reinicia el demo en cada inicio de sesión (después de `iniciarUnidades`, que trae las personas). */
 export function iniciarProteccion(): void {
   consecutivo = 6000
   politicas = [{ id: id(5101), version: 1, texto: 'Política de tratamiento de datos del conjunto…', archivo_id: null, vigente_desde: hace(200) }]
   solicitudes = [
-    { id: id(5201), persona_id: id(5001), tipo: 'consulta', estado: 'radicada', detalle: '¿Qué datos míos tienen?', radicada_en: hace(12), vence_el: fecha(-1), dias_habiles_restantes: 0 },
-    { id: id(5202), persona_id: id(5002), tipo: 'rectificacion', estado: 'en_tramite', detalle: 'Mi teléfono cambió.', radicada_en: hace(5), vence_el: fecha(8), prorrogada_hasta: fecha(16), motivo_prorroga: 'Verificación con la portería.', dias_habiles_restantes: 9 },
-    { id: id(5203), persona_id: id(5003), tipo: 'supresion', estado: 'respondida', radicada_en: hace(40), vence_el: fecha(-25), respuesta: 'Datos suprimidos.', respondida_en: hace(30), dias_habiles_restantes: null },
+    { id: id(5201), persona_id: id(5001), persona_nombre: nombreDe(id(5001)), tipo: 'consulta', estado: 'radicada', detalle: '¿Qué datos míos tienen?', radicada_en: hace(12), vence_el: fecha(-1), dias_habiles_restantes: 0 },
+    { id: id(5202), persona_id: id(5002), persona_nombre: nombreDe(id(5002)), tipo: 'rectificacion', estado: 'en_tramite', detalle: 'Mi teléfono cambió.', radicada_en: hace(5), vence_el: fecha(8), prorrogada_hasta: fecha(16), motivo_prorroga: 'Verificación con la portería.', dias_habiles_restantes: 9 },
+    { id: id(5203), persona_id: id(5003), persona_nombre: nombreDe(id(5003)), tipo: 'supresion', estado: 'respondida', radicada_en: hace(40), vence_el: fecha(-25), respuesta: 'Datos suprimidos.', respondida_en: hace(30), dias_habiles_restantes: null },
   ]
   autorizaciones = [
     { id: id(5301), persona_id: id(5001), finalidad: 'administracion', medio: 'escrito', politica_version: 1, otorgada_en: hace(150) },
@@ -55,7 +64,7 @@ export function iniciarProteccion(): void {
     { id: id(5401), nit: '900123456-8', razon_social: 'Seguridad Total Ltda.', naturaleza: 'juridica', tipos: ['seguridad'], estado: 'reclamada' },
   ]
   contratos = [
-    { id: id(5501), organizacion_id: id(5401), tipo_servicio: 'seguridad', vigente_desde: hace(300), vigente_hasta: null, estado: 'vigente', valor: '12500000.00' },
+    { id: id(5501), organizacion_id: id(5401), organizacion: contratada(id(5401)), tipo_servicio: 'seguridad', vigente_desde: hace(300), vigente_hasta: null, estado: 'vigente', valor: '12500000.00' },
   ]
 }
 
@@ -132,7 +141,7 @@ export const proteccion: Manejador = async (req, ruta) => {
   }
   if (m === 'POST' && base === '/proteccion-datos/solicitudes') {
     const d = await cuerpo<{ persona_id: string; tipo: TipoSolicitudTitular; detalle?: string | null }>(req)
-    const s: SolicitudTitular = { id: id(++consecutivo), persona_id: d.persona_id, tipo: d.tipo, estado: 'radicada', detalle: d.detalle, radicada_en: new Date().toISOString(), vence_el: fecha(d.tipo === 'consulta' ? 14 : 21), dias_habiles_restantes: d.tipo === 'consulta' ? 10 : 15 }
+    const s: SolicitudTitular = { id: id(++consecutivo), persona_id: d.persona_id, persona_nombre: nombreDe(d.persona_id), tipo: d.tipo, estado: 'radicada', detalle: d.detalle, radicada_en: new Date().toISOString(), vence_el: fecha(d.tipo === 'consulta' ? 14 : 21), dias_habiles_restantes: d.tipo === 'consulta' ? 10 : 15 }
     solicitudes = [s, ...solicitudes]
     return json(s, 201)
   }
@@ -189,7 +198,7 @@ export const proteccion: Manejador = async (req, ruta) => {
   if (m === 'GET' && base === '/contratos-servicio') return json(contratos)
   if (m === 'POST' && base === '/contratos-servicio') {
     const d = await cuerpo<NuevoContrato>(req)
-    const c: ContratoServicio = { id: id(++consecutivo), organizacion_id: d.organizacion_id, tipo_servicio: d.tipo_servicio, vigente_desde: d.vigente_desde ?? new Date().toISOString(), vigente_hasta: d.vigente_hasta, estado: 'vigente', valor: d.valor }
+    const c: ContratoServicio = { id: id(++consecutivo), organizacion_id: d.organizacion_id, organizacion: contratada(d.organizacion_id), tipo_servicio: d.tipo_servicio, vigente_desde: d.vigente_desde ?? new Date().toISOString(), vigente_hasta: d.vigente_hasta, estado: 'vigente', valor: d.valor }
     contratos = [c, ...contratos]
     return json(c, 201)
   }

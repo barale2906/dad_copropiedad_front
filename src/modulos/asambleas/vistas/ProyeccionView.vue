@@ -6,7 +6,6 @@
  */
 import { computed, onBeforeUnmount, onMounted, ref, useTemplateRef } from 'vue'
 import { useRoute } from 'vue-router'
-import { leerEscrutinio } from '@/formato/escrutinio'
 import EscrutinioPregunta from '@/hud/componentes/EscrutinioPregunta.vue'
 import HudBoton from '@/hud/componentes/HudBoton.vue'
 import HudEstado from '@/hud/componentes/HudEstado.vue'
@@ -25,11 +24,11 @@ const reunionId = computed(() => (typeof route.params.id === 'string' ? route.pa
 const vivo = useTableroEnVivo(() => id.value, () => reunionId.value)
 const t = computed(() => vivo.tablero.value)
 const enVotacion = computed(() =>
-  (t.value?.preguntas_abiertas ?? []).map((x) => ({ pregunta: x.pregunta, escrutinio: leerEscrutinio(x.escrutinio), abierta: true })),
+  (t.value?.preguntas_abiertas ?? []).map((x) => ({ pregunta: x.pregunta, escrutinio: x.escrutinio, abierta: true })),
 )
 const ultima = computed(() => {
   const u = t.value?.ultima_cerrada
-  return u ? { pregunta: u.pregunta, escrutinio: leerEscrutinio(u.escrutinio), abierta: false } : null
+  return u ? { pregunta: u.pregunta, escrutinio: u.escrutinio, abierta: false } : null
 })
 const mostradas = computed(() => (enVotacion.value.length ? enVotacion.value : ultima.value ? [ultima.value] : []))
 

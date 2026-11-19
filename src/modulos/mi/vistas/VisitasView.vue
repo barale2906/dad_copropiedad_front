@@ -6,7 +6,7 @@
  */
 import { computed, onMounted, ref } from 'vue'
 import { mensajeDeError } from '@/api/errores'
-import type { BienPrivado, Correspondencia, TipoVisita, Visita } from '@/api/tipos'
+import type { Correspondencia, TipoVisita, Visita } from '@/api/tipos'
 import { TIPO_PAQUETE, TIPO_VISITA } from '@/composables/textos-acceso'
 import { useAccion } from '@/composables/useAccion'
 import { usePestana } from '@/composables/usePestana'
@@ -21,7 +21,7 @@ import HudPanel from '@/hud/componentes/HudPanel.vue'
 import HudPestanas from '@/hud/componentes/HudPestanas.vue'
 import HudSelector from '@/hud/componentes/HudSelector.vue'
 import QrCompartir from '@/hud/componentes/QrCompartir.vue'
-import { useBienes } from '@/stores/bienes'
+import { type BienCorto, useBienes } from '@/stores/bienes'
 import { useEntidad } from '@/stores/entidad'
 import IMas from '~icons/tabler/plus'
 import { misPaquetes, misVisitas, preautorizar, qrDeVisita, responderVisita } from '../api'
@@ -66,7 +66,7 @@ async function decidir(v: Visita, autorizar: boolean) {
 
 // Pre-autorizar y QR
 const abierto = ref(false)
-const propios = ref<BienPrivado[]>([])
+const propios = ref<BienCorto[]>([])
 const bienId = ref('')
 const tipo = ref<TipoVisita>('visita')
 const nombre = ref('')
@@ -121,7 +121,7 @@ async function abrirPreautorizar() {
   abierto.value = true
   // Hasta tener los bienes no se envía: sin ellos la validación fallaría y el aviso se borraría solo.
   cargandoPropios.value = true
-  propios.value = await bienes.asegurarPropios().catch(() => [])
+  propios.value = await bienes.asegurarMisBienes().catch(() => [])
   bienId.value = propios.value.length === 1 ? (propios.value[0]?.id ?? '') : ''
   cargandoPropios.value = false
 }

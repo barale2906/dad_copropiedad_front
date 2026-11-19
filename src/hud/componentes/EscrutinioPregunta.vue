@@ -42,10 +42,12 @@ const filas = computed(() =>
   }).map((o) => ({ ...o, detalle: detalleDe(o) })),
 )
 
-function detalleDe(o: { otra: string; aprobada: boolean | null; aprobada_en_otra_base: boolean | null; cupos: number | null }) {
+/** `aprobada` vacío (o ausente): la opción no decide por sí sola (elecciones, el «No»). */
+function detalleDe(o: { otra: string; aprobada?: boolean | null; aprobada_en_otra_base?: boolean | null; cupos: number | null }) {
   const partes = [o.otra]
-  if (o.aprobada === true) partes.push('alcanza la mayoría')
-  if (o.aprobada !== null && o.aprobada_en_otra_base !== o.aprobada) partes.push(`en la otra base ${o.aprobada_en_otra_base ? 'sí' : 'no'} la alcanzaría`)
+  const aprobada = o.aprobada ?? null
+  if (aprobada === true) partes.push('alcanza la mayoría')
+  if (aprobada !== null && (o.aprobada_en_otra_base ?? null) !== aprobada) partes.push(`en la otra base ${o.aprobada_en_otra_base ? 'sí' : 'no'} la alcanzaría`)
   if (o.cupos !== null) partes.push(`${o.cupos} cupo${o.cupos === 1 ? '' : 's'}`)
   return partes.join(' · ')
 }

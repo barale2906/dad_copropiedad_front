@@ -92,10 +92,14 @@ let sorteos: Sorteo[] = []
 let semillas = new Map<string, string>()
 let consecutivo = 8000
 
+const nombreRecurso = (recursoId: string) => recursos.find((r) => r.id === recursoId)?.nombre ?? ''
+const codigoBien = (bienId: string) => bienesDemo().find((b) => b.id === bienId)?.codigo ?? ''
+
 function reservaDemo(n: number, recursoId: string, dias: number, desde: string, hasta: string, estado: EstadoReserva, bien = 0, valor = '0'): Reserva {
   const dia = diaLocal(dias)
   return {
-    id: id(n), recurso_id: recursoId, bien_privado_id: bienesDemo()[bien]!.id, inicio: aUtc(dia, desde), fin: aUtc(dia, hasta),
+    id: id(n), recurso_id: recursoId, recurso_nombre: nombreRecurso(recursoId), bien_privado_id: bienesDemo()[bien]!.id,
+    bien_codigo: bienesDemo()[bien]!.codigo, inicio: aUtc(dia, desde), fin: aUtc(dia, hasta),
     invitados: 0, estado, valor, deposito: '0', penalidad: '0', estado_pago: valor === '0' ? 'no_aplica' : 'pendiente',
     canal: 'web', creada_en: new Date(Date.now() - 2 * DIA).toISOString(),
   }
@@ -209,7 +213,8 @@ function crearReserva(d: NuevaReserva): Response {
   if (choca) return error(409, 'conflicto', 'Esa franja acaba de ocuparse. Elija otra.')
   const valor = valorDe(r, d.inicio, d.fin)
   const nueva: Reserva = {
-    id: id(++consecutivo), recurso_id: r.id, bien_privado_id: d.bien_privado_id, inicio: d.inicio, fin: d.fin,
+    id: id(++consecutivo), recurso_id: r.id, recurso_nombre: r.nombre, bien_privado_id: d.bien_privado_id,
+    bien_codigo: codigoBien(d.bien_privado_id), inicio: d.inicio, fin: d.fin,
     invitados: d.invitados ?? 0, estado: r.politica.modo === 'franja_con_aprobacion' ? 'solicitada' : 'aprobada',
     valor, deposito: r.politica.deposito, penalidad: '0', estado_pago: Number(valor) > 0 ? 'pendiente' : 'no_aplica',
     canal: d.canal ?? 'web', motivo: d.motivo, observacion: d.idempotency_key, creada_en: new Date().toISOString(),

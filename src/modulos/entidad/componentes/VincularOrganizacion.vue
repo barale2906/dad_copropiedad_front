@@ -16,13 +16,11 @@ import HudSelector from '@/hud/componentes/HudSelector.vue'
 import { useEntidad } from '@/stores/entidad'
 import { buscarOrganizacion, crearContrato, crearOrganizacion } from '../api-organizaciones'
 import { NATURALEZA, normalizarNit, TIPO_ORGANIZACION, tiposConocidos } from '../organizaciones'
-import { useOrganizacionesConocidas } from '../store'
 
 const props = defineProps<{ copropiedadId: string }>()
 const emit = defineEmits<{ vinculado: [contrato: ContratoServicio]; cancelar: [] }>()
 
 const entidad = useEntidad()
-const conocidas = useOrganizacionesConocidas()
 const puedeCrear = computed(() => entidad.tienePermiso('organizaciones.crear'))
 
 const paso = ref<'nit' | 'crear' | 'contrato'>('nit')
@@ -78,7 +76,6 @@ async function buscar() {
 }
 
 function elegir(o: { id: string; razon_social: string; tipos: TipoOrganizacion[] }) {
-  conocidas.recordar(o.id, o.razon_social)
   organizacion.value = o
   tipoServicio.value = o.tipos[0] ?? ''
   paso.value = 'contrato'

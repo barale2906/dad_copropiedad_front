@@ -94,6 +94,9 @@ async function alAplicar() {
   if (r.valor.persona_id) facturas.value = await facturasVenta(id.value, r.valor.persona_id).catch(() => [])
 }
 
+// Las respuestas traen solo `persona_id`: se piden los nombres que aún no se conocen.
+watch([lista, actual], ([l, a]) => void terceros.resolver(id.value, [...l.map((x) => x.persona_id), a?.persona_id]))
+
 async function cargar() {
   estado.value = 'cargando'
   try {

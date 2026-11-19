@@ -16,7 +16,7 @@
  *  - que contenga `residente` → propietario y residente de la PH (portal «Mi hogar», plan 05)
  */
 import type { Capacidades, EntidadDeLaCuenta, Permiso, Tokens } from '@/api/tipos'
-import { archivos } from './archivos'
+import { archivos, iniciarArchivos } from './archivos'
 import { cuenta, cuentaPublica, iniciarCuenta } from './cuenta'
 import { entidad, iniciarEntidad, permisos } from './entidad'
 import { ficha, iniciarFicha } from './ficha'
@@ -30,7 +30,7 @@ import { iniciarMi, mi } from './mi'
 import { iniciarPorteria, porteria } from './porteria'
 import { iniciarUnidades, unidades } from './unidades'
 import { iniciarZonasComunes, zonasComunes } from './zonas-comunes'
-import { error, json, type Manejador } from './http'
+import { error, json, ZONA_DEMO, type Manejador } from './http'
 
 /** Manejadores que exigen sesión, en orden; el primero que responda gana. */
 const CON_SESION: Manejador[] = [cuenta, archivos, ficha, unidades, mi, gestion, asambleas, tesoreria, tributario, contabilidad, porteria, proteccion, zonasComunes, entidad, permisos]
@@ -83,7 +83,7 @@ const ENTIDADES: (EntidadDeLaCuenta & { capacidades: Capacidades })[] = [
       // acciones propias no se ofrecen).
       modulos: ['bienes_comunes', 'asambleas', 'gestion_administrativa',
         'contabilidad', 'contabilidad_ph'],
-      modo_soporte: false, entidad_suspendida: false,
+      modo_soporte: false, entidad_suspendida: false, zona_horaria: ZONA_DEMO,
     },
   },
   {
@@ -93,7 +93,7 @@ const ENTIDADES: (EntidadDeLaCuenta & { capacidades: Capacidades })[] = [
     tipo: 'propiedad_horizontal',
     estado: 'en_configuracion',
     roles: ['consejero'],
-    capacidades: { tipo: 'propiedad_horizontal', permisos: ['asambleas.ver', 'censo.ver'], modulos: ['asambleas'], modo_soporte: false, entidad_suspendida: false },
+    capacidades: { tipo: 'propiedad_horizontal', permisos: ['asambleas.ver', 'censo.ver'], modulos: ['asambleas'], modo_soporte: false, entidad_suspendida: false, zona_horaria: ZONA_DEMO },
   },
   {
     entidad_id: '01930000-0000-7000-8000-000000000003',
@@ -102,7 +102,7 @@ const ENTIDADES: (EntidadDeLaCuenta & { capacidades: Capacidades })[] = [
     tipo: 'empresa',
     estado: 'activa',
     roles: ['contador'],
-    capacidades: { tipo: 'empresa', permisos: TODOS, modulos: ['contabilidad'], modo_soporte: false, entidad_suspendida: false },
+    capacidades: { tipo: 'empresa', permisos: TODOS, modulos: ['contabilidad'], modo_soporte: false, entidad_suspendida: false, zona_horaria: ZONA_DEMO },
   },
 ]
 
@@ -130,6 +130,7 @@ const CAPACIDADES_RESIDENTE: Capacidades = {
   modulos: ['bienes_comunes', 'asambleas', 'gestion_administrativa', 'contabilidad', 'contabilidad_ph', 'control_acceso'],
   modo_soporte: false,
   entidad_suspendida: false,
+  zona_horaria: ZONA_DEMO,
 }
 
 /**
@@ -145,6 +146,7 @@ const CAPACIDADES_PORTERIA: Capacidades = {
   modulos: ['control_acceso'],
   modo_soporte: false,
   entidad_suspendida: false,
+  zona_horaria: ZONA_DEMO,
 }
 
 /** Capacidades fijas por usuario demo en la primera PH (o `null` para las de la entidad). */
@@ -200,6 +202,7 @@ export async function fetchDemo(req: Request): Promise<Response> {
     iniciarFicha(ENTIDADES)
     iniciarProteccion()
     iniciarZonasComunes()
+    iniciarArchivos()
     if (usuario.includes('2fa')) {
       return json({ resultado: 'segundo_factor', desafio: 'demo-desafio', desafio_expira_en: new Date(Date.now() + 300_000).toISOString() })
     }
@@ -226,6 +229,7 @@ export async function fetchDemo(req: Request): Promise<Response> {
     iniciarFicha(ENTIDADES)
     iniciarProteccion()
     iniciarZonasComunes()
+    iniciarArchivos()
     return json(tokens())
   }
   if (m === 'POST' && ruta === '/auth/contrasena/recuperar') return new Response(null, { status: 202 })

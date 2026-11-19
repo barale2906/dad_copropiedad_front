@@ -21,6 +21,7 @@ import HudPanel from '@/hud/componentes/HudPanel.vue'
 import HudTabla from '@/hud/componentes/HudTabla.vue'
 import { useEntidad } from '@/stores/entidad'
 import { usePlanCuentas } from '@/stores/plan-cuentas'
+import { useTercerosConocidos } from '@/stores/terceros'
 import IVolver from '~icons/tabler/arrow-left'
 import { borrarComprobante, comprobante as pedirComprobante, contabilizar, crearComprobante, guardarComprobante, previsualizar, revertir } from '../api'
 import {
@@ -44,8 +45,8 @@ const id = computed(() => entidad.activa?.entidad_id ?? '')
 const zona = computed(() => entidad.zonaHoraria)
 const ruta = (c = '') => ({ name: 'modulo', params: { ...route.params, accion: 'comprobantes', id: c }, query: {} })
 
-/** Nombres de los terceros elegidos en la sesión (las líneas del backend solo traen el id; S18). */
-const terceros = new Map<string, string>()
+/** Nombres de los terceros: las líneas del backend solo traen `persona_id`. */
+const terceros = useTercerosConocidos()
 
 const estado = ref<'cargando' | 'listo' | 'error'>('cargando')
 const error = ref<string | null>(null)
@@ -76,7 +77,7 @@ const filas = computed(() =>
     return {
       clave: String(i),
       cuenta: cuenta ? `${cuenta.codigo} · ${cuenta.nombre}` : 'Cuenta desconocida',
-      tercero: l.persona_id ? (terceros.get(l.persona_id) ?? 'Con tercero') : '—',
+      tercero: terceros.nombre(l.persona_id, 'Con tercero'),
       centro: l.centro_costo_id ? (plan.centroPorId.get(l.centro_costo_id)?.codigo ?? '—') : '—',
       debito: l.debito,
       credito: l.credito,
@@ -102,12 +103,12 @@ const reverso = useAccion((_c, cid: string, motivo: string) => revertir(id.value
 const errores = computed(() => [vista.error.value, guardar.error.value, asentar.error.value, borrar.error.value].filter(Boolean))
 
 function recordarTerceros() {
-  modelo.value.lineas.forEach((l) => l.tercero?.nombre && terceros.set(l.tercero.id, l.tercero.nombre))
+  terceros.recordar(modelo.value.lineas.flatMap((l) => (l.tercero ? [l.tercero] : [])))
 }
 
 function usar(x: Comprobante) {
   c.value = x
-  modelo.value = editableDe(x, plan.porId, plan.centroPorId, terceros)
+  modelo.value = editableDe(x, plan.porId, plan.centroPorId, new Map(Object.entries(terceros.nombres)))
   guardado.value = JSON.stringify(peticionComprobante(modelo.value))
 }
 
@@ -168,7 +169,11 @@ async function cargar() {
   estado.value = 'cargando'
   try {
     await plan.asegurar()
-    if (props.comprobanteId) usar(await pedirComprobante(id.value, props.comprobanteId))
+    if (props.comprobanteId) {
+      const x = await pedirComprobante(id.value, props.comprobanteId)
+      await terceros.resolver(id.value, x.lineas.map((l) => l.persona_id))
+      usar(x)
+    }
     else {
       c.value = null
       modelo.value = comprobanteVacio(hoyEn(zona.value), plan.tipos.find((x) => x.manual && x.activo)?.codigo ?? '')

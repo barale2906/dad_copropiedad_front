@@ -1,8 +1,6 @@
-import { createPinia, setActivePinia } from 'pinia'
 import { describe, expect, it } from 'vitest'
-import type { Archivo, Permiso } from '@/api/tipos'
-import { nombreTipo, puedeAbrir, tamanoLegible } from '@/modulos/archivo/archivo'
-import { useArchivoSubido } from '@/modulos/archivo/store'
+import type { Permiso } from '@/api/tipos'
+import { aConsulta, clasificacionesVisibles, nombreTipo, puedeAbrir, tamanoLegible } from '@/modulos/archivo/archivo'
 
 describe('reglas del archivo', () => {
   it('muestra el tamaño en la unidad adecuada', () => {
@@ -22,16 +20,23 @@ describe('reglas del archivo', () => {
   })
 })
 
-describe('archivos subidos en la sesión', () => {
-  it('se guardan por entidad, el más reciente primero', () => {
-    setActivePinia(createPinia())
-    const s = useArchivoSubido()
-    const a = (id: string) => ({ id }) as Archivo
-    s.agregar('e1', a('1'))
-    s.agregar('e1', a('2'))
-    s.agregar('e2', a('3'))
-    expect(s.de('e1').map((x) => x.id)).toEqual(['2', '1'])
-    expect(s.de('e2')).toHaveLength(1)
-    expect(s.de('otra')).toEqual([])
+describe('filtros del archivo', () => {
+  const con = (...ps: Permiso[]) => (p: Permiso) => ps.includes(p)
+
+  it('toma los días completos en la zona de la entidad y omite lo vacío', () => {
+    expect(aConsulta({ clasificacion: '', q: '  ', desde: '', hasta: '' }, 'America/Bogota')).toEqual({
+      clasificacion: undefined, q: undefined, desde: undefined, hasta: undefined,
+    })
+    expect(aConsulta({ clasificacion: 'personal', q: ' acta ', desde: '2026-11-01', hasta: '2026-11-30' }, 'America/Bogota')).toEqual({
+      clasificacion: 'personal',
+      q: 'acta',
+      desde: '2026-11-01T05:00:00Z',
+      hasta: '2026-12-01T05:00:00Z',
+    })
+  })
+
+  it('sin el permiso de datos personales solo ofrece público e interno', () => {
+    expect(clasificacionesVisibles(con('archivos.ver'))).toEqual(['publico', 'interno'])
+    expect(clasificacionesVisibles(con('archivos.ver', 'archivos.personales.ver'))).toEqual(['publico', 'interno', 'personal', 'sensible'])
   })
 })

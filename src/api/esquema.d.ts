@@ -10514,6 +10514,76 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/copropiedades/{copropiedad_id}/mis-residencias": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Bienes privados donde la cuenta autenticada tiene una residencia vigente (también si no es
+         *     titular: tenedor, familiar…). Sirve para elegir a nombre de qué bien reservar; los bienes
+         *     de los que es titular están en `/mis-bienes-privados`.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Copropiedad */
+                    copropiedad_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Mis residencias vigentes */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["MiResidenciaRespuesta"][];
+                    };
+                };
+                /** @description Sin sesión o token vencido (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description No exige permisos: basta un rol en la copropiedad */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description La cuenta no tiene roles en la copropiedad */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/copropiedades/{copropiedad_id}/cuadros-coeficientes": {
         parameters: {
             query?: never;
@@ -27019,7 +27089,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": Record<string, never>;
+                        "application/json": components["schemas"]["DatosActa"];
                     };
                 };
                 /** @description Sin sesión o token vencido (`no_autenticado`) */
@@ -34818,7 +34888,79 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /**
+         * Archivo de la entidad, más recientes primero. Sin `archivos.personales.ver` no aparecen los
+         *     personales ni los sensibles.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Solo esta clasificación (`personal` y `sensible` exigen `archivos.personales.ver`). */
+                    clasificacion?: components["schemas"]["ClasificacionArchivo"];
+                    /**
+                     * @description Fragmento del nombre (sin tildes ni mayúsculas).
+                     * @example reglamento
+                     */
+                    q?: string;
+                    /** @description Subidos desde este instante (incluido). */
+                    desde?: string;
+                    /** @description Subidos antes de este instante (excluido). */
+                    hasta?: string;
+                    /**
+                     * @description Elementos por página (1–200; 50 si se omite).
+                     * @example 50
+                     */
+                    limite?: number;
+                    /** @description Cursor: el valor `siguiente` de la página anterior. Se omite para la primera página. */
+                    despues?: string;
+                };
+                header?: never;
+                path: {
+                    /** @description Entidad (en una PH, el id de la copropiedad) */
+                    entidad_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Archivos */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PaginaRespuesta_ArchivoRespuesta"];
+                    };
+                };
+                /** @description Sin sesión o token vencido (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Sin `archivos.ver`, o sin `archivos.personales.ver` al filtrar por `personal` o `sensible` (`sin_permiso`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Clasificación desconocida (`validacion`) */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
         put?: never;
         /** Sube un archivo (PDF, JPEG, PNG, WebP o HEIC). El tipo se verifica por el contenido. */
         post: {
@@ -35224,6 +35366,77 @@ export interface paths {
                 };
             };
         };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/terceros/{persona_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Un tercero por su persona (nombre, documento y datos fiscales): resuelve el `persona_id` de
+         *     las líneas de un comprobante, de un recibo, de un egreso o de una factura.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Entidad */
+                    entidad_id: string;
+                    /** @description Persona */
+                    persona_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Tercero */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["TerceroRespuesta"];
+                    };
+                };
+                /** @description Sin sesión o token vencido (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Sin `contabilidad.ver`, `facturacion.ver` ni `terceros.gestionar`, o sin contabilidad ni facturación */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description La persona no es de la entidad (`no_encontrado`) */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -45038,6 +45251,21 @@ export interface components {
             /** Format: uuid */
             asignado_por?: string | null;
         };
+        /** @description Asistente en el acta. */
+        AsistenteActa: {
+            /** @description Dato personal: nombre del asistente. */
+            nombre: string;
+            /** @description Códigos de los bienes que representa. */
+            bienes: string[];
+            /** @example 0.0125 */
+            coeficiente: string;
+            /** @description Bienes que representa por poder. */
+            poderes: string[];
+            /** @description Hora de entrada ya formateada. */
+            entrada: string;
+            /** @description Salidas con hora y motivo. */
+            salidas: string[];
+        };
         /** @description Asistente de la reunión. */
         AsistenteRespuesta: {
             /** Format: uuid */
@@ -45736,6 +45964,11 @@ export interface components {
              *     y cómo reactivarla.
              */
             entidad_suspendida: boolean;
+            /**
+             * @description Zona horaria IANA de la entidad: muestre las fechas en ella, no en la del navegador.
+             * @example America/Bogota
+             */
+            zona_horaria: string;
         };
         /**
          * @description Cara de una línea de regla contable.
@@ -46501,6 +46734,19 @@ export interface components {
         ContenidoPlantillaPeticion: {
             contenido: Record<string, never>;
         };
+        /** @description Una cantidad en ambas bases. */
+        ConteoEscrutinio: {
+            /**
+             * @description Suma de coeficientes (fracción de 1).
+             * @example 0.55
+             */
+            coeficiente: string;
+            /**
+             * Format: int32
+             * @description Número de bienes privados.
+             */
+            unidades: number;
+        };
         /** @description Pendientes por estado. */
         ConteoEstado: {
             estado: components["schemas"]["EstadoTicket"];
@@ -46525,6 +46771,8 @@ export interface components {
             id: string;
             /** Format: uuid */
             organizacion_id: string;
+            /** @description La organización contratada (su ficha es de plataforma: aquí va lo mínimo). */
+            organizacion: components["schemas"]["OrganizacionContratadaRespuesta"];
             tipo_servicio: components["schemas"]["TipoOrganizacion"];
             /** Format: date-time */
             vigente_desde: string;
@@ -47014,6 +47262,44 @@ export interface components {
             vence_en: string;
             nombre_comercial: string;
         };
+        /** @description Cupos asignados a una plancha. */
+        CuposPlancha: {
+            /** Format: uuid */
+            opcion_id: string;
+            /** Format: int32 */
+            por_cociente: number;
+            /** Format: int32 */
+            por_residuo: number;
+            /**
+             * @description Votos que sobraron tras el cociente.
+             * @example 0.12
+             */
+            residuo: string;
+        };
+        /** @description Datos completos del acta, ya calculados y redactados (los mismos que van al PDF). */
+        DatosActa: {
+            copropiedad: string;
+            nit?: string | null;
+            titulo: string;
+            tipo: string;
+            convocatoria: string;
+            modalidad: string;
+            lugar?: string | null;
+            fecha: string;
+            instalada?: string | null;
+            cerrada?: string | null;
+            orden_del_dia: string[];
+            quorum: components["schemas"]["QuorumActa"][];
+            asistentes: components["schemas"]["AsistenteActa"][];
+            /** @description Códigos de los bienes en mora. */
+            morosos: string[];
+            efecto_mora: string;
+            preguntas: components["schemas"]["PreguntaActa"][];
+            /** @description Advertencias para el acta (decisiones por unidades, efecto de la mora…). */
+            advertencias: string[];
+            /** @description Momento en que se armaron los datos, ya formateado. */
+            generada: string;
+        };
         /** @description Nombre, dirección y ubicación de un anunciante. */
         DatosAnunciantePeticion: {
             /** @example Modistería Rosa */
@@ -47129,6 +47415,29 @@ export interface components {
             autorizaciones: components["schemas"]["AutorizacionTratamientoRespuesta"][];
             solicitudes: components["schemas"]["SolicitudTitularRespuesta"][];
         };
+        /** @description Decisión de la pregunta, etiquetada por `decision`. */
+        Decision: {
+            /** @enum {string} */
+            decision: "aprobada";
+        } | {
+            /** @enum {string} */
+            decision: "no_aprobada";
+        } | {
+            /** Format: uuid */
+            opcion_id: string;
+            /** @enum {string} */
+            decision: "ganadora";
+        } | {
+            empate: boolean;
+            /** @enum {string} */
+            decision: "sin_ganadora";
+        } | {
+            /** @enum {string} */
+            decision: "por_opcion";
+        } | (components["schemas"]["Reparto"] & {
+            /** @enum {string} */
+            decision: "reparto";
+        });
         /** @description Decisión de la moderación. */
         DecisionPeticion: {
             /**
@@ -47278,6 +47587,11 @@ export interface components {
         };
         /** @description Dispositivo de acceso. */
         DispositivoDto: {
+            /**
+             * Format: uuid
+             * @description Lo asigna el backend: viene en las respuestas y se ignora al crear o editar.
+             */
+            readonly id: string;
             /** Format: uuid */
             puente_id: string;
             /** Format: uuid */
@@ -47689,6 +48003,33 @@ export interface components {
          */
         ErrorRespuesta: {
             error: components["schemas"]["DetalleError"];
+        };
+        /**
+         * @description Escrutinio de una pregunta: totales por coeficiente **y** por unidades (decide
+         *     `base_computo`) y la decisión según su regla.
+         */
+        Escrutinio: {
+            base_computo: components["schemas"]["BaseComputo"];
+            /** @description La misma forma que `regla_mayoria` de la pregunta (`calificada_70`, no `calificada70`). */
+            regla: components["schemas"]["ReglaDto"];
+            /**
+             * @description Bienes con derecho a votar la pregunta (presentes al abrirla o que ingresaron mientras
+             *     estuvo abierta, sin restricción por mora).
+             */
+            habilitados: components["schemas"]["ConteoEscrutinio"];
+            /** @description Toda la copropiedad (padrón de la reunión). */
+            total: components["schemas"]["ConteoEscrutinio"];
+            /** @description Bienes que votaron. */
+            votantes: components["schemas"]["ConteoEscrutinio"];
+            /** @description Habilitados que no votaron. */
+            sin_votar: components["schemas"]["ConteoEscrutinio"];
+            opciones: components["schemas"]["ResultadoOpcion"][];
+            decision: components["schemas"]["Decision"];
+            /**
+             * @description La pregunta decide por unidades: la ley exige coeficientes (art. 45; riesgo de
+             *     impugnación, art. 49). Muestre la advertencia.
+             */
+            advertencia_unidades: boolean;
         };
         /**
          * @description Especie de la mascota.
@@ -49635,6 +49976,26 @@ export interface components {
             consumido: string;
             dias: components["schemas"]["MetricaDiaRespuesta"][];
         };
+        /** @description Bien donde reside la cuenta autenticada. */
+        MiResidenciaRespuesta: {
+            /** Format: uuid */
+            residencia_id: string;
+            /** Format: uuid */
+            bien_privado_id: string;
+            /** @example T3-506 */
+            bien_codigo: string;
+            /** @description Calidad en que reside (propietario residente, tenedor, familiar…). */
+            calidad: components["schemas"]["CalidadResidencia"];
+            /** @description Cabeza del bien privado ante la copropiedad. */
+            es_responsable: boolean;
+            /**
+             * @description El propietario autorizó sus reservas (tenedores, cuando la política del recurso lo
+             *     exige).
+             */
+            reservas_autorizadas: boolean;
+            /** Format: date-time */
+            vigente_desde: string;
+        };
         /** @description Plan, consumo y facturas de la entidad. */
         MiSuscripcionRespuesta: {
             suscripcion: components["schemas"]["SuscripcionRespuesta"];
@@ -50834,6 +51195,17 @@ export interface components {
             /** Format: date-time */
             creado_en: string;
         };
+        /** @description Organización de un contrato. */
+        OrganizacionContratadaRespuesta: {
+            /** Format: uuid */
+            id: string;
+            razon_social: string;
+            /**
+             * @description Dato personal si es una persona natural con RUT.
+             * @example 900123456-8
+             */
+            nit: string;
+        };
         /** @description Organización creada o reutilizada. */
         OrganizacionCreada: {
             /** Format: uuid */
@@ -50966,6 +51338,28 @@ export interface components {
                 /** Format: date-time */
                 actualizado_en: string;
                 ficha?: components["schemas"]["FichaAnuncianteRespuesta"] | null;
+            }[];
+            /**
+             * Format: uuid
+             * @description Cursor para pedir la página siguiente (`despues=<siguiente>`); `null` si es la última.
+             */
+            siguiente?: string | null;
+        };
+        /** @description Página de resultados de un listado. */
+        PaginaRespuesta_ArchivoRespuesta: {
+            /** @description Elementos de esta página. */
+            datos: {
+                /** Format: uuid */
+                id: string;
+                nombre: string;
+                /** @description Detectado por el contenido. */
+                tipo: components["schemas"]["TipoArchivo"];
+                /** Format: int64 */
+                tamano_bytes: number;
+                sha256: string;
+                clasificacion: components["schemas"]["ClasificacionArchivo"];
+                /** Format: date-time */
+                creado_en: string;
             }[];
             /**
              * Format: uuid
@@ -51644,6 +52038,8 @@ export interface components {
                 id: string;
                 /** Format: uuid */
                 persona_id: string;
+                /** @description Nombre del titular (dato personal). */
+                persona_nombre: string;
                 /** @description `consulta`, `actualizacion`, `rectificacion`, `supresion` o `revocatoria`. */
                 tipo: components["schemas"]["TipoSolicitudTitular"];
                 /** @description `radicada`, `en_tramite` o `respondida`. */
@@ -52371,11 +52767,32 @@ export interface components {
              */
             usos: number;
         };
+        /** @description Pregunta en el acta. */
+        PreguntaActa: {
+            /** Format: int32 */
+            orden: number;
+            enunciado: string;
+            /** @description Tipo de pregunta ya redactado para el acta. */
+            tipo: string;
+            /** @description Visibilidad del voto ya redactada para el acta. */
+            tipo_voto: string;
+            /** @description Hora de apertura (`null` si no se abrió). */
+            abierta?: string | null;
+            /** @description Hora de cierre (`null` si no se cerró). */
+            cerrada?: string | null;
+            escrutinio?: components["schemas"]["Escrutinio"] | null;
+            /** @description Decisión ya redactada para el acta. */
+            decision: string;
+            /** @description Solo en votaciones nominales (en reservadas, solo totales). */
+            detalle: components["schemas"]["VotoActa"][];
+            /** @description Elegidos por plancha (elecciones). */
+            elegidos: string[];
+        };
         /** @description Pregunta con su escrutinio en vivo. */
         PreguntaEnVivoRespuesta: {
             pregunta: components["schemas"]["PreguntaRespuesta"];
-            /** @description Escrutinio por coeficiente y por unidades (ver `ResultadosRespuesta`). */
-            escrutinio: Record<string, never>;
+            /** @description Escrutinio por coeficiente y por unidades. */
+            escrutinio: components["schemas"]["Escrutinio"];
         };
         /** @description Datos de una pregunta frecuente. */
         PreguntaFrecuentePeticion: {
@@ -52653,6 +53070,11 @@ export interface components {
         };
         /** @description Punto de acceso. */
         PuntoDto: {
+            /**
+             * Format: uuid
+             * @description Lo asigna el backend: viene en las respuestas y se ignora al crear o editar.
+             */
+            readonly id: string;
             /** @example Portería principal */
             nombre: string;
             /** @description `peatonal`, `vehicular`, `mixto` o `interno`. */
@@ -52705,6 +53127,23 @@ export interface components {
          * @enum {string}
          */
         QuienReserva: "propietario" | "residente" | "ambos";
+        /** @description Una foto del quórum en el acta. */
+        QuorumActa: {
+            /** @description Momento de la foto (instalación, antes de una votación…). */
+            momento: string;
+            /** @description Hora local ya formateada. */
+            hora: string;
+            /** @example 0.55 */
+            coeficiente: string;
+            /** @example 55.0000 */
+            porcentaje_coeficiente: string;
+            /** Format: int32 */
+            unidades: number;
+            /** Format: int32 */
+            unidades_total: number;
+            /** Format: int32 */
+            asistentes: number;
+        };
         /** @description Quórum por coeficiente y por unidades. */
         QuorumRespuesta: {
             /** @example 0.55 */
@@ -53057,6 +53496,19 @@ export interface components {
         RenovarPeticion: {
             token_renovacion: string;
         };
+        /** @description Reparto de cupos por cociente electoral (elecciones). */
+        Reparto: {
+            /** @example 0.2 */
+            cociente: string;
+            cupos: components["schemas"]["CuposPlancha"][];
+            /** @description Hubo empate de residuos en el último cupo asignado. */
+            empate: boolean;
+            /**
+             * Format: int32
+             * @description Cupos que no se pudieron asignar (planchas sin candidatos suficientes o sin votos).
+             */
+            sin_asignar: number;
+        };
         /** @description Motivo del reporte de un anuncio. */
         ReporteAnuncioPeticion: {
             /**
@@ -53162,8 +53614,12 @@ export interface components {
             id: string;
             /** Format: uuid */
             recurso_id: string;
+            /** @example Salón social */
+            recurso_nombre: string;
             /** Format: uuid */
             bien_privado_id: string;
+            /** @example T3-506 */
+            bien_codigo: string;
             /** Format: uuid */
             solicitante_persona_id?: string | null;
             /** Format: date-time */
@@ -53361,6 +53817,33 @@ export interface components {
          * @enum {string}
          */
         ResultadoLlamada: "autorizo" | "rechazo" | "no_contesto";
+        /** @description Totales de una opción y lo que decidió. */
+        ResultadoOpcion: {
+            /** Format: uuid */
+            opcion_id: string;
+            texto: string;
+            en_blanco: boolean;
+            votos: components["schemas"]["ConteoEscrutinio"];
+            /**
+             * @description Porcentaje sobre lo habilitado, por coeficiente (4 decimales).
+             * @example 55.0000
+             */
+            porcentaje_coeficiente: string;
+            /**
+             * @description Porcentaje sobre lo habilitado, por unidades (4 decimales).
+             * @example 50.0000
+             */
+            porcentaje_unidades: string;
+            /** @description ¿Alcanza la regla de mayoría en la base de cómputo? `null` en elecciones. */
+            aprobada?: boolean | null;
+            /** @description ¿Y en la otra base? Informativo, para mostrar ambos resultados. */
+            aprobada_en_otra_base?: boolean | null;
+            /**
+             * Format: int32
+             * @description Cupos ganados (solo elecciones).
+             */
+            cupos?: number | null;
+        };
         /** @description Resultado del sorteo con las asignaciones creadas. */
         ResultadoRespuesta: {
             sorteo: components["schemas"]["SorteoRespuesta"];
@@ -53373,7 +53856,7 @@ export interface components {
              * @description Totales por opción por coeficiente y por unidades, habilitados, votantes, decisión y
              *     reparto de cupos (elecciones). Decimales como texto.
              */
-            escrutinio: Record<string, never>;
+            escrutinio: components["schemas"]["Escrutinio"];
         };
         /** @description Lo que hizo (o haría) aplicar la plantilla. */
         ResumenAplicacionRespuesta: {
@@ -53891,6 +54374,8 @@ export interface components {
             id: string;
             /** Format: uuid */
             persona_id: string;
+            /** @description Nombre del titular (dato personal). */
+            persona_nombre: string;
             /** @description `consulta`, `actualizacion`, `rectificacion`, `supresion` o `revocatoria`. */
             tipo: components["schemas"]["TipoSolicitudTitular"];
             /** @description `radicada`, `en_tramite` o `respondida`. */
@@ -54902,6 +55387,19 @@ export interface components {
         VistaPreviaUsuariosRespuesta: {
             importacion: components["schemas"]["ImportacionRespuesta"];
             filas: components["schemas"]["FilaUsuarioPreviaRespuesta"][];
+        };
+        /** @description Una fila del detalle nominal (bien → opción). */
+        VotoActa: {
+            /** @description Código del bien privado. */
+            bien: string;
+            /** @example 0.0125 */
+            coeficiente: string;
+            /** @description Texto de la opción elegida. */
+            opcion: string;
+            /** @description `web`, `whatsapp`, `presencial` o `rotulo`. */
+            canal: string;
+            hora: string;
+            apoderado: boolean;
         };
         /** @description Voto desde la papeleta. */
         VotoPapeletaPeticion: {

@@ -7,18 +7,6 @@ import { proporcion } from './decimales'
 
 type Tono = 'exito' | 'aviso' | 'peligro' | 'info' | 'neutro'
 
-const esObjeto = (x: unknown): x is Record<string, unknown> => typeof x === 'object' && x !== null
-
-/**
- * El contrato tipa el escrutinio como `object`: se acepta solo si trae lo que se muestra
- * (opciones, decisión y conteos); si no, `null` y la vista dice que no está disponible.
- */
-export function leerEscrutinio(x: unknown): Escrutinio | null {
-  if (!esObjeto(x) || !Array.isArray(x.opciones) || !esObjeto(x.decision) || typeof x.decision.decision !== 'string') return null
-  if (!esObjeto(x.habilitados) || !esObjeto(x.votantes)) return null
-  return x as unknown as Escrutinio
-}
-
 /** Valor de un conteo en la base de cómputo (texto, para mostrar). */
 export const enBase = (c: { coeficiente: string; unidades: number }, base: BaseComputo) =>
   base === 'coeficiente' ? c.coeficiente : String(c.unidades)

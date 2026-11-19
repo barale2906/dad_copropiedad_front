@@ -9,6 +9,8 @@ import type {
   CostoAvisos,
   Credencial,
   CredencialEmitida,
+  DatosDispositivoAcceso,
+  DatosPuntoAcceso,
   DetalleCorrespondencia,
   DetalleVisita,
   DispositivoAcceso,
@@ -264,16 +266,25 @@ export function puntosAcceso(id: string): Promise<PuntoAcceso[]> {
   return exigir(api().GET('/api/v1/copropiedades/{copropiedad_id}/puntos-acceso', { params: ph(id) }))
 }
 
-export function crearPuntoAcceso(id: string, datos: PuntoAcceso, clave: string): Promise<PuntoAcceso> {
-  return exigir(api().POST('/api/v1/copropiedades/{copropiedad_id}/puntos-acceso', { params: ph(id), body: datos, headers: idempotencia(clave) }))
+/**
+ * El contrato usa el mismo esquema para leer y escribir y marca `id` como `readOnly`; el
+ * generador de tipos no separa las dos formas, así que el cuerpo sin `id` se declara completo.
+ */
+const sinId = <T extends { readonly id: string }>(datos: Omit<T, 'id'>) => datos as T
+
+export function crearPuntoAcceso(id: string, datos: DatosPuntoAcceso, clave: string): Promise<PuntoAcceso> {
+  return exigir(
+    api().POST('/api/v1/copropiedades/{copropiedad_id}/puntos-acceso', { params: ph(id), body: sinId<PuntoAcceso>(datos), headers: idempotencia(clave) }),
+  )
 }
 
-/** Activar, desactivar o renombrar un punto (requiere su `id`, ver S14). */
-export function actualizarPuntoAcceso(id: string, puntoId: string, datos: PuntoAcceso): Promise<PuntoAcceso> {
+/** Activar, desactivar o renombrar un punto. */
+export function actualizarPuntoAcceso(id: string, puntoId: string, datos: DatosPuntoAcceso): Promise<PuntoAcceso> {
+  const { nombre, tipo, sentido, recurso_id, activo } = datos
   return exigir(
     api().PUT('/api/v1/copropiedades/{copropiedad_id}/puntos-acceso/{punto_id}', {
       params: { path: { copropiedad_id: id, punto_id: puntoId } },
-      body: { nombre: datos.nombre, tipo: datos.tipo, sentido: datos.sentido, recurso_id: datos.recurso_id, activo: datos.activo },
+      body: sinId<PuntoAcceso>({ nombre, tipo, sentido, recurso_id, activo }),
     }),
   )
 }
@@ -309,9 +320,24 @@ export function dispositivos(id: string): Promise<DispositivoAcceso[]> {
   return exigir(api().GET('/api/v1/copropiedades/{copropiedad_id}/dispositivos-acceso', { params: ph(id) }))
 }
 
-export function registrarDispositivo(id: string, datos: DispositivoAcceso, clave: string): Promise<DispositivoAcceso> {
+export function registrarDispositivo(id: string, datos: DatosDispositivoAcceso, clave: string): Promise<DispositivoAcceso> {
   return exigir(
-    api().POST('/api/v1/copropiedades/{copropiedad_id}/dispositivos-acceso', { params: ph(id), body: datos, headers: idempotencia(clave) }),
+    api().POST('/api/v1/copropiedades/{copropiedad_id}/dispositivos-acceso', {
+      params: ph(id),
+      body: sinId<DispositivoAcceso>(datos),
+      headers: idempotencia(clave),
+    }),
+  )
+}
+
+/** Activar, desactivar o cambiar un dispositivo (de punto, de puente o de datos). */
+export function actualizarDispositivo(id: string, dispositivoId: string, datos: DatosDispositivoAcceso): Promise<DispositivoAcceso> {
+  const { puente_id, punto_acceso_id, tipo, fabricante, modelo, config, activo } = datos
+  return exigir(
+    api().PUT('/api/v1/copropiedades/{copropiedad_id}/dispositivos-acceso/{dispositivo_id}', {
+      params: { path: { copropiedad_id: id, dispositivo_id: dispositivoId } },
+      body: sinId<DispositivoAcceso>({ puente_id, punto_acceso_id, tipo, fabricante, modelo, config, activo }),
+    }),
   )
 }
 

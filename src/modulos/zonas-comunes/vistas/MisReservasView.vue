@@ -125,7 +125,7 @@ onMounted(cargar)
           variante="fantasma"
           @click="abrirCancelar(fila)"
         >
-          Cancelar<span class="solo-lector"> la reserva de {{ zonas.nombreRecurso(fila.recurso_id) }}</span>
+          Cancelar<span class="solo-lector"> la reserva de {{ fila.recurso_nombre }}</span>
         </HudBoton>
       </template>
     </ListaReservas>

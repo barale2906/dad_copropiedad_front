@@ -3,7 +3,7 @@
  * Beneficiarios finales (RUB): registrar por criterio (propiedad con participación de 5 % o más,
  * control o beneficio) y terminar la vigencia de uno. Se reportan a la DIAN.
  */
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { mensajeDeError } from '@/api/errores'
 import type { Beneficiario, CriterioBeneficiario } from '@/api/tipos'
 import { useAccion } from '@/composables/useAccion'
@@ -69,6 +69,9 @@ async function alTerminar() {
   resultado.value = `Vigencia terminada el ${fechaCalendario(fin.value)}.`
   await cargar()
 }
+
+// Los beneficiarios traen solo `persona_id`: se piden los nombres que aún no se conocen.
+watch(lista, (l) => void conocidos.resolver(id.value, l.map((b) => b.persona_id)))
 
 async function cargar() {
   try {

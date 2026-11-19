@@ -8,7 +8,6 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { mensajeDeError } from '@/api/errores'
 import type { AccionPregunta, NuevaPregunta, Pregunta, PreguntaEnVivo, PuntoOrdenDia, Reunion } from '@/api/tipos'
 import { useAccion } from '@/composables/useAccion'
-import { leerEscrutinio } from '@/formato/escrutinio'
 import { horaEn } from '@/formato/fechas'
 import ConfirmarConMotivo from '@/hud/componentes/ConfirmarConMotivo.vue'
 import EscrutinioPregunta from '@/hud/componentes/EscrutinioPregunta.vue'
@@ -49,7 +48,7 @@ const editando = ref<string | null>(null)
 const anulando = ref<Pregunta | null>(null)
 const abiertoAnular = ref(false)
 
-const escrutinios = computed(() => new Map(props.enVivo.map((x) => [x.pregunta.id, leerEscrutinio(x.escrutinio)])))
+const escrutinios = computed(() => new Map(props.enVivo.map((x) => [x.pregunta.id, x.escrutinio])))
 const enEdicion = computed(() => lista.value.find((p) => p.id === editando.value) ?? null)
 
 const guardar = useAccion((clave, datos: NuevaPregunta) =>

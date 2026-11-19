@@ -26,16 +26,17 @@ export const ENTIDAD_PH: EntidadDeLaCuenta = {
 }
 
 /** Capacidades de prueba: `modo_soporte` y `entidad_suspendida` son opcionales (por defecto, `false`). */
-export type CapacidadesDePrueba = Omit<Capacidades, 'modo_soporte' | 'entidad_suspendida'> & {
+export type CapacidadesDePrueba = Omit<Capacidades, 'modo_soporte' | 'entidad_suspendida' | 'zona_horaria'> & {
   modo_soporte?: boolean
   entidad_suspendida?: boolean
+  zona_horaria?: string
 }
 
 /** Deja una entidad activa con las capacidades dadas, sin pasar por la API. */
 export function conCapacidades(cap: CapacidadesDePrueba, entidad: EntidadDeLaCuenta = ENTIDAD_PH) {
   const e = useEntidad()
   e.activa = entidad
-  e.capacidades = { modo_soporte: false, entidad_suspendida: false, ...cap }
+  e.capacidades = { modo_soporte: false, entidad_suspendida: false, zona_horaria: 'America/Bogota', ...cap }
   return e
 }
 

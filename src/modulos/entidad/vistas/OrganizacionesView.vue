@@ -23,10 +23,8 @@ import { asignarPorContrato, contratos, terminarContrato } from '../api-organiza
 import BuscarCuenta from '../componentes/BuscarCuenta.vue'
 import VincularOrganizacion from '../componentes/VincularOrganizacion.vue'
 import { TIPO_ORGANIZACION } from '../organizaciones'
-import { useOrganizacionesConocidas } from '../store'
 
 const entidad = useEntidad()
-const conocidas = useOrganizacionesConocidas()
 const id = computed(() => entidad.activa?.entidad_id ?? '')
 const puedeVincular = computed(() => entidad.tienePermiso('organizaciones.vincular'))
 const puedeTerminar = computed(() => entidad.tienePermiso('contratos.gestionar'))
@@ -42,7 +40,7 @@ const vinculando = ref(false)
 const ordenados = computed(() =>
   [...lista.value].sort((a, b) => Number(a.estado !== 'vigente') - Number(b.estado !== 'vigente') || b.vigente_desde.localeCompare(a.vigente_desde)),
 )
-const organizacion = (c: ContratoServicio) => conocidas.nombre(c.organizacion_id) ?? 'Organización vinculada'
+const organizacion = (c: ContratoServicio) => c.organizacion.razon_social
 
 const COLUMNAS = [
   { clave: 'organizacion', titulo: 'Organización' },
@@ -172,7 +170,7 @@ onMounted(cargar)
       <template #celda-organizacion="{ fila }">
         <span class="celda">
           <strong>{{ organizacion(fila) }}</strong>
-          <small>{{ TIPO_ORGANIZACION[fila.tipo_servicio] }}</small>
+          <small>{{ TIPO_ORGANIZACION[fila.tipo_servicio] }} · NIT {{ fila.organizacion.nit }}</small>
         </span>
       </template>
       <template #celda-vigencia="{ fila }">

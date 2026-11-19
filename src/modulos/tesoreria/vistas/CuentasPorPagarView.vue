@@ -93,6 +93,9 @@ async function alAnular(motivo: string) {
   resultado.value = 'Factura anulada.'
 }
 
+// Las respuestas traen solo `persona_id`: se piden los nombres que aún no se conocen.
+watch([lista, actual], ([l, a]) => void terceros.resolver(id.value, [...l.map((x) => x.persona_id), a?.persona_id]))
+
 async function cargar() {
   estado.value = 'cargando'
   try {

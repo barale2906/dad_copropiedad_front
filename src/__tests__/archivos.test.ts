@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { abrirArchivo, aBase64, descargar, guardarBlob, nombreDeDisposicion, subirArchivo } from '@/api/archivos'
+import { abrirArchivo, aBase64, descargar, guardarBlob, listarArchivos, nombreDeDisposicion, subirArchivo } from '@/api/archivos'
 import { ErrorApi } from '@/api/errores'
 import { limpiar } from '@/api/tokens'
 import { useSesion } from '@/stores/sesion'
@@ -18,6 +18,23 @@ describe('archivos', () => {
   it('sube el archivo crudo con su nombre y clasificación', async () => {
     const a = await subirArchivo(ENTIDAD, new File(['hola'], 'acta.pdf'), 'publico')
     expect(a).toMatchObject({ nombre: 'acta.pdf', tamano_bytes: 4, clasificacion: 'publico', tipo: 'application/pdf' })
+  })
+
+  it('lista el archivo guardado con filtros y por cursor; lo subido aparece primero', async () => {
+    const todos = await listarArchivos(ENTIDAD, undefined)
+    expect(todos.datos).toHaveLength(4)
+    expect(todos.siguiente).toBeNull()
+    expect((await listarArchivos(ENTIDAD, undefined, { clasificacion: 'publico' })).datos.map((a) => a.clasificacion)).toEqual(['publico'])
+    expect((await listarArchivos(ENTIDAD, undefined, { q: 'poliza' })).datos[0]?.nombre).toBe('Póliza de áreas comunes 2026.pdf')
+    const antiguos = await listarArchivos(ENTIDAD, undefined, { hasta: new Date(Date.now() - 30 * 86_400_000).toISOString() })
+    expect(antiguos.datos.map((a) => a.clasificacion)).toEqual(['sensible'])
+    await subirArchivo(ENTIDAD, new File(['x'], 'nuevo.png'))
+    expect((await listarArchivos(ENTIDAD, undefined)).datos[0]?.nombre).toBe('nuevo.png')
+  })
+
+  it('el listado propaga el error del backend', async () => {
+    limpiar(false)
+    await expect(listarArchivos(ENTIDAD, undefined)).rejects.toBeInstanceOf(ErrorApi)
   })
 
   it('abre el enlace firmado en una pestaña abierta de antemano', async () => {

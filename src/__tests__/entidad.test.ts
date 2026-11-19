@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { iniciarCliente } from '@/api/cliente'
+import type { FichaEntidad } from '@/api/tipos'
 import { limpiar } from '@/api/tokens'
 import { fetchDemo } from '@/mocks/demo'
 import { useEntidad, ZONA_HORARIA_PREDETERMINADA } from '@/stores/entidad'
@@ -65,30 +66,42 @@ describe('useEntidad', () => {
     expect(e.zonaHoraria).toBe('America/Bogota')
   })
 
-  it('sin permiso para ver la ficha no la pide y usa la zona predeterminada', async () => {
+  it('sin permiso para ver la ficha no la pide y toma la zona de las capacidades', async () => {
     const pedidas: string[] = []
-    iniciarCliente(API, (r) => {
+    iniciarCliente(API, async (r) => {
       pedidas.push(new URL(r.url).pathname)
-      return fetchDemo(r)
+      const res = await fetchDemo(r)
+      if (!new URL(r.url).pathname.endsWith('/capacidades')) return res
+      return Response.json({ ...(await res.json()), zona_horaria: 'America/Lima' })
     })
     // El consejero de Torres del Parque no tiene `copropiedad.datos.ver`.
     const id = await conSesion(/Torres del Parque/)
     const e = useEntidad()
     await e.entrar(id)
-    expect(e.capacidades).not.toBeNull()
     expect(e.ficha).toBeNull()
-    expect(e.zonaHoraria).toBe(ZONA_HORARIA_PREDETERMINADA)
+    expect(e.zonaHoraria).toBe('America/Lima')
     expect(pedidas.some((p) => p.endsWith(`/entidades/${id}`))).toBe(false)
   })
 
-  it('si la ficha falla, entra igual con la zona predeterminada', async () => {
+  it('la ficha recién editada manda sobre la zona de las capacidades', () => {
+    const e = conCapacidades({ tipo: 'propiedad_horizontal', modulos: [], permisos: [], zona_horaria: 'America/Lima' })
+    expect(e.zonaHoraria).toBe('America/Lima')
+    e.ficha = { zona_horaria: 'America/Mexico_City' } as FichaEntidad
+    expect(e.zonaHoraria).toBe('America/Mexico_City')
+  })
+
+  it('si la ficha falla, entra igual con la zona de las capacidades', async () => {
     conRespuesta('GET', /^\/entidades\/[^/]+$/, () => new Response(null, { status: 500 }))
     const id = await conSesion(/Los Robles/)
     const e = useEntidad()
     await e.entrar(id)
     expect(e.activa?.entidad_id).toBe(id)
     expect(e.ficha).toBeNull()
-    expect(e.zonaHoraria).toBe(ZONA_HORARIA_PREDETERMINADA)
+    expect(e.zonaHoraria).toBe('America/Bogota')
+  })
+
+  it('sin entidad usa la zona predeterminada', () => {
+    expect(useEntidad().zonaHoraria).toBe(ZONA_HORARIA_PREDETERMINADA)
   })
 
   it('salir olvida la entidad, sus capacidades y su ficha', async () => {

@@ -26,7 +26,7 @@ const sentido = ref<SentidoAcceso>('ambos')
 const errorNombre = ref<string | null>(null)
 
 const crear = useAccion((clave) => crearPuntoAcceso(props.entidadId, { nombre: nombre.value.trim(), tipo: tipo.value, sentido: sentido.value, activo: true }, clave))
-const alternar = useAccion((_c, p: PuntoAcceso) => actualizarPuntoAcceso(props.entidadId, p.id ?? '', { ...p, activo: p.activo === false }))
+const alternar = useAccion((_c, p: PuntoAcceso) => actualizarPuntoAcceso(props.entidadId, p.id, { ...p, activo: p.activo === false }))
 
 async function agregar() {
   errorNombre.value = nombre.value.trim() ? null : 'Escriba el nombre del punto.'
@@ -75,7 +75,7 @@ onMounted(cargar)
       >
         <li
           v-for="p in lista"
-          :key="p.id ?? p.nombre"
+          :key="p.id"
         >
           <HudInsignia :tono="p.activo === false ? 'neutro' : 'exito'">
             {{ p.activo === false ? 'Inactivo' : 'Activo' }}
@@ -85,7 +85,6 @@ onMounted(cargar)
             <small>{{ TIPO_PUNTO[p.tipo] }} · {{ SENTIDO[p.sentido] }}</small>
           </span>
           <HudBoton
-            v-if="p.id"
             variante="fantasma"
             :cargando="alternar.cargando.value"
             @click="cambiar(p)"

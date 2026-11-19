@@ -7,8 +7,8 @@ import { useSesion } from './sesion'
 const CLAVE_ULTIMA = 'dad.entidad.ultima'
 
 /**
- * Zona horaria cuando no se puede leer la ficha (la consulta exige `copropiedad.datos.ver`, que
- * residentes y porteros no tienen). Hoy todas las entidades operan en Colombia.
+ * Zona horaria antes de entrar a una entidad (las capacidades ya la traen para cualquier cuenta).
+ * Hoy todas las entidades operan en Colombia.
  */
 export const ZONA_HORARIA_PREDETERMINADA = 'America/Bogota'
 
@@ -40,8 +40,13 @@ export const useEntidad = defineStore('entidad', () => {
     const roles = activa.value?.roles ?? []
     return roles.length > 0 && roles.every((r) => r === 'propietario' || r === 'residente')
   })
-  /** Zona IANA en que se muestran las fechas de la entidad (nunca la del navegador). */
-  const zonaHoraria = computed(() => ficha.value?.zona_horaria ?? ZONA_HORARIA_PREDETERMINADA)
+  /**
+   * Zona IANA en que se muestran las fechas de la entidad (nunca la del navegador). Llega en las
+   * capacidades; la ficha manda solo si se acaba de editar (las capacidades no se vuelven a pedir).
+   */
+  const zonaHoraria = computed(
+    () => ficha.value?.zona_horaria ?? capacidades.value?.zona_horaria ?? ZONA_HORARIA_PREDETERMINADA,
+  )
 
   function tieneModulo(m: Modulo): boolean {
     return modulos.value.has(m)
@@ -57,8 +62,8 @@ export const useEntidad = defineStore('entidad', () => {
   }
 
   /**
-   * Entra a la entidad: pide sus capacidades (permisos efectivos + módulos contratados) y, si
-   * la cuenta puede verla, su ficha (zona horaria). Sin ficha se entra igual.
+   * Entra a la entidad: pide sus capacidades (permisos efectivos, módulos contratados y zona
+   * horaria) y, si la cuenta puede verla, su ficha. Sin ficha se entra igual.
    */
   async function entrar(entidadId: string): Promise<void> {
     if (activa.value?.entidad_id === entidadId && capacidades.value) return

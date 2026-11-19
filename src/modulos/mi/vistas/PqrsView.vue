@@ -8,7 +8,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { type RouteLocationRaw, useRoute, useRouter } from 'vue-router'
 import { abrirArchivo } from '@/api/archivos'
 import { mensajeDeError } from '@/api/errores'
-import type { BienPrivado, CategoriaTicket, DetalleTicket, TicketDeCuenta, TipoTicket } from '@/api/tipos'
+import type { CategoriaTicket, DetalleTicket, TicketDeCuenta, TipoTicket } from '@/api/tipos'
 import { TIPO_TICKET } from '@/composables/textos-gestion'
 import { useAccion } from '@/composables/useAccion'
 import { useAdjuntos } from '@/composables/useAdjuntos'
@@ -22,7 +22,7 @@ import HudInsignia from '@/hud/componentes/HudInsignia.vue'
 import HiloMensajes, { type MensajeHilo } from '@/hud/componentes/HiloMensajes.vue'
 import HudPanel from '@/hud/componentes/HudPanel.vue'
 import HudSelector from '@/hud/componentes/HudSelector.vue'
-import { useBienes } from '@/stores/bienes'
+import { type BienCorto, useBienes } from '@/stores/bienes'
 import { useEntidad } from '@/stores/entidad'
 import IVolver from '~icons/tabler/arrow-left'
 import IMas from '~icons/tabler/plus'
@@ -63,7 +63,7 @@ const descripcion = ref('')
 const bienId = ref('')
 const adjuntos = useAdjuntos(id, 'personal')
 const categorias = ref<CategoriaTicket[]>([])
-const propios = ref<BienPrivado[]>([])
+const propios = ref<BienCorto[]>([])
 const intentado = ref(false)
 const opcionesTipo = TIPOS_PARA_RESIDENTE.map((valor) => ({ valor, etiqueta: TIPO_TICKET[valor] }))
 const opcionesCategoria = computed(() => categorias.value.filter((c) => c.activa).map((c) => ({ valor: c.id, etiqueta: c.nombre })))
@@ -93,7 +93,7 @@ async function abrirRadicar() {
   intentado.value = false
   radicar.reiniciar()
   radicando.value = true
-  const [c, p] = await Promise.all([categoriasTicket(id.value).catch(() => []), bienes.asegurarPropios().catch(() => [])])
+  const [c, p] = await Promise.all([categoriasTicket(id.value).catch(() => []), bienes.asegurarMisBienes().catch(() => [])])
   categorias.value = c
   propios.value = p
   bienId.value = p.length === 1 ? (p[0]?.id ?? '') : ''

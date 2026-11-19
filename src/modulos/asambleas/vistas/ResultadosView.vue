@@ -12,7 +12,6 @@ import type { DetalleVoto, Elegido, Pregunta, ResultadosPregunta } from '@/api/t
 import { useAccion } from '@/composables/useAccion'
 import { useRefresco } from '@/composables/useRefresco'
 import { coeficiente } from '@/formato/decimales'
-import { leerEscrutinio } from '@/formato/escrutinio'
 import { aUtc, fechaHora } from '@/formato/fechas'
 import AvisoAuditado from '@/hud/componentes/AvisoAuditado.vue'
 import EscrutinioPregunta from '@/hud/componentes/EscrutinioPregunta.vue'
@@ -44,7 +43,7 @@ const pregunta = computed(() => votadas.value.find((p) => p.id === route.query.p
 
 const res = ref<ResultadosPregunta | null>(null)
 const errorRes = ref<string | null>(null)
-const escrutinio = computed(() => (res.value ? leerEscrutinio(res.value.escrutinio) : null))
+const escrutinio = computed(() => res.value?.escrutinio ?? null)
 const actual = computed(() => res.value?.pregunta ?? pregunta.value)
 
 // Detalle

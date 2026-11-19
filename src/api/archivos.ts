@@ -6,6 +6,26 @@ import { api, exigir } from './cliente'
 import { ErrorApi } from './errores'
 import type { Archivo, ClasificacionArchivo } from './tipos'
 
+/** Filtros del archivo de la entidad (fechas ya en UTC: `desde` incluido, `hasta` excluido). */
+export interface FiltrosArchivos {
+  clasificacion?: ClasificacionArchivo
+  q?: string
+  desde?: string
+  hasta?: string
+}
+
+/**
+ * Archivo de la entidad por cursor, más recientes primero. Sin `archivos.personales.ver` el
+ * backend omite los personales y sensibles (y pedir esa clasificación da 403).
+ */
+export function listarArchivos(entidadId: string, despues: string | undefined, filtros: FiltrosArchivos = {}) {
+  return exigir(
+    api().GET('/api/v1/entidades/{entidad_id}/archivos', {
+      params: { path: { entidad_id: entidadId }, query: { ...filtros, despues, limite: 50 } },
+    }),
+  )
+}
+
 /** Sube un archivo y devuelve su ficha (el `id` se adjunta en otros endpoints). */
 export async function subirArchivo(
   entidadId: string,

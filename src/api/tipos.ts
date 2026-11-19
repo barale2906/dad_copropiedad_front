@@ -114,6 +114,8 @@ export type DetalleCuadro = S['DetalleCuadroRespuesta']
 export type RevisionCuadro = S['RevisionRespuesta']
 export type FilaCoeficiente = S['FilaCoeficientePeticion']
 export type Residencia = S['ResidenciaRespuesta']
+/** Residencia vigente de la cuenta (`mis-residencias`): bien, calidad y si puede reservar. */
+export type MiResidencia = S['MiResidenciaRespuesta']
 export type NuevaResidencia = S['NuevaResidenciaPeticion']
 export type CalidadResidencia = S['CalidadResidencia']
 export type Vehiculo = S['VehiculoRespuesta']
@@ -186,12 +188,14 @@ export type OrigenAutorizacionAcceso = S['OrigenAutorizacionAcceso']
 export type ConsentimientoBiometrico = S['ConsentimientoRespuesta']
 export type ConfiguracionAcceso = S['ConfiguracionAccesoDto']
 export type CostoAvisos = S['CostoAvisosRespuesta']
-/** El backend envía `id` pero el contrato lo omite (solicitud S14): opcional hasta que se publique. */
-export type PuntoAcceso = S['PuntoDto'] & { id?: string }
+export type PuntoAcceso = S['PuntoDto']
+/** Lo que se envía al crear o editar un punto: el `id` es de solo lectura (lo asigna el backend). */
+export type DatosPuntoAcceso = Omit<PuntoAcceso, 'id'>
 export type TipoPuntoAcceso = S['TipoPuntoAcceso']
 export type Puente = S['PuenteRespuesta']
-/** Igual que `PuntoAcceso`: `id` llega en la respuesta aunque el contrato no lo declara (S14). */
-export type DispositivoAcceso = S['DispositivoDto'] & { id?: string }
+export type DispositivoAcceso = S['DispositivoDto']
+/** Lo que se envía al registrar o editar un dispositivo (sin el `id`, de solo lectura). */
+export type DatosDispositivoAcceso = Omit<DispositivoAcceso, 'id'>
 export type TipoDispositivoAcceso = S['TipoDispositivoAcceso']
 export type Asignacion = S['AsignacionRespuesta']
 export type Importacion = S['ImportacionRespuesta']
@@ -301,90 +305,15 @@ export type FilaVoto = S['FilaVotoRespuesta']
 export type CanalesPregunta = S['CanalesRespuesta']
 export type CostoWhatsapp = S['CostoRespuesta']
 
-// El contrato declara el escrutinio y los datos del acta como `object` (solicitud S17): estas
-// interfaces siguen `domain::resultados::Escrutinio` y `puertos::actas::DatosActa` del backend.
-// Decimales como texto; `null` donde el backend usa `Option`.
-
-/** Una cantidad en ambas bases. */
-export interface ConteoVotos {
-  coeficiente: string
-  unidades: number
-}
-
-export interface ResultadoOpcion {
-  opcion_id: string
-  texto: string
-  en_blanco: boolean
-  votos: ConteoVotos
-  /** Sobre lo habilitado, 4 decimales. */
-  porcentaje_coeficiente: string
-  porcentaje_unidades: string
-  /** ¿Alcanza la mayoría en la base de cómputo? `null` en elecciones. */
-  aprobada: boolean | null
-  aprobada_en_otra_base: boolean | null
-  cupos: number | null
-}
-
-export interface CuposPlancha {
-  opcion_id: string
-  por_cociente: number
-  por_residuo: number
-  residuo: string
-}
-
-export type DecisionEscrutinio =
-  | { decision: 'aprobada' }
-  | { decision: 'no_aprobada' }
-  | { decision: 'ganadora'; opcion_id: string }
-  | { decision: 'sin_ganadora'; empate: boolean }
-  | { decision: 'por_opcion' }
-  | { decision: 'reparto'; cociente: string; cupos: CuposPlancha[]; empate: boolean; sin_asignar: number }
-
+/** Una cantidad en ambas bases (coeficiente como texto decimal y unidades). */
+export type ConteoVotos = S['ConteoEscrutinio']
+export type ResultadoOpcion = S['ResultadoOpcion']
+export type CuposPlancha = S['CuposPlancha']
+export type DecisionEscrutinio = S['Decision']
 /** Escrutinio de una pregunta (en vivo si está abierta; el guardado si cerró). */
-export interface Escrutinio {
-  base_computo: BaseComputo
-  habilitados: ConteoVotos
-  total: ConteoVotos
-  votantes: ConteoVotos
-  sin_votar: ConteoVotos
-  opciones: ResultadoOpcion[]
-  decision: DecisionEscrutinio
-  /** Decide por unidades: la ley exige coeficientes (arts. 45 y 49). */
-  advertencia_unidades: boolean
-}
-
+export type Escrutinio = S['Escrutinio']
 /** Datos del acta ya calculados por el backend (fechas y horas ya en la zona de la PH). */
-export interface DatosActa {
-  copropiedad: string
-  nit: string | null
-  titulo: string
-  tipo: string
-  convocatoria: string
-  modalidad: string
-  lugar: string | null
-  fecha: string
-  instalada: string | null
-  cerrada: string | null
-  orden_del_dia: string[]
-  quorum: { momento: string; hora: string; coeficiente: string; porcentaje_coeficiente: string; unidades: number; unidades_total: number; asistentes: number }[]
-  asistentes: { nombre: string; bienes: string[]; coeficiente: string; poderes: string[]; entrada: string; salidas: string[] }[]
-  morosos: string[]
-  efecto_mora: string
-  preguntas: {
-    orden: number
-    enunciado: string
-    tipo: string
-    tipo_voto: string
-    abierta: string | null
-    cerrada: string | null
-    escrutinio: Escrutinio | null
-    decision: string
-    detalle: { bien: string; coeficiente: string; opcion: string; canal: string; hora: string; apoderado: boolean }[]
-    elegidos: string[]
-  }[]
-  advertencias: string[]
-  generada: string
-}
+export type DatosActa = S['DatosActa']
 
 // Contabilidad
 export type Naturaleza = S['Naturaleza']

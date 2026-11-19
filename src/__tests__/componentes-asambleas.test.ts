@@ -60,7 +60,7 @@ describe('LectorQr con otros formatos', () => {
 describe('EscrutinioPregunta', () => {
   const conteo = (unidades: number) => ({ coeficiente: (unidades * 0.025).toFixed(8), unidades })
   const base: Escrutinio = {
-    base_computo: 'coeficiente', habilitados: conteo(20), total: conteo(40), votantes: conteo(16), sin_votar: conteo(4),
+    base_computo: 'coeficiente', regla: { regla: 'simple' }, habilitados: conteo(20), total: conteo(40), votantes: conteo(16), sin_votar: conteo(4),
     opciones: [
       { opcion_id: 'si', texto: 'Sí', en_blanco: false, votos: conteo(12), porcentaje_coeficiente: '60.0000', porcentaje_unidades: '60.0000', aprobada: true, aprobada_en_otra_base: false, cupos: null },
       { opcion_id: 'no', texto: 'No', en_blanco: false, votos: conteo(4), porcentaje_coeficiente: '20.0000', porcentaje_unidades: '20.0000', aprobada: null, aprobada_en_otra_base: null, cupos: null },
@@ -103,6 +103,14 @@ describe('EscrutinioPregunta', () => {
     expect(w.text()).toContain('30,000000 % del coeficiente · alcanza la mayoría')
     expect(w.text()).toContain('2 cupos')
     expect(w.text()).toContain('0 cupos')
+  })
+
+  it('sin `aprobada` en la respuesta (campo opcional del contrato) no compara con la otra base', () => {
+    const sinDecidir = base.opciones.map((o) => ({ opcion_id: o.opcion_id, texto: o.texto, en_blanco: o.en_blanco, votos: o.votos, porcentaje_coeficiente: o.porcentaje_coeficiente, porcentaje_unidades: o.porcentaje_unidades }))
+    const w = mount(EscrutinioPregunta, { props: { escrutinio: { ...base, opciones: sinDecidir } } })
+    const opciones = w.get('ul[aria-label="Resultados por opción"]').findAll('li')
+    expect(opciones[0]?.text()).toContain('12 unidades')
+    expect(w.text()).not.toContain('alcanza')
   })
 })
 

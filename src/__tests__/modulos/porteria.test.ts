@@ -209,7 +209,8 @@ describe('portería contra el demo', { timeout: 20_000 }, () => {
 
     await expect(p.crearPuntoAcceso(PH, { nombre: 'Portería principal', tipo: 'mixto', sentido: 'ambos' }, 'k13')).rejects.toMatchObject({ estado: 409 })
     const punto = await p.crearPuntoAcceso(PH, { nombre: 'Peatonal norte', tipo: 'peatonal', sentido: 'entrada' }, 'k14')
-    expect((await p.actualizarPuntoAcceso(PH, punto.id ?? '', { ...punto, activo: false })).activo).toBe(false)
+    expect((await p.actualizarPuntoAcceso(PH, punto.id, { ...punto, activo: false })).activo).toBe(false)
+    await expect(p.actualizarPuntoAcceso(PH, 'no-existe', punto)).rejects.toMatchObject({ estado: 404 })
 
     const { puente, token } = await p.registrarPuente(PH, 'Puente rampa', 'k15')
     expect(token).toContain('dadp_')
@@ -217,12 +218,15 @@ describe('portería contra el demo', { timeout: 20_000 }, () => {
     expect((await p.retirarPuente(PH, puente.id)).estado).toBe('retirado')
     await expect(p.nuevoTokenPuente(PH, puente.id)).rejects.toMatchObject({ estado: 409 })
 
-    const base = { puente_id: (await p.puentes(PH))[0]!.id, punto_acceso_id: punto.id ?? '', tipo: 'lector_qr' as const, fabricante: 'X' }
+    const base = { puente_id: (await p.puentes(PH))[0]!.id, punto_acceso_id: punto.id, tipo: 'lector_qr' as const, fabricante: 'X' }
     // El contrato tipa `config` como objeto libre sin claves declaradas; aquí se prueba que el demo rechaza secretos.
     const conSecreto = { password: '1' } as unknown as Record<string, never>
     await expect(p.registrarDispositivo(PH, { ...base, config: conSecreto }, 'k16')).rejects.toMatchObject({ estado: 422 })
-    await p.registrarDispositivo(PH, base, 'k17')
+    const lector = await p.registrarDispositivo(PH, base, 'k17')
     expect(await p.dispositivos(PH)).toHaveLength(2)
+    expect(await p.actualizarDispositivo(PH, lector.id, { ...lector, activo: false })).toMatchObject({ id: lector.id, activo: false })
+    expect((await p.dispositivos(PH)).find((d) => d.id === lector.id)?.activo).toBe(false)
+    await expect(p.actualizarDispositivo(PH, 'no-existe', lector)).rejects.toMatchObject({ estado: 404 })
   })
 
   it('opciones de persona con el documento enmascarado; pide al menos 2 caracteres', async () => {

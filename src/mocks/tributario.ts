@@ -82,6 +82,11 @@ const confirmado = (entidad: string) => (perfiles[entidad] ?? []).some((p) => p.
 export const tributario: Manejador = async (req, ruta) => {
   const m = req.method
   const q = new URL(req.url).searchParams
+  const uno = ruta.match(/^\/entidades\/[^/]+\/terceros\/([^/]+)$/)
+  if (uno && m === 'GET') {
+    const t = TERCEROS.find((x) => x.persona_id === uno[1])
+    return t ? json(t) : error(404, 'no_encontrado', 'El tercero no existe.')
+  }
   const ter = ruta.match(/^\/entidades\/([^/]+)\/terceros(\/([^/]+)\/datos-fiscales)?$/)
   if (ter) {
     if (!ter[2] && m === 'GET') {

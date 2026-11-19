@@ -3,7 +3,7 @@
  * Solicitudes de los titulares (consultas y reclamos de la Ley 1581): listado con plazo en días
  * hábiles (lo calcula el backend), radicar, tramitar, prórroga única y responder.
  */
-import { computed, ref, useTemplateRef, watch } from 'vue'
+import { computed, ref, useTemplateRef } from 'vue'
 import { subirArchivo } from '@/api/archivos'
 import type { EstadoSolicitudTitular, Persona, SolicitudTitular, TipoSolicitudTitular } from '@/api/tipos'
 import { useAccion } from '@/composables/useAccion'
@@ -22,7 +22,6 @@ import { useEntidad } from '@/stores/entidad'
 import IMas from '~icons/tabler/plus'
 import {
   listarSolicitudes,
-  personaPorId,
   prorrogarSolicitud,
   radicarSolicitud,
   responderSolicitud,
@@ -47,21 +46,7 @@ const solicitudes = useListado(
   { filtros, retardo: 0 },
 )
 
-/** Nombres de los titulares (la solicitud solo trae `persona_id`; solicitud S12 al backend). */
-const nombres = ref<Record<string, string>>({})
-watch(solicitudes.filas, async (filas) => {
-  if (!puedeVerPersonas.value) return
-  const faltan = [...new Set(filas.map((s) => s.persona_id))].filter((id) => !(id in nombres.value))
-  for (const id of faltan) {
-    try {
-      const { nombre } = await personaPorId(props.copropiedadId, id)
-      nombres.value = { ...nombres.value, [id]: nombre }
-    } catch {
-      nombres.value = { ...nombres.value, [id]: 'Titular' }
-    }
-  }
-})
-const titular = (s: SolicitudTitular) => nombres.value[s.persona_id] ?? 'Titular'
+const titular = (s: SolicitudTitular) => s.persona_nombre
 
 const opcionesEstado = (Object.keys(ESTADO_SOLICITUD) as EstadoSolicitudTitular[]).map((valor) => ({
   valor,

@@ -1,4 +1,3 @@
-import { createPinia, setActivePinia } from 'pinia'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { buscarPersonas } from '@/api/personas'
 import type { AutorizacionTratamiento } from '@/api/tipos'
@@ -17,7 +16,6 @@ import {
   datosTratados,
   listarSolicitudes,
   otorgarAutorizacion,
-  personaPorId,
   politicaVigente,
   politicas,
   prorrogarSolicitud,
@@ -29,7 +27,6 @@ import {
 } from '@/modulos/entidad/api-proteccion'
 import { normalizarNit, tiposConocidos } from '@/modulos/entidad/organizaciones'
 import { accionesDeSolicitud, finalidadesVigentes, plazoVisible, venceEl } from '@/modulos/entidad/proteccion'
-import { useOrganizacionesConocidas } from '@/modulos/entidad/store'
 import { useSesion } from '@/stores/sesion'
 import { conRespuesta, prepararConDemo } from '../ayudantes'
 
@@ -64,14 +61,6 @@ describe('reglas de protección de datos', () => {
     expect(normalizarNit(' 900123456 ')).toBe('900123456')
     expect(normalizarNit('abc')).toBeNull()
     expect(tiposConocidos(['seguridad', 'nuevo_tipo'])).toEqual(['seguridad'])
-  })
-
-  it('recuerda el nombre de las organizaciones vistas en la sesión', () => {
-    setActivePinia(createPinia())
-    const s = useOrganizacionesConocidas()
-    expect(s.nombre('x')).toBeNull()
-    s.recordar('x', 'Seguridad Total')
-    expect(s.nombre('x')).toBe('Seguridad Total')
   })
 })
 
@@ -125,8 +114,6 @@ describe('api de protección de datos (demo)', () => {
     const d = await datosTratados(PH, p!.id)
     expect(d.persona.nombre).toBe('Pedro Pérez')
     expect(d.autorizaciones).toHaveLength(2)
-    expect((await personaPorId(PH, p!.id)).documento).toBe('79876543')
-    await expect(personaPorId(PH, 'no-existe')).rejects.toMatchObject({ estado: 404 })
   })
 })
 

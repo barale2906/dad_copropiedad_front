@@ -1,9 +1,10 @@
+import { createPinia, setActivePinia } from 'pinia'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { limpiar } from '@/api/tokens'
 import { useBienes } from '@/stores/bienes'
 import { useEntidad } from '@/stores/entidad'
 import { useSesion } from '@/stores/sesion'
-import { conCapacidades, ENTIDAD_PH, prepararConDemo } from './ayudantes'
+import { conCapacidades, conRespuesta, ENTIDAD_PH, prepararConDemo } from './ayudantes'
 
 const PH = '01930000-0000-7000-8000-000000000001'
 const ids = [7002, 7003, 7004, 7005].map((n) => `01930000-0000-7000-8000-00000000${n}`)
@@ -21,6 +22,31 @@ describe('useBienes', () => {
     const [propio] = await b.asegurarPropios()
     expect(b.codigo(propio!.id)).toBe('T1-101')
     expect(await b.asegurarPropios()).toBe(b.propios)
+  })
+
+  it('carga las residencias una vez y recuerda sus códigos', async () => {
+    const b = useBienes()
+    const [r] = await b.asegurarResidencias()
+    expect(r).toMatchObject({ bien_codigo: 'T1-101', calidad: 'familiar', es_responsable: true })
+    expect(b.codigo(r!.bien_privado_id)).toBe('T1-101')
+    expect(await b.asegurarResidencias()).toBe(b.residencias)
+  })
+
+  it('mis bienes: los propios y donde reside (un arrendatario no es titular), sin repetir', async () => {
+    const arriendo = { residencia_id: 'r2', bien_privado_id: ids[3]!, bien_codigo: 'T2-302', calidad: 'tenedor', es_responsable: true, reservas_autorizadas: false, vigente_desde: '2025-01-01T05:00:00Z' }
+    conRespuesta('GET', /\/mis-residencias$/, () => Response.json([arriendo]))
+    const lista = await useBienes().asegurarMisBienes()
+    expect(lista.map((x) => x.codigo)).toEqual(['T1-101', 'T2-302'])
+  })
+
+  it('mis bienes: si una consulta falla usa la otra; si fallan las dos, propaga el error', async () => {
+    conRespuesta('GET', /\/mis-residencias$/, () => new Response(null, { status: 500 }))
+    expect((await useBienes().asegurarMisBienes()).map((x) => x.codigo)).toEqual(['T1-101'])
+    setActivePinia(createPinia())
+    conRespuesta('GET', /\/mis-(residencias|bienes-privados)$/, () => new Response(null, { status: 500 }))
+    await useSesion().iniciar('admin', 'x')
+    await useEntidad().entrar(PH)
+    await expect(useBienes().asegurarMisBienes()).rejects.toMatchObject({ estado: 500 })
   })
 
   it('busca por código y recuerda lo encontrado', async () => {

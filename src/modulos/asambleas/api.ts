@@ -319,7 +319,7 @@ export function aplicarEleccion(id: string, reunion: string, preguntaId: string,
 
 /** Datos del acta ya calculados, para revisarla antes del PDF (el contrato lo tipa `object`, S17). */
 export async function vistaActa(id: string, reunion: string): Promise<DatosActa> {
-  return (await exigir(api().GET('/api/v1/copropiedades/{copropiedad_id}/asambleas/{reunion_id}/acta', { params: r(id, reunion) }))) as unknown as DatosActa
+  return exigir(api().GET('/api/v1/copropiedades/{copropiedad_id}/asambleas/{reunion_id}/acta', { params: r(id, reunion) }))
 }
 
 /** Genera (o regenera mientras no se apruebe) el PDF del acta. */

@@ -276,6 +276,14 @@ export const unidades: Manejador = async (req, ruta) => {
     }
   }
   if (m === 'GET' && base === '/mis-bienes-privados') return json(bienes.filter((b) => PROPIOS.includes(b.id)))
+  if (m === 'GET' && base === '/mis-residencias') {
+    // La cuenta demo es Marta Residente (persona 5001).
+    const mias = residencias.filter((r) => vigente(r) && r.persona.id === id(5001))
+    return json(mias.map((r) => ({
+      residencia_id: r.id, bien_privado_id: r.bien_privado_id, bien_codigo: bienes.find((b) => b.id === r.bien_privado_id)?.codigo ?? '',
+      calidad: r.calidad, es_responsable: r.es_responsable, reservas_autorizadas: !!r.autorizado_por || r.calidad !== 'tenedor', vigente_desde: r.vigente_desde,
+    })))
+  }
   if (base === '/bienes-privados') {
     if (m === 'GET') {
       const texto = (q.get('q') ?? '').toLowerCase()

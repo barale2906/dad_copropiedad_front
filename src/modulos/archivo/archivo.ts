@@ -1,5 +1,7 @@
 /** Reglas y textos del archivo de la entidad (funciones puras). */
+import type { FiltrosArchivos } from '@/api/archivos'
 import type { ClasificacionArchivo, Permiso, TipoArchivo } from '@/api/tipos'
+import { aUtc, sumarDias } from '@/formato/fechas'
 
 export const CLASIFICACION: Record<ClasificacionArchivo, { texto: string; ayuda: string; tono: 'info' | 'neutro' | 'aviso' | 'peligro' }> = {
   publico: { texto: 'Público', ayuda: 'Se puede compartir con residentes y terceros.', tono: 'info' },
@@ -41,4 +43,31 @@ export function tamanoLegible(bytes: number): string {
 export function puedeAbrir(c: ClasificacionArchivo, tienePermiso: (p: Permiso) => boolean): boolean {
   if (!tienePermiso('archivos.ver')) return false
   return c === 'publico' || c === 'interno' || tienePermiso('archivos.personales.ver')
+}
+
+/** Filtros tal como se escriben en la pantalla (fechas de calendario `YYYY-MM-DD`). */
+export interface FiltrosPantalla {
+  clasificacion: ClasificacionArchivo | ''
+  q: string
+  desde: string
+  hasta: string
+}
+
+/**
+ * Filtros de la pantalla → consulta: los días se toman completos en la zona de la entidad
+ * (`hasta` incluye todo ese día) y el texto vacío no filtra.
+ */
+export function aConsulta(f: FiltrosPantalla, zona: string): FiltrosArchivos {
+  return {
+    clasificacion: f.clasificacion || undefined,
+    q: f.q.trim() || undefined,
+    desde: f.desde ? aUtc(`${f.desde}T00:00`, zona) : undefined,
+    hasta: f.hasta ? aUtc(`${sumarDias(f.hasta, 1)}T00:00`, zona) : undefined,
+  }
+}
+
+/** Clasificaciones que la cuenta puede ver (o filtrar) en el listado. */
+export function clasificacionesVisibles(tienePermiso: (p: Permiso) => boolean): ClasificacionArchivo[] {
+  const todas = Object.keys(CLASIFICACION) as ClasificacionArchivo[]
+  return tienePermiso('archivos.personales.ver') ? todas : todas.filter((c) => c === 'publico' || c === 'interno')
 }

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-/** Dispositivos conectados a cada puente (torniquetes, lectores, cámaras): listar y registrar. */
+/** Dispositivos conectados a cada puente (torniquetes, lectores, cámaras): listar, registrar y activar o desactivar. */
 import { computed, onMounted, ref } from 'vue'
 import { mensajeDeError } from '@/api/errores'
 import type { DispositivoAcceso, Puente, PuntoAcceso, TipoDispositivoAcceso } from '@/api/tipos'
@@ -11,7 +11,7 @@ import HudEstado from '@/hud/componentes/HudEstado.vue'
 import HudInsignia from '@/hud/componentes/HudInsignia.vue'
 import HudPanel from '@/hud/componentes/HudPanel.vue'
 import HudSelector from '@/hud/componentes/HudSelector.vue'
-import { dispositivos, registrarDispositivo } from '../api'
+import { actualizarDispositivo, dispositivos, registrarDispositivo } from '../api'
 import { TIPO_DISPOSITIVO } from '../reglas'
 
 const props = defineProps<{ entidadId: string; puentes: Puente[]; puntos: PuntoAcceso[] }>()
@@ -27,7 +27,7 @@ const modelo = ref('')
 const errorForm = ref<string | null>(null)
 
 const opcionesPuente = computed(() => props.puentes.filter((p) => p.estado === 'activo').map((p) => ({ valor: p.id, etiqueta: p.nombre })))
-const opcionesPunto = computed(() => props.puntos.filter((p) => p.id).map((p) => ({ valor: p.id ?? '', etiqueta: p.nombre })))
+const opcionesPunto = computed(() => props.puntos.filter((p) => p.activo !== false).map((p) => ({ valor: p.id, etiqueta: p.nombre })))
 const nombrePuente = (id: string) => props.puentes.find((p) => p.id === id)?.nombre ?? 'Puente'
 const nombrePunto = (id: string) => props.puntos.find((p) => p.id === id)?.nombre ?? 'Punto'
 
@@ -38,6 +38,12 @@ const registrar = useAccion((clave) =>
     clave,
   ),
 )
+
+const alternar = useAccion((_c, d: DispositivoAcceso) => actualizarDispositivo(props.entidadId, d.id, { ...d, activo: d.activo === false }))
+
+async function cambiar(d: DispositivoAcceso) {
+  if ((await alternar.ejecutar(d)).ok) await cargar()
+}
 
 async function agregar() {
   errorForm.value = !puenteId.value || !puntoId.value ? 'Elija el puente y el punto de acceso.' : !fabricante.value.trim() ? 'Escriba el fabricante.' : null
@@ -80,8 +86,8 @@ onMounted(cargar)
         aria-label="Dispositivos"
       >
         <li
-          v-for="(d, i) in lista"
-          :key="d.id ?? i"
+          v-for="d in lista"
+          :key="d.id"
         >
           <HudInsignia :tono="d.activo === false ? 'neutro' : 'exito'">
             {{ d.activo === false ? 'Inactivo' : 'Activo' }}
@@ -90,6 +96,13 @@ onMounted(cargar)
             <strong>{{ TIPO_DISPOSITIVO[d.tipo] }} · {{ d.fabricante }}{{ d.modelo ? ` ${d.modelo}` : '' }}</strong>
             <small>{{ nombrePunto(d.punto_acceso_id) }} · {{ nombrePuente(d.puente_id) }}</small>
           </span>
+          <HudBoton
+            variante="fantasma"
+            :cargando="alternar.cargando.value"
+            @click="cambiar(d)"
+          >
+            {{ d.activo === false ? 'Activar' : 'Desactivar' }}<span class="solo-lector"> {{ TIPO_DISPOSITIVO[d.tipo] }} {{ d.fabricante }}</span>
+          </HudBoton>
         </li>
       </ul>
       <p
@@ -97,6 +110,13 @@ onMounted(cargar)
         class="texto-2"
       >
         Aún no hay dispositivos.
+      </p>
+      <p
+        v-if="alternar.error.value"
+        class="error"
+        role="alert"
+      >
+        {{ alternar.error.value }}
       </p>
       <p
         v-if="!opcionesPuente.length || !opcionesPunto.length"

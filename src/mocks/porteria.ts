@@ -398,7 +398,7 @@ export const porteria: Manejador = async (req, ruta) => {
   if (m === 'PUT' && punto) {
     const i = puntos.findIndex((p) => p.id === punto[1])
     if (i < 0) return error(404, 'no_encontrado', 'El punto no existe.')
-    const p = { ...(await cuerpo<PuntoAcceso>(req)), id: punto[1] }
+    const p = { ...(await cuerpo<PuntoAcceso>(req)), id: punto[1] ?? '' }
     puntos[i] = p
     return json(p)
   }
@@ -431,6 +431,14 @@ export const porteria: Manejador = async (req, ruta) => {
       dispositivos.push(nuevo)
       return json(nuevo, 201)
     }
+  }
+  const disp = base.match(/^\/dispositivos-acceso\/([^/]+)$/)
+  if (m === 'PUT' && disp) {
+    const i = dispositivos.findIndex((d) => d.id === disp[1])
+    if (i < 0) return error(404, 'no_encontrado', 'El dispositivo no existe.')
+    const d = { ...(await cuerpo<DispositivoAcceso>(req)), id: disp[1] ?? '' }
+    dispositivos[i] = d
+    return json(d)
   }
   return null
 }

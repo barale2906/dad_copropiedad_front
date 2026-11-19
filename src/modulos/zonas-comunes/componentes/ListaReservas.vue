@@ -1,26 +1,22 @@
 <script setup lang="ts">
 /**
  * Tabla de reservas (tarjetas en móvil) con recurso, horario en la zona de la PH, bien, estado
- * y pago. Las acciones van en el slot `acciones` (cada vista ofrece las suyas). Resuelve los
- * códigos de los bienes en el store.
+ * y pago. Las acciones van en el slot `acciones` (cada vista ofrece las suyas). El nombre del
+ * recurso y el código del bien llegan en la reserva.
  */
-import { computed, watch } from 'vue'
+import { computed } from 'vue'
 import type { Reserva } from '@/api/tipos'
 import { comparar, moneda } from '@/formato/decimales'
 import { fecha, horaEn } from '@/formato/fechas'
 import HudInsignia from '@/hud/componentes/HudInsignia.vue'
 import HudTabla from '@/hud/componentes/HudTabla.vue'
-import { useBienes } from '@/stores/bienes'
 import { useEntidad } from '@/stores/entidad'
 import { ESTADO_PAGO, ESTADO_RESERVA } from '../reservas'
-import { useZonasComunes } from '../store'
 
 const props = withDefaults(defineProps<{ reservas: Reserva[]; titulo: string; mostrarBien?: boolean }>(), { mostrarBien: true })
 defineSlots<{ acciones?: (p: { fila: Reserva }) => unknown }>()
 
 const entidad = useEntidad()
-const zonas = useZonasComunes()
-const bienes = useBienes()
 const zona = computed(() => entidad.zonaHoraria)
 
 const columnas = computed(() => [
@@ -31,15 +27,6 @@ const columnas = computed(() => [
   { clave: 'acciones', titulo: 'Acciones', alinear: 'fin' as const },
 ])
 
-watch(
-  () => props.reservas,
-  (lista) => {
-    if (props.mostrarBien) {
-      bienes.resolver(lista.map((r) => r.bien_privado_id))
-    }
-  },
-  { immediate: true },
-)
 </script>
 
 <template>
@@ -51,7 +38,7 @@ watch(
   >
     <template #celda-recurso="{ fila }">
       <span class="celda">
-        <strong>{{ zonas.nombreRecurso(fila.recurso_id) }}</strong>
+        <strong>{{ fila.recurso_nombre }}</strong>
         <small v-if="comparar(fila.valor, '0') > 0">{{ moneda(fila.valor) }}</small>
       </span>
     </template>
@@ -62,7 +49,7 @@ watch(
       </span>
     </template>
     <template #celda-bien="{ fila }">
-      {{ bienes.codigo(fila.bien_privado_id) }}
+      {{ fila.bien_codigo }}
     </template>
     <template #celda-estado="{ fila }">
       <span class="insignias">

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 /**
  * Elegir el bien a cuyo nombre se hace algo (reservar, restringir, asignar, inscribir): los
- * propios de la cuenta y, con `bienes_privados.ver`, buscar cualquiera. `v-model` = id del bien.
+ * bienes de la cuenta (titular o residente) y, con `bienes_privados.ver`, buscar cualquiera. `v-model` = id del bien.
  */
 import { computed, onMounted, ref } from 'vue'
 import { mensajeDeError } from '@/api/errores'
@@ -28,7 +28,7 @@ const buscar = computed(() =>
 onMounted(async () => {
   if (props.soloBusqueda) return
   try {
-    propios.value = await bienes.asegurarPropios()
+    propios.value = await bienes.asegurarMisBienes()
     if (!bienId.value && propios.value.length === 1) bienId.value = propios.value[0]!.id
   } catch (e) {
     errorPropios.value = mensajeDeError(e)
@@ -45,7 +45,7 @@ onMounted(async () => {
       :buscar="buscar"
       :codigo-elegido="bienId ? bienes.codigo(bienId) : null"
       :error="error"
-      :sin-bienes="soloBusqueda ? '' : 'Su cuenta no figura como titular de ningún bien. Pida a la administración que haga la reserva a su nombre.'"
+      :sin-bienes="soloBusqueda ? '' : 'Su cuenta no figura como titular ni residente de ningún bien. Pida a la administración que haga la reserva a su nombre.'"
     />
     <p
       v-if="errorPropios"

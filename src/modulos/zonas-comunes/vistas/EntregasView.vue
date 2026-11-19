@@ -17,18 +17,14 @@ import HudCampoMonto from '@/hud/componentes/HudCampoMonto.vue'
 import HudDialogo from '@/hud/componentes/HudDialogo.vue'
 import HudEstado from '@/hud/componentes/HudEstado.vue'
 import HudFecha from '@/hud/componentes/HudFecha.vue'
-import { useBienes } from '@/stores/bienes'
 import { useEntidad } from '@/stores/entidad'
 import { entregarReserva, listarReservas, noAsistio, recibirReserva } from '../api'
 import ListaReservas from '../componentes/ListaReservas.vue'
 import { accionesDeReserva, ordenarReservas } from '../reservas'
-import { useZonasComunes } from '../store'
 
 type Paso = 'entregar' | 'recibir' | 'no_asistio'
 
 const entidad = useEntidad()
-const zonas = useZonasComunes()
-const bienes = useBienes()
 const id = computed(() => entidad.activa?.entidad_id ?? '')
 const zona = computed(() => entidad.zonaHoraria)
 
@@ -76,7 +72,7 @@ async function confirmar() {
   if (!r.ok) return
   reservas.value = reservas.value.map((x) => (x.id === r.valor.id ? r.valor : x))
   paso.value = null
-  const nombre = zonas.nombreRecurso(r.valor.recurso_id)
+  const nombre = r.valor.recurso_nombre
   resultado.value =
     p === 'entregar'
       ? `${nombre} entregada.`
@@ -90,11 +86,10 @@ async function confirmar() {
 async function cargar() {
   estado.value = 'cargando'
   try {
-    const [lista] = await Promise.all([
-      listarReservas(id.value, { desde: aUtc(`${dia.value}T00:00`, zona.value), hasta: aUtc(`${sumarDias(dia.value, 1)}T00:00`, zona.value) }),
-      zonas.asegurarRecursos(id.value),
-    ])
-    reservas.value = lista
+    reservas.value = await listarReservas(id.value, {
+      desde: aUtc(`${dia.value}T00:00`, zona.value),
+      hasta: aUtc(`${sumarDias(dia.value, 1)}T00:00`, zona.value),
+    })
     estado.value = 'listo'
   } catch (e) {
     error.value = mensajeDeError(e)
@@ -155,21 +150,21 @@ onMounted(cargar)
           variante="secundario"
           @click="abrir(fila, 'entregar')"
         >
-          Entregar<span class="solo-lector"> {{ zonas.nombreRecurso(fila.recurso_id) }}</span>
+          Entregar<span class="solo-lector"> {{ fila.recurso_nombre }}</span>
         </HudBoton>
         <HudBoton
           v-if="accionesDeReserva(fila.estado).includes('recibir')"
           variante="secundario"
           @click="abrir(fila, 'recibir')"
         >
-          Recibir<span class="solo-lector"> {{ zonas.nombreRecurso(fila.recurso_id) }}</span>
+          Recibir<span class="solo-lector"> {{ fila.recurso_nombre }}</span>
         </HudBoton>
         <HudBoton
           v-if="accionesDeReserva(fila.estado).includes('no_asistio')"
           variante="fantasma"
           @click="abrir(fila, 'no_asistio')"
         >
-          No asistió<span class="solo-lector"> a {{ zonas.nombreRecurso(fila.recurso_id) }}</span>
+          No asistió<span class="solo-lector"> a {{ fila.recurso_nombre }}</span>
         </HudBoton>
       </template>
     </ListaReservas>
@@ -184,7 +179,7 @@ onMounted(cargar)
         @submit.prevent="confirmar"
       >
         <p v-if="elegida">
-          {{ zonas.nombreRecurso(elegida.recurso_id) }} · {{ bienes.codigo(elegida.bien_privado_id) }}
+          {{ elegida.recurso_nombre }} · {{ elegida.bien_codigo }}
         </p>
         <template v-if="paso !== 'no_asistio'">
           <HudCampo

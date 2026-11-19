@@ -3,7 +3,7 @@ import { effectScope, nextTick } from 'vue'
 import type { Escrutinio, Pregunta, TableroReunion } from '@/api/tipos'
 import { limpiar } from '@/api/tokens'
 import { proporcion } from '@/formato/decimales'
-import { cuposDe, leerEscrutinio, participacion, textoDecision } from '@/formato/escrutinio'
+import { cuposDe, participacion, textoDecision } from '@/formato/escrutinio'
 import * as a from '@/modulos/asambleas/api'
 import {
   accionesPregunta,
@@ -27,7 +27,7 @@ const vid = (n: number) => `01930000-0000-7000-8000-${String(n).padStart(12, '0'
 const conteo = (unidades: number) => ({ coeficiente: (unidades * 0.025).toFixed(8), unidades })
 function escrutinio(extra: Partial<Escrutinio> = {}): Escrutinio {
   return {
-    base_computo: 'coeficiente', habilitados: conteo(20), total: conteo(40), votantes: conteo(15), sin_votar: conteo(5),
+    base_computo: 'coeficiente', regla: { regla: 'simple' }, habilitados: conteo(20), total: conteo(40), votantes: conteo(15), sin_votar: conteo(5),
     opciones: [
       { opcion_id: 'si', texto: 'Sí', en_blanco: false, votos: conteo(12), porcentaje_coeficiente: '60.0000', porcentaje_unidades: '60.0000', aprobada: true, aprobada_en_otra_base: true, cupos: null },
       { opcion_id: 'no', texto: 'No', en_blanco: false, votos: conteo(3), porcentaje_coeficiente: '15.0000', porcentaje_unidades: '15.0000', aprobada: null, aprobada_en_otra_base: null, cupos: null },
@@ -118,13 +118,6 @@ describe('reglas de las votaciones', () => {
 })
 
 describe('escrutinio', () => {
-  it('acepta solo un escrutinio con lo que se muestra', () => {
-    expect(leerEscrutinio(escrutinio())).not.toBeNull()
-    expect(leerEscrutinio(null)).toBeNull()
-    expect(leerEscrutinio({ opciones: [], decision: { decision: 'aprobada' } })).toBeNull()
-    expect(leerEscrutinio({ ...escrutinio(), decision: 'aprobada' })).toBeNull()
-  })
-
   it('dice qué se decidió en cada tipo de pregunta', () => {
     expect(textoDecision(escrutinio())).toEqual({ texto: 'Aprobada', tono: 'exito' })
     expect(textoDecision(escrutinio(), true).texto).toBe('Votación abierta: resultado parcial')
@@ -208,7 +201,7 @@ describe('votaciones contra el demo', { timeout: 25_000 }, () => {
 
     const t = await a.tablero(PH, I)
     expect(t.preguntas_abiertas.map((x) => x.pregunta.id)).toEqual([abierta.id])
-    expect(leerEscrutinio(t.preguntas_abiertas[0]?.escrutinio)?.votantes.unidades).toBe(18)
+    expect(t.preguntas_abiertas[0]?.escrutinio.votantes.unidades).toBe(18)
     expect(t.ultima_cerrada?.pregunta.tipo_voto).toBe('reservado')
   })
 
@@ -217,7 +210,7 @@ describe('votaciones contra el demo', { timeout: 25_000 }, () => {
     const abierta = lista.find((p) => p.estado === 'abierta')!
     expect((await a.cambiarPregunta(PH, I, abierta.id, 'cerrar')).estado).toBe('cerrada')
     const r = await a.resultados(PH, I, abierta.id)
-    expect(leerEscrutinio(r.escrutinio)?.decision).toEqual({ decision: 'aprobada' })
+    expect(r.escrutinio.decision).toEqual({ decision: 'aprobada' })
     expect((await a.detalleVotos(PH, I, abierta.id)).length).toBe(14)
     await expect(a.votar(PH, I, abierta.id, { asistente_id: vid(4410), opciones: [abierta.opciones[0]!.id], canal: 'presencial' }, 'k')).rejects.toMatchObject({ codigo: 'conflicto_estado' })
 
