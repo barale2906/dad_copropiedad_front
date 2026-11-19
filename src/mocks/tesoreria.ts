@@ -33,6 +33,9 @@ const n2 = (x: number) => x.toFixed(2)
 
 let cuentas: CuentaTesoreria[] = []
 let recibos: Recibo[] = []
+
+/** Un recibo de la tesorería (la cartera aplica los «por identificar» a una unidad). */
+export const reciboTesoreria = (reciboId: string): Recibo | undefined => recibos.find((r) => r.id === reciboId)
 let egresos: Egreso[] = []
 let facturas: FacturaProveedor[] = []
 let libros: (LineaLibros & { cuenta: string })[] = []

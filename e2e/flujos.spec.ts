@@ -199,10 +199,10 @@ test.describe('módulo no disponible', () => {
   })
 
   test('una acción sin permiso para el rol explica a quién pedirla', async ({ page }) => {
-    await entrar(page, 'uno')
-    await esperarMaqueta(page)
-    // El administrador demo no tiene `cartera.ajustar` (y los módulos de la cartera sí están contratados).
-    await page.goto(`${page.url()}/cartera/ajustes`)
+    // El residente no tiene permisos de cartera, y sus módulos sí están contratados.
+    await entrar(page, 'residente')
+    await expect(page).toHaveURL(/\/e\/[^/]+/)
+    await page.goto(`/e/01930000-0000-7000-8000-000000000001/cartera/ajustes`)
     await expect(page.getByText('Su rol no tiene permiso para esta función')).toBeVisible()
   })
 })

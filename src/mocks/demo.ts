@@ -23,6 +23,7 @@ import { entidad, iniciarEntidad, permisos } from './entidad'
 import { ficha, iniciarFicha } from './ficha'
 import { iniciarProteccion, proteccion } from './proteccion'
 import { asambleas, iniciarAsambleas } from './asambleas'
+import { cartera, iniciarCartera } from './cartera'
 import { contabilidad, iniciarContabilidad } from './contabilidad'
 import { facturacion, iniciarFacturacion } from './facturacion'
 import { iniciarTesoreria, tesoreria } from './tesoreria'
@@ -35,7 +36,7 @@ import { iniciarZonasComunes, zonasComunes } from './zonas-comunes'
 import { error, json, ZONA_DEMO, type Manejador } from './http'
 
 /** Manejadores que exigen sesión, en orden; el primero que responda gana. */
-const CON_SESION: Manejador[] = [cuenta, archivos, ficha, unidades, mi, gestion, asambleas, facturacion, tesoreria, tributario, contabilidad, porteria, proteccion, zonasComunes, entidad, permisos]
+const CON_SESION: Manejador[] = [cuenta, archivos, ficha, unidades, mi, gestion, asambleas, cartera, facturacion, tesoreria, tributario, contabilidad, porteria, proteccion, zonasComunes, entidad, permisos]
 /** Manejadores sin sesión (además del inicio de sesión). */
 const SIN_SESION: Manejador[] = [cuentaPublica]
 
@@ -58,7 +59,7 @@ const TODOS: Permiso[] = [
   'tributario.perfil.confirmar',
   'contabilidad.exportar', 'tesoreria.recibos.registrar', 'tesoreria.egresos.registrar',
   'tesoreria.conciliar', 'cartera.ver', 'cartera.liquidar', 'cartera.certificados.emitir',
-  'presupuesto.gestionar', 'tributario.preparar', 'terceros.gestionar', 'facturacion.ver',
+  'presupuesto.gestionar', 'cartera.ajustar', 'tributario.preparar', 'terceros.gestionar', 'facturacion.ver',
   'facturacion.facturas.gestionar', 'facturacion.emitir', 'facturacion.items.gestionar', 'facturacion.exportar',
   'facturacion.configurar', 'facturacion.certificado.gestionar', 'facturacion.recibir', 'directorio.ver', 'directorio.compartir',
   'importaciones.ejecutar',
@@ -219,6 +220,7 @@ export async function fetchDemo(req: Request): Promise<Response> {
     iniciarZonasComunes()
     iniciarArchivos()
     iniciarFacturacion()
+    iniciarCartera(usuario)
     if (usuario.includes('2fa')) {
       return json({ resultado: 'segundo_factor', desafio: 'demo-desafio', desafio_expira_en: new Date(Date.now() + 300_000).toISOString() })
     }
@@ -247,6 +249,7 @@ export async function fetchDemo(req: Request): Promise<Response> {
     iniciarZonasComunes()
     iniciarArchivos()
     iniciarFacturacion()
+    iniciarCartera(usuario)
     return json(tokens())
   }
   if (m === 'POST' && ruta === '/auth/contrasena/recuperar') return new Response(null, { status: 202 })

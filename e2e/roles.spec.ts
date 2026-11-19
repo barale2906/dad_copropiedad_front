@@ -35,14 +35,15 @@ test.describe('roles y permisos', () => {
   test('un permiso que la cuenta no tiene no se puede otorgar', async ({ page }) => {
     await abrirRoles(page)
     await page.getByRole('link', { name: 'Editar permisos de Auxiliar de cartera' }).click()
-    await page.getByLabel('Buscar permiso').fill('ajustes')
-    await expect(page.getByLabel(/Hacer ajustes de cartera/)).toBeDisabled()
+    // El administrador demo no tiene `acceso.minuta.registrar`.
+    await page.getByLabel('Buscar permiso').fill('minuta')
+    await expect(page.getByLabel(/Escribir en la minuta/)).toBeDisabled()
     await expect(page.getByText('no puede otorgarlo')).toBeVisible()
   })
 
   test('una plantilla del sistema se consulta y sirve de base para un rol propio', async ({ page }) => {
     await abrirRoles(page)
-    await page.getByRole('link', { name: 'Ver permisos de Contador' }).click()
+    await page.getByRole('link', { name: 'Ver permisos de Portería' }).click()
     await expect(page.getByText('Los roles del sistema no se editan.')).toBeVisible()
     await expect(page.getByRole('button', { name: 'Guardar permisos' })).toHaveCount(0)
     await page.getByRole('button', { name: 'Crear un rol a partir de este' }).click()

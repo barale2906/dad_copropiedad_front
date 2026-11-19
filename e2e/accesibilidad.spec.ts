@@ -591,3 +591,40 @@ test('facturación con contabilidad: contabilizar lo facturado', async ({ page }
   await expect(page.getByText('Contabilizadas')).toBeVisible()
   await revisar(page)
 })
+
+/** Revisa con axe las pantallas de la cartera de la PH. */
+async function revisarCartera(page: Page, pantallas: [string, string][]) {
+  await entrar(page, 'uno')
+  await expect(page).toHaveURL(/\/e\/[^/]+$/)
+  const base = `${new URL(page.url()).pathname}/cartera`
+  for (const [ruta, titulo] of pantallas) {
+    await page.goto(`${base}/${ruta}`)
+    await expect(page.getByRole('heading', { name: titulo, level: 1 })).toBeVisible()
+    await expect(page.getByText('Cargando')).toHaveCount(0)
+    await revisar(page)
+  }
+}
+
+test('cartera: inicio, saldos, estado de cuenta, liquidación, recaudos e intereses', async ({ page }) => {
+  await revisarCartera(page, [
+    ['inicio', 'Cartera'],
+    ['saldos', 'Saldos de la cartera'],
+    ['saldos?vista=edades', 'Saldos de la cartera'],
+    ['saldos/01930000-0000-7000-8000-000000007001', 'Estado de cuenta de T1-101'],
+    ['liquidacion', 'Liquidación mensual'],
+    ['recaudos', 'Recaudos'],
+    ['intereses', 'Intereses de mora'],
+  ])
+})
+
+test('cartera: ajustes, acuerdos, certificados, presupuesto, informes y configuración', async ({ page }) => {
+  await revisarCartera(page, [
+    ['ajustes', 'Ajustes de la cartera'],
+    ['acuerdos', 'Acuerdos de pago'],
+    ['certificados', 'Paz y salvo y certificados de deuda'],
+    ['presupuesto', 'Presupuesto'],
+    ['informes', 'Informes de la cartera'],
+    ['integraciones', 'Morosos y restricciones'],
+    ['configuracion', 'Configuración de la cartera'],
+  ])
+})
