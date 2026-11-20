@@ -35,7 +35,7 @@ export function leerCodigos(texto: string, digitos: number): { codigos: string[]
 }
 
 /**
- * Avisos de coherencia del perfil con el RUT (el backend valida con `dato_invalido`): gran
+ * Avisos de coherencia del perfil con el RUT (el backend valida con `validacion`): gran
  * contribuyente lleva O-13, autorretenedor O-15, el régimen simple O-47 y facturar con el
  * motor propio exige ser facturador electrónico.
  */

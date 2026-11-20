@@ -5,6 +5,7 @@
  * plataforma. Cada parte aparece solo con su permiso de plataforma.
  */
 import { computed, ref, watch } from 'vue'
+import { mensajeDeError } from '@/api/errores'
 import type { EstadoEntidad, Modulo } from '@/api/tipos'
 import { useAccion } from '@/composables/useAccion'
 import HudBoton from '@/hud/componentes/HudBoton.vue'
@@ -13,7 +14,7 @@ import HudEstado from '@/hud/componentes/HudEstado.vue'
 import HudInsignia from '@/hud/componentes/HudInsignia.vue'
 import HudPanel from '@/hud/componentes/HudPanel.vue'
 import { ESTADO_ENTIDAD, TIPO_ENTIDAD } from '@/formato/textos-entidad'
-import { cambiarEstado, designarPropia } from '../api-clientes'
+import { cambiarEstado, designarPropia, entidadPlataforma } from '../api-clientes'
 import { ACCION_ESTADO, estadosSiguientes, TONO_ESTADO_ENTIDAD } from '../reglas'
 import { useClientes, usePermisosPlataforma } from '../store'
 import AccesoSoporte from './AccesoSoporte.vue'
@@ -26,7 +27,7 @@ const props = defineProps<{ entidadId: string }>()
 const clientes = useClientes()
 const { puede } = usePermisosPlataforma()
 
-const estado = ref<'cargando' | 'listo' | 'error'>('cargando')
+const estado = ref<'cargando' | 'listo' | 'vacio' | 'error'>('cargando')
 const error = ref<string | null>(null)
 const nuevoEstado = ref<EstadoEntidad | null>(null)
 const confirmandoPropia = ref(false)
@@ -62,12 +63,11 @@ const propia = useAccion(() => designarPropia(props.entidadId), {
 async function cargar() {
   estado.value = 'cargando'
   try {
-    await clientes.asegurar()
-    if (!clientes.porId(props.entidadId)) await clientes.recargar()
-    estado.value = clientes.porId(props.entidadId) ? 'listo' : 'error'
-    if (estado.value === 'error') error.value = 'No encontramos ese cliente. Vuelva a la lista y elíjalo de nuevo.'
+    const e = await entidadPlataforma(props.entidadId)
+    if (e) clientes.actualizar(e)
+    estado.value = e ? 'listo' : 'vacio'
   } catch (e) {
-    error.value = e instanceof Error ? e.message : 'No se pudo cargar el cliente.'
+    error.value = mensajeDeError(e)
     estado.value = 'error'
   }
 }
@@ -100,6 +100,11 @@ watch(() => props.entidadId, cargar, { immediate: true })
     estado="error"
     :mensaje="error ?? undefined"
     @reintentar="cargar()"
+  />
+  <HudEstado
+    v-else-if="estado === 'vacio'"
+    estado="vacio"
+    mensaje="Ese cliente no existe. Vuelva a la lista y elíjalo de nuevo."
   />
   <template v-else-if="cliente">
     <header class="encabezado">

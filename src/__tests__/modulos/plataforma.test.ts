@@ -43,15 +43,29 @@ describe('clientes', () => {
   it('lista, busca por nombre o NIT y pagina por cursor', async () => {
     const todos = await clientes.listarEntidades(undefined)
     expect(todos.datos.map((e) => e.tipo)).toContain('plataforma')
-    expect((await clientes.listarEntidades(undefined, 'robles')).datos).toHaveLength(1)
-    expect((await clientes.listarEntidades(undefined, '901333')).datos[0]?.nombre).toContain('Tornillo')
+    expect((await clientes.listarEntidades(undefined, { q: 'robles' })).datos).toHaveLength(1)
+    expect((await clientes.listarEntidades(undefined, { q: '901333' })).datos[0]?.nombre).toContain('Tornillo')
+  })
+
+  it('filtra por tipo y estado en el backend (combinables con la búsqueda); vacío no filtra', async () => {
+    const empresas = await clientes.listarEntidades(undefined, { tipo: 'empresa' })
+    expect(empresas.datos.length).toBeGreaterThan(0)
+    expect(empresas.datos.every((e) => e.tipo === 'empresa')).toBe(true)
+    expect((await clientes.listarEntidades(undefined, { tipo: 'empresa', estado: 'suspendida' })).datos.map((e) => e.id)).toEqual([TORNILLO])
+    expect((await clientes.listarEntidades(undefined, { q: 'robles', estado: 'suspendida' })).datos).toEqual([])
+    expect((await clientes.listarEntidades(undefined, { tipo: '', estado: '' })).datos).toEqual((await clientes.listarEntidades(undefined)).datos)
+  })
+
+  it('pide un cliente por su id; si no existe, null', async () => {
+    expect((await clientes.entidadPlataforma(ROBLES))?.nombre).toContain('Robles')
+    expect(await clientes.entidadPlataforma(id(99999))).toBeNull()
   })
 
   it('alta de PH y de empresa con administrador nuevo; los dos administradores a la vez dan 422', async () => {
     const ph = await clientes.altaCopropiedad({ nombre: 'Conjunto Los Pinos', administrador: { nombre: 'Ana', correo: 'ana@pinos.co' } }, 'k1')
     expect(ph.nombre).toBe('Conjunto Los Pinos')
     const emp = await clientes.altaEmpresa({ nombre: 'Pinos S.A.S.', administrador_cuenta_id: id(801) }, 'k2')
-    expect((await clientes.listarEntidades(undefined, 'pinos')).datos.map((e) => [e.id, e.tipo, e.estado])).toEqual([
+    expect((await clientes.listarEntidades(undefined, { q: 'pinos' })).datos.map((e) => [e.id, e.tipo, e.estado])).toEqual([
       [ph.id, 'propiedad_horizontal', 'en_configuracion'],
       [emp.id, 'empresa', 'en_configuracion'],
     ])
@@ -132,10 +146,26 @@ describe('cuentas y roles de la plataforma', () => {
     await expect(clientes.permisosRolPlataforma(id(15001), [])).rejects.toMatchObject({ estado: 409 })
     const asignacion = await clientes.asignarRolPlataforma(nuevo.cuenta_id, rol.id, 'k5')
     await clientes.quitarRolPlataforma(asignacion)
+    await expect(clientes.quitarRolPlataforma(asignacion)).rejects.toMatchObject({ estado: 404 })
     const super_ = await clientes.asignarRolPlataforma(nuevo.cuenta_id, id(15001), 'k6')
-    await expect(clientes.quitarRolPlataforma(super_)).rejects.toMatchObject({ estado: 409 })
+    await clientes.quitarRolPlataforma(super_)
+    const [propia] = (await clientes.asignacionesPlataforma((await useCuenta().asegurar()).id)).filter((a) => a.rol_id === id(15001) && !a.vigente_hasta)
+    await expect(clientes.quitarRolPlataforma(propia?.id ?? '')).rejects.toMatchObject({ estado: 409 })
     expect((await clientes.rolesPlataforma()).map((r) => r.codigo)).toContain('moderacion')
     await clientes.designarPropia(GISLA)
+  })
+
+  it('lista el historial de roles de plataforma de una cuenta, los más recientes primero', async () => {
+    const julian = (await clientes.buscarCuenta('julian'))!
+    const lista = await clientes.asignacionesPlataforma(julian.id)
+    expect(lista.map((a) => [a.rol_id, a.vigente_hasta === null])).toEqual([
+      [id(15002), true],
+      [id(15003), false],
+    ])
+    const nueva = await clientes.asignarRolPlataforma(julian.id, id(15003), 'k7')
+    expect((await clientes.asignacionesPlataforma(julian.id))[0]).toMatchObject({ id: nueva, vigente_hasta: null })
+    await clientes.quitarRolPlataforma(nueva)
+    expect((await clientes.asignacionesPlataforma(julian.id)).find((a) => a.id === nueva)?.vigente_hasta).toBeTruthy()
   })
 })
 

@@ -527,6 +527,8 @@ export type EventoPublicidad = S['EventoDto']
 export type CuponPublicidad = S['CuponRespuesta']
 // Consola de la plataforma (plan 15)
 export type EntidadPlataforma = S['EntidadPlataformaRespuesta']
+/** Asignación de un rol de plataforma (vigente o histórica): su `id` es el que se quita. */
+export type AsignacionPlataforma = S['AsignacionPlataformaDetalleRespuesta']
 export type NuevaCopropiedad = S['NuevaCopropiedadPeticion']
 export type NuevaEntidad = S['NuevaEntidadPeticion']
 export type AdministradorNuevo = S['AdministradorNuevoPeticion']

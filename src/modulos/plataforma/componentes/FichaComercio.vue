@@ -63,6 +63,8 @@ const moderar = useAccion((_clave, e: EstadoVerificacion, motivo: string | null)
     pidiendoMotivo.value = null
     resultado.value = `El comercio quedó ${ESTADO_ANUNCIANTE[a.estado].texto.toLowerCase()}.`
   },
+  /** 409 `conflicto_estado`: transición no permitida (el comercio cambió); se recarga. */
+  alConflicto: () => void cargar(),
 })
 const guardar = useAccion((_clave, datos: DatosAnunciante) => editarAnunciante(props.comercioId, datos), {
   alExito: (a) => {

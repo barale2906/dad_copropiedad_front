@@ -613,7 +613,48 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** Historial de asignaciones de roles de plataforma, las más recientes primero. */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Solo las de esta cuenta. */
+                    cuenta_id?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Asignaciones */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AsignacionPlataformaDetalleRespuesta"][];
+                    };
+                };
+                /** @description Sin sesión o token vencido (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Sin `plataforma.roles.asignar` ni `plataforma.roles.gestionar` (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
         put?: never;
         /** Asigna un rol de plataforma (soporte, comercial, superusuario…). */
         post: {
@@ -1005,12 +1046,19 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** PH, empresas y la plataforma en una sola tabla, con tipo, estado y módulos. */
+        /**
+         * PH, empresas y la plataforma en una sola tabla, con tipo, estado y módulos; los filtros se
+         *     aplican en todas las páginas.
+         */
         get: {
             parameters: {
                 query?: {
                     /** @description Fragmento del nombre (sin tildes ni mayúsculas) o del NIT. */
                     q?: string;
+                    /** @description Solo las de este tipo. */
+                    tipo?: components["schemas"]["TipoEntidad"];
+                    /** @description Solo las que están en este estado. */
+                    estado?: components["schemas"]["EstadoCopropiedad"];
                     /**
                      * @description Elementos por página (1–200; 50 si se omite).
                      * @example 50
@@ -1128,6 +1176,72 @@ export interface paths {
                 };
             };
         };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plataforma/entidades/{entidad_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Una entidad por su id, con tipo, estado y módulos (la ficha del cliente en la consola). */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Entidad (PH, empresa o la plataforma) */
+                    entidad_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Entidad */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["EntidadPlataformaRespuesta"];
+                    };
+                };
+                /** @description Sin sesión o token vencido (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Sin `plataforma.copropiedades.ver` (`sin_permiso`) o sin segundo factor (`segundo_factor_requerido`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description No existe */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -2706,7 +2820,7 @@ export interface paths {
                         "application/json": components["schemas"]["ErrorRespuesta"];
                     };
                 };
-                /** @description Transición no permitida (`transicion_invalida`) */
+                /** @description Transición no permitida (`conflicto_estado`) */
                 409: {
                     headers: {
                         [name: string]: unknown;
@@ -3205,7 +3319,16 @@ export interface paths {
                         "application/json": components["schemas"]["ErrorRespuesta"];
                     };
                 };
-                /** @description Transición no permitida (`dominio`) o falta algo (`validacion`) */
+                /** @description Transición no permitida (`conflicto_estado`) */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Acción desconocida o falta algo (`validacion`) */
                 422: {
                     headers: {
                         [name: string]: unknown;
@@ -4834,12 +4957,21 @@ export interface paths {
         };
         /**
          * Documentos electrónicos transmitidos (validados, enviados o en contingencia) por entidad y
-         *     tipo en el periodo: la base para cobrar el módulo de facturación (plan 19). Solo conteos.
+         *     tipo en el periodo, con `desde` y `hasta` **incluidos**: la base para cobrar el módulo de
+         *     facturación (plan 19). Solo conteos.
          */
         get: {
             parameters: {
                 query: {
+                    /**
+                     * @description Primer día del periodo (incluido).
+                     * @example 2026-11-01
+                     */
                     desde: string;
+                    /**
+                     * @description Último día del periodo (incluido: cuenta lo transmitido ese día).
+                     * @example 2026-11-30
+                     */
                     hasta: string;
                 };
                 header?: never;
@@ -6109,7 +6241,7 @@ export interface paths {
                         "application/json": components["schemas"]["ErrorRespuesta"];
                     };
                 };
-                /** @description Tarifa incoherente con su modelo (`dominio`) */
+                /** @description Tarifa incoherente con su modelo (`validacion`) */
                 422: {
                     headers: {
                         [name: string]: unknown;
@@ -6232,7 +6364,7 @@ export interface paths {
                         "application/json": components["schemas"]["ErrorRespuesta"];
                     };
                 };
-                /** @description Ciclo, prueba, plazo o pagador inválidos (`validacion`, `dominio`) */
+                /** @description Ciclo, prueba, plazo o pagador inválidos (`validacion`) */
                 422: {
                     headers: {
                         [name: string]: unknown;
@@ -8854,7 +8986,7 @@ export interface paths {
                         "application/json": components["schemas"]["ErrorRespuesta"];
                     };
                 };
-                /** @description Oferta vencida o sin usos (`dominio`) */
+                /** @description Oferta vencida o sin usos (`validacion`) */
                 422: {
                     headers: {
                         [name: string]: unknown;
@@ -35669,7 +35801,7 @@ export interface paths {
                         "application/json": components["schemas"]["ErrorRespuesta"];
                     };
                 };
-                /** @description Perfil incoherente con el RUT (`validacion`, `dato_invalido`) */
+                /** @description Perfil incoherente con el RUT (`validacion`) */
                 422: {
                     headers: {
                         [name: string]: unknown;
@@ -44874,8 +45006,18 @@ export interface components {
             valor: string;
             estado: components["schemas"]["EstadoAcuerdo"];
             observaciones?: string | null;
+            /**
+             * Format: uuid
+             * @description Cuenta que propuso el acuerdo: no puede aprobarlo (cuatro ojos).
+             */
+            propuesto_por: string;
             /** Format: date-time */
             creado_en: string;
+            /**
+             * Format: uuid
+             * @description Cuenta que lo aprobó (`None` mientras está propuesto).
+             */
+            aprobado_por?: string | null;
             /** Format: date-time */
             aprobado_en?: string | null;
             /** Format: date-time */
@@ -45216,6 +45358,27 @@ export interface components {
              * @description Por defecto, sin fecha de fin.
              */
             vigente_hasta?: string | null;
+        };
+        /** @description Asignación de un rol de plataforma (vigente o histórica). */
+        AsignacionPlataformaDetalleRespuesta: {
+            /**
+             * Format: uuid
+             * @description Lo que se pasa a `DELETE /plataforma/asignaciones/{asignacion_id}`.
+             */
+            id: string;
+            /** Format: uuid */
+            cuenta_id: string;
+            /** Format: uuid */
+            rol_id: string;
+            /** Format: date-time */
+            vigente_desde: string;
+            /**
+             * Format: date-time
+             * @description `null` = vigente sin fecha de fin.
+             */
+            vigente_hasta?: string | null;
+            /** Format: uuid */
+            asignado_por?: string | null;
         };
         /** @description Asignación de un rol de plataforma. */
         AsignacionPlataformaPeticion: {

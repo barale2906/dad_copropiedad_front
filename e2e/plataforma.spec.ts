@@ -64,6 +64,36 @@ test.describe('consola de la plataforma', () => {
     await expect(page.getByRole('status').filter({ hasText: 'quedó suspendida' })).toBeVisible()
   })
 
+  test('filtra los clientes por estado en el backend; un id inexistente se explica', async ({ page }) => {
+    await abrir(page, 'clientes')
+    await expect(page.getByRole('link', { name: 'Conjunto Residencial Los Robles' })).toBeVisible()
+    await page.getByLabel('Estado', { exact: true }).selectOption({ label: 'Suspendida' })
+    await expect(page.getByRole('link', { name: 'Conjunto Residencial Los Robles' })).toHaveCount(0)
+    await expect(page.getByRole('link', { name: 'Ferretería El Tornillo S.A.S.' })).toBeVisible()
+    await page.getByLabel('Tipo', { exact: true }).selectOption({ label: 'Propiedad horizontal' })
+    await expect(page.getByText('Ningún cliente coincide con la búsqueda.')).toBeVisible()
+
+    await page.goto(`/e/${GISLA}/plataforma/clientes/01930000-0000-7000-8000-000000099999`)
+    await expect(page.getByText('Ese cliente no existe.')).toBeVisible()
+  })
+
+  test('los roles de plataforma de una cuenta: vigentes, historial, quitar y asignar', async ({ page }) => {
+    await abrir(page, 'usuarios')
+    await page.getByLabel('Usuario o correo de la cuenta').fill('julian')
+    await page.getByRole('button', { name: 'Buscar cuenta' }).click()
+    const vigentes = page.getByRole('list', { name: 'Roles de plataforma vigentes' })
+    await expect(vigentes).toContainText('Soporte')
+    await expect(page.getByText('Historial (1)')).toBeVisible()
+    await vigentes.getByRole('button', { name: 'Quitar Soporte' }).click()
+    await expect(page.getByRole('status').filter({ hasText: 'Rol de plataforma quitado.' })).toBeVisible()
+    await expect(page.getByText('No tiene roles de plataforma vigentes.')).toBeVisible()
+    await expect(page.getByText('Historial (2)')).toBeVisible()
+    const roles = page.getByRole('region', { name: 'Roles de plataforma' })
+    await roles.getByLabel('Rol de plataforma').selectOption({ label: 'Comercial' })
+    await roles.getByRole('button', { name: 'Asignar', exact: true }).click()
+    await expect(vigentes).toContainText('Comercial')
+  })
+
   test('ver como soporte abre la entidad en solo lectura', async ({ page }) => {
     await abrir(page, `clientes/${ROBLES}`)
     await page.getByRole('button', { name: 'Ver como soporte' }).click()

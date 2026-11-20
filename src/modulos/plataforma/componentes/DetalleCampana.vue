@@ -51,6 +51,8 @@ const ciclo = useAccion((_clave, accion: string) => accionCampana(props.comercio
     resultado.value = `La campaña quedó ${ESTADO_CAMPANA[x.estado].texto.toLowerCase()}.`
     emit('cambio')
   },
+  /** 409 `conflicto_estado`: la campaña cambió en otra sesión; se muestra como está ahora. */
+  alConflicto: () => void cargar(),
 })
 const guardar = useAccion((_clave, datos: NuevaCampana) => editarCampana(props.comercioId, props.campanaId, datos))
 const guardarPieza = useAccion((clave, datos: NuevoCreativo) =>

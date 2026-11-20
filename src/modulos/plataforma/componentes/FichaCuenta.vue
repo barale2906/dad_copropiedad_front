@@ -1,21 +1,23 @@
 <script setup lang="ts">
 /**
  * Una cuenta de DAD vista desde la plataforma: estado, contraseña pendiente, segundo factor y
- * bloqueo temporal; bloquearla (cierra sus sesiones) o desbloquearla con motivo, y asignarle o
- * quitarle roles de plataforma (solo las asignaciones hechas en esta sesión: el backend no las
- * lista, S20).
+ * bloqueo temporal; bloquearla (cierra sus sesiones) o desbloquearla con motivo, y sus roles de
+ * plataforma: los vigentes (quitarlos), el historial y asignar uno nuevo.
  */
-import { computed, ref } from 'vue'
-import type { CuentaPlataforma, Rol } from '@/api/tipos'
+import { computed, onMounted, ref } from 'vue'
+import { mensajeDeError } from '@/api/errores'
+import type { AsignacionPlataforma, CuentaPlataforma, Rol } from '@/api/tipos'
 import { useAccion } from '@/composables/useAccion'
-import { fechaHora } from '@/formato/fechas'
+import { fecha, fechaHora } from '@/formato/fechas'
+import { vigente } from '@/formato/usuarios'
 import ConfirmarConMotivo from '@/hud/componentes/ConfirmarConMotivo.vue'
 import HudBoton from '@/hud/componentes/HudBoton.vue'
 import HudDialogo from '@/hud/componentes/HudDialogo.vue'
+import HudEstado from '@/hud/componentes/HudEstado.vue'
 import HudInsignia from '@/hud/componentes/HudInsignia.vue'
 import HudSelector from '@/hud/componentes/HudSelector.vue'
 import { useEntidad } from '@/stores/entidad'
-import { asignarRolPlataforma, bloquearCuenta, desbloquearCuenta, quitarRolPlataforma } from '../api-clientes'
+import { asignacionesPlataforma, asignarRolPlataforma, bloquearCuenta, desbloquearCuenta, quitarRolPlataforma } from '../api-clientes'
 import { usePermisosPlataforma } from '../store'
 
 const props = defineProps<{ cuenta: CuentaPlataforma; roles: Rol[] }>()
@@ -26,11 +28,20 @@ const { puede } = usePermisosPlataforma()
 const confirmandoBloqueo = ref(false)
 const pidiendoMotivo = ref(false)
 const rolId = ref('')
-const asignadas = ref<{ id: string; rol: string }[]>([])
+const asignaciones = ref<AsignacionPlataforma[]>([])
+const estadoRoles = ref<'cargando' | 'listo' | 'error'>('cargando')
+const errorRoles = ref<string | null>(null)
 const resultado = ref<string | null>(null)
 
 const bloqueada = computed(() => props.cuenta.estado === 'bloqueada')
-const opcionesRol = computed(() => props.roles.map((r) => ({ valor: r.id, etiqueta: r.nombre })))
+const puedeVerRoles = computed(() => puede('plataforma.roles.asignar') || puede('plataforma.roles.gestionar'))
+const nombreRol = (rolId: string) => props.roles.find((r) => r.id === rolId)?.nombre ?? 'Rol'
+const vigentes = computed(() => asignaciones.value.filter((a) => vigente(a)))
+const anteriores = computed(() => asignaciones.value.filter((a) => !vigente(a)))
+/** No se ofrece un rol que la cuenta ya tiene vigente. */
+const opcionesRol = computed(() =>
+  props.roles.filter((r) => !vigentes.value.some((a) => a.rol_id === r.id)).map((r) => ({ valor: r.id, etiqueta: r.nombre })),
+)
 const estado = computed(() => {
   if (bloqueada.value) return { texto: 'Bloqueada', tono: 'peligro' as const }
   if (props.cuenta.estado === 'eliminada') return { texto: 'Eliminada', tono: 'neutro' as const }
@@ -53,20 +64,35 @@ const desbloquear = useAccion((_clave, motivo: string) => desbloquearCuenta(prop
   },
 })
 const asignar = useAccion((clave) => asignarRolPlataforma(props.cuenta.id, rolId.value, clave), {
-  alExito: (id) => {
-    asignadas.value = [...asignadas.value, { id, rol: props.roles.find((r) => r.id === rolId.value)?.nombre ?? 'Rol' }]
+  alExito: () => {
     resultado.value = 'Rol de plataforma asignado.'
     rolId.value = ''
+    void cargarRoles()
   },
 })
 const quitar = useAccion((_clave, id: string) => quitarRolPlataforma(id), {
-  alExito: () => (resultado.value = 'Rol de plataforma quitado.'),
+  alExito: () => {
+    resultado.value = 'Rol de plataforma quitado.'
+    void cargarRoles()
+  },
 })
 
 const errores = computed(() => [asignar.error.value, quitar.error.value].filter((e): e is string => !!e))
 
-async function quitarRol(id: string) {
-  if ((await quitar.ejecutar(id)).ok) asignadas.value = asignadas.value.filter((a) => a.id !== id)
+async function cargarRoles() {
+  if (!puedeVerRoles.value) return
+  try {
+    asignaciones.value = await asignacionesPlataforma(props.cuenta.id)
+    estadoRoles.value = 'listo'
+  } catch (e) {
+    errorRoles.value = mensajeDeError(e)
+    estadoRoles.value = 'error'
+  }
+}
+
+function reintentarRoles() {
+  estadoRoles.value = 'cargando'
+  void cargarRoles()
 }
 
 function abrirBloqueo() {
@@ -78,6 +104,8 @@ function abrirDesbloqueo() {
   desbloquear.reiniciar()
   pidiendoMotivo.value = true
 }
+
+onMounted(cargarRoles)
 </script>
 
 <template>
@@ -138,48 +166,88 @@ function abrirDesbloqueo() {
     </div>
 
     <section
-      v-if="puede('plataforma.roles.asignar')"
+      v-if="puedeVerRoles"
       class="campos"
       aria-labelledby="titulo-roles-cuenta"
     >
       <h3 id="titulo-roles-cuenta">
         Roles de plataforma
       </h3>
-      <div class="filtros">
-        <HudSelector
-          v-model="rolId"
-          etiqueta="Rol de plataforma"
-          :opciones="opcionesRol"
-          vacio="Elija un rol"
-        />
-        <div>
-          <HudBoton
-            :deshabilitado="!rolId"
-            :cargando="asignar.cargando.value"
-            @click="asignar.ejecutar()"
-          >
-            Asignar
-          </HudBoton>
-        </div>
-      </div>
-      <ul
-        v-if="asignadas.length"
-        class="lista"
-      >
-        <li
-          v-for="a in asignadas"
-          :key="a.id"
+      <HudEstado
+        v-if="estadoRoles === 'cargando'"
+        estado="cargando"
+      />
+      <HudEstado
+        v-else-if="estadoRoles === 'error'"
+        estado="error"
+        :mensaje="errorRoles ?? undefined"
+        @reintentar="reintentarRoles"
+      />
+      <template v-else>
+        <ul
+          v-if="vigentes.length"
+          class="lista"
+          aria-label="Roles de plataforma vigentes"
         >
-          <span class="crece">{{ a.rol }}</span>
-          <HudBoton
-            variante="fantasma"
-            :cargando="quitar.cargando.value"
-            @click="quitarRol(a.id)"
+          <li
+            v-for="a in vigentes"
+            :key="a.id"
           >
-            Quitar<span class="solo-lector"> {{ a.rol }}</span>
-          </HudBoton>
-        </li>
-      </ul>
+            <span class="crece">
+              <strong>{{ nombreRol(a.rol_id) }}</strong>
+              <small>Desde el {{ fecha(a.vigente_desde, entidad.zonaHoraria) }}<template v-if="a.vigente_hasta"> · hasta el {{ fecha(a.vigente_hasta, entidad.zonaHoraria) }}</template></small>
+            </span>
+            <HudBoton
+              v-if="puede('plataforma.roles.asignar')"
+              variante="fantasma"
+              :cargando="quitar.cargando.value"
+              @click="quitar.ejecutar(a.id)"
+            >
+              Quitar<span class="solo-lector"> {{ nombreRol(a.rol_id) }}</span>
+            </HudBoton>
+          </li>
+        </ul>
+        <p
+          v-else
+          class="texto-2"
+        >
+          No tiene roles de plataforma vigentes.
+        </p>
+        <details v-if="anteriores.length">
+          <summary>Historial ({{ anteriores.length }})</summary>
+          <ul class="lista">
+            <li
+              v-for="a in anteriores"
+              :key="a.id"
+            >
+              <span class="crece">
+                <strong>{{ nombreRol(a.rol_id) }}</strong>
+                <small>Del {{ fecha(a.vigente_desde, entidad.zonaHoraria) }} al {{ a.vigente_hasta ? fecha(a.vigente_hasta, entidad.zonaHoraria) : '—' }}</small>
+              </span>
+            </li>
+          </ul>
+        </details>
+        <div
+          v-if="puede('plataforma.roles.asignar')"
+          class="filtros"
+        >
+          <HudSelector
+            v-model="rolId"
+            etiqueta="Rol de plataforma"
+            :opciones="opcionesRol"
+            vacio="Elija un rol"
+          />
+          <div>
+            <HudBoton
+              :deshabilitado="!rolId"
+              :cargando="asignar.cargando.value"
+              @click="asignar.ejecutar()"
+            >
+              Asignar
+            </HudBoton>
+          </div>
+        </div>
+      </template>
       <p
         v-for="e in errores"
         :key="e"
@@ -237,5 +305,11 @@ function abrirDesbloqueo() {
 h3 {
   margin: 0;
   font-size: 17px;
+}
+
+summary {
+  min-height: 40px;
+  color: var(--texto-2);
+  cursor: pointer;
 }
 </style>

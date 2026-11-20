@@ -56,10 +56,17 @@ describe('reglas de la cartera', () => {
 
   it('aprobar solo un propuesto (con permiso para liquidar); anular un propuesto o vigente', () => {
     const todo = { aprobar: true, anular: true }
-    expect(accionesAcuerdo({ estado: 'propuesto' }, todo)).toEqual(['aprobar', 'anular'])
-    expect(accionesAcuerdo({ estado: 'vigente' }, todo)).toEqual(['anular'])
-    expect(accionesAcuerdo({ estado: 'cumplido' }, todo)).toEqual([])
-    expect(accionesAcuerdo({ estado: 'propuesto' }, { aprobar: false, anular: false })).toEqual([])
+    const deOtra = { estado: 'propuesto' as const, propuesto_por: 'otra' }
+    expect(accionesAcuerdo(deOtra, todo, 'yo')).toEqual(['aprobar', 'anular'])
+    expect(accionesAcuerdo({ ...deOtra, estado: 'vigente' }, todo, 'yo')).toEqual(['anular'])
+    expect(accionesAcuerdo({ ...deOtra, estado: 'cumplido' }, todo, 'yo')).toEqual([])
+    expect(accionesAcuerdo(deOtra, { aprobar: false, anular: false }, 'yo')).toEqual([])
+  })
+
+  it('quien propuso el acuerdo no lo aprueba (cuatro ojos), pero sí lo puede anular', () => {
+    const todo = { aprobar: true, anular: true }
+    expect(accionesAcuerdo({ estado: 'propuesto', propuesto_por: 'yo' }, todo, 'yo')).toEqual(['anular'])
+    expect(accionesAcuerdo({ estado: 'propuesto', propuesto_por: 'otra' }, todo, null)).toEqual(['anular'])
   })
 
   it('el valor anual se reparte en doce meses y el último absorbe el redondeo', () => {

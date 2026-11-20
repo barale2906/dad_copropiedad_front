@@ -19,6 +19,7 @@ import type {
   TipoCertificadoCartera,
   TipoConceptoCobro,
 } from '@/api/tipos'
+import { puedeAprobar } from '@/composables/reglas'
 import { comparar, esDecimal, sumar } from '@/formato/decimales'
 
 type Tono = 'exito' | 'aviso' | 'peligro' | 'info' | 'neutro'
@@ -150,13 +151,17 @@ export const conSaldo = (lista: Obligacion[]) => lista.filter((o) => o.estado ==
 // Acuerdos -------------------------------------------------------------------------------------
 
 /**
- * Qué se puede hacer con un acuerdo: aprobar (`cartera.liquidar`) un propuesto; anular
- * (`cartera.ajustar`) uno propuesto o vigente. El contrato no dice quién lo propuso: si la misma
- * cuenta intenta aprobarlo, el backend responde 409 y se explica.
+ * Qué se puede hacer con un acuerdo: aprobar (`cartera.liquidar`) uno propuesto por **otra**
+ * cuenta (cuatro ojos; el 409 del backend sigue siendo la garantía); anular (`cartera.ajustar`)
+ * uno propuesto o vigente.
  */
-export function accionesAcuerdo(a: Pick<AcuerdoPago, 'estado'>, p: { aprobar: boolean; anular: boolean }): ('aprobar' | 'anular')[] {
+export function accionesAcuerdo(
+  a: Pick<AcuerdoPago, 'estado' | 'propuesto_por'>,
+  p: { aprobar: boolean; anular: boolean },
+  cuentaId: string | null,
+): ('aprobar' | 'anular')[] {
   const r: ('aprobar' | 'anular')[] = []
-  if (a.estado === 'propuesto' && p.aprobar) r.push('aprobar')
+  if (a.estado === 'propuesto' && p.aprobar && puedeAprobar([a.propuesto_por], cuentaId)) r.push('aprobar')
   if ((a.estado === 'propuesto' || a.estado === 'vigente') && p.anular) r.push('anular')
   return r
 }

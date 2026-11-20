@@ -5,6 +5,7 @@
 import { api, exigir, idempotencia, siExiste } from '@/api/cliente'
 import type {
   AccesoSoporte,
+  AsignacionPlataforma,
   CuentaPlataforma,
   EntidadPlataforma,
   EstadoEntidad,
@@ -15,6 +16,7 @@ import type {
   NuevoUsuarioPlataforma,
   Permiso,
   Rol,
+  TipoEntidad,
   UsuarioPlataformaCreado,
 } from '@/api/tipos'
 import type { Pagina } from '@/composables/useListado'
@@ -23,9 +25,22 @@ const en = (id: string) => ({ path: { entidad_id: id } })
 
 // Clientes ---------------------------------------------------------------------------------
 
-/** PH, empresas y la plataforma en una tabla (búsqueda `q` por nombre o NIT). */
-export function listarEntidades(despues: string | undefined, q = ''): Promise<Pagina<EntidadPlataforma>> {
-  return exigir(api().GET('/api/v1/plataforma/entidades', { params: { query: { despues, limite: 50, q: q.trim() || undefined } } }))
+/** Filtros del listado de clientes (vacío = sin filtrar); el backend los aplica en todas las páginas. */
+export interface FiltrosEntidades {
+  q?: string
+  tipo?: TipoEntidad | ''
+  estado?: EstadoEntidad | ''
+}
+
+/** PH, empresas y la plataforma en una tabla (búsqueda `q` por nombre o NIT, tipo y estado). */
+export function listarEntidades(despues: string | undefined, f: FiltrosEntidades = {}): Promise<Pagina<EntidadPlataforma>> {
+  const query = { despues, limite: 50, q: f.q?.trim() || undefined, tipo: f.tipo || undefined, estado: f.estado || undefined }
+  return exigir(api().GET('/api/v1/plataforma/entidades', { params: { query } }))
+}
+
+/** Un cliente por su id (la ficha); `null` si no existe. */
+export function entidadPlataforma(entidadId: string): Promise<EntidadPlataforma | null> {
+  return siExiste(exigir(api().GET('/api/v1/plataforma/entidades/{entidad_id}', { params: en(entidadId) })))
 }
 
 /** Alta de una PH con su primer administrador (nuevo o existente, nunca los dos). */
@@ -102,6 +117,11 @@ export function crearRolPlataforma(datos: NuevoRol, clave: string): Promise<Rol>
 
 export function permisosRolPlataforma(rolId: string, permisos: Permiso[]): Promise<Rol> {
   return exigir(api().PUT('/api/v1/plataforma/roles/{rol_id}/permisos', { params: { path: { rol_id: rolId } }, body: { permisos } }))
+}
+
+/** Historial de los roles de plataforma de una cuenta (las más recientes primero; `vigente_hasta` nulo = vigente). */
+export function asignacionesPlataforma(cuentaId: string): Promise<AsignacionPlataforma[]> {
+  return exigir(api().GET('/api/v1/plataforma/asignaciones', { params: { query: { cuenta_id: cuentaId } } }))
 }
 
 /** Asigna un rol de plataforma a una cuenta; devuelve el id de la asignación. */

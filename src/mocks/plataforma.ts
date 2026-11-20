@@ -9,6 +9,7 @@
  */
 import type {
   Anunciante,
+  AsignacionPlataforma,
   Campana,
   CategoriaDirectorio,
   ConceptoRetencion,
@@ -56,7 +57,7 @@ let clientes: EntidadPlataforma[] = []
 let soportes = new Map<string, number>()
 let cuentas: CuentaPlataforma[] = []
 let roles: Rol[] = []
-let asignaciones = new Map<string, string>()
+let asignaciones: AsignacionPlataforma[] = []
 let reclamos: Reclamacion[] = []
 let conceptos: ConceptoRetencion[] = []
 let uvts: Uvt[] = []
@@ -197,7 +198,14 @@ export function iniciarPlataforma(usuario: string): void {
     { id: id(15002), codigo: 'soporte', nombre: 'Soporte', ambito: 'plataforma', es_plantilla: true, permisos: ['plataforma.soporte.ver'] },
     { id: id(15003), codigo: 'comercial', nombre: 'Comercial', ambito: 'plataforma', es_plantilla: false, descripcion: 'Altas y cobros.', permisos: ['plataforma.cuentas.ver'] },
   ]
-  asignaciones = new Map()
+  const asignacion = (n: number, cuenta: string, rol: number, desde: number, hasta: number | null = null): AsignacionPlataforma => ({
+    id: id(n), cuenta_id: cuenta, rol_id: id(rol), vigente_desde: hace(desde), vigente_hasta: hasta === null ? null : hace(hasta), asignado_por: OTRA_CUENTA,
+  })
+  asignaciones = [
+    asignacion(15041, cuentaSesion, 15001, 300),
+    asignacion(15042, id(805), 15002, 120),
+    asignacion(15043, id(805), 15003, 400, 200),
+  ]
   reclamos = [
     { id: id(15051), organizacion_id: id(15061), cuenta_id: id(802), mensaje: 'Soy la representante legal de Contables Unidos; adjunto el RUT.', estado: 'pendiente', creada_en: hace(2) },
     { id: id(15052), organizacion_id: id(15062), cuenta_id: id(804), mensaje: 'Manejo la ficha de Vigilancia Andina.', estado: 'pendiente', creada_en: hace(1) },
@@ -236,6 +244,10 @@ export function iniciarPlataforma(usuario: string): void {
   iniciarCobros()
 }
 
+/** Valores del contrato para responder 400 a uno desconocido, como el backend. */
+const TIPOS: string[] = ['propiedad_horizontal', 'empresa', 'plataforma'] satisfies EntidadPlataforma['tipo'][]
+const ESTADOS: string[] = ['en_configuracion', 'activa', 'suspendida', 'retirada'] satisfies EntidadPlataforma['estado'][]
+
 /** Respuesta paginada por cursor (el id del último). */
 const porId = (x: { id: string }) => x.id
 
@@ -254,7 +266,17 @@ async function atenderClientes(req: Request, ruta: string, url: URL): Promise<Re
   const m = req.method
   if (m === 'GET' && ruta === '/plataforma/entidades') {
     const q = (url.searchParams.get('q') ?? '').toLowerCase()
-    return pagina(clientes.filter((c) => !q || c.nombre.toLowerCase().includes(q) || (c.nit ?? '').includes(q)), url, porId)
+    const tipo = url.searchParams.get('tipo')
+    const estado = url.searchParams.get('estado')
+    if ((tipo && !TIPOS.includes(tipo)) || (estado && !ESTADOS.includes(estado))) return error(400, 'validacion', 'Tipo o estado desconocido.')
+    const coincide = (c: EntidadPlataforma) =>
+      (!q || c.nombre.toLowerCase().includes(q) || (c.nit ?? '').includes(q)) && (!tipo || c.tipo === tipo) && (!estado || c.estado === estado)
+    return pagina(clientes.filter(coincide), url, porId)
+  }
+  const una = ruta.match(/^\/plataforma\/entidades\/([^/]+)$/)
+  if (m === 'GET' && una) {
+    const c = clientes.find((x) => x.id === una[1])
+    return c ? json(c) : error(404, 'no_encontrado', 'La entidad no existe.')
   }
   if (m === 'POST' && (ruta === '/plataforma/entidades' || ruta === '/plataforma/copropiedades')) {
     const p = await cuerpo<{ nombre: string; nit?: string | null; administrador?: { correo: string } | null; administrador_cuenta_id?: string | null }>(req)
@@ -314,7 +336,11 @@ async function atenderCuentas(req: Request, ruta: string, url: URL): Promise<Res
     const existente = cuentas.find((x) => x.correo === p.correo)
     const c = existente ?? { id: nuevoId(), nombre: p.nombre, usuario: p.usuario ?? null, correo: p.correo, correo_verificado: false, estado: 'activa' as const, contrasena_pendiente: true, segundo_factor_activo: false }
     if (!existente) cuentas.push(c)
-    return json({ cuenta_id: c.id, cuenta_nueva: !existente, asignacion_id: p.rol_plataforma_id ? nuevoId() : null }, 201)
+    const asignacion = p.rol_plataforma_id
+      ? { id: nuevoId(), cuenta_id: c.id, rol_id: p.rol_plataforma_id, vigente_desde: new Date().toISOString(), vigente_hasta: null, asignado_por: cuentaSesion }
+      : null
+    if (asignacion) asignaciones.push(asignacion)
+    return json({ cuenta_id: c.id, cuenta_nueva: !existente, asignacion_id: asignacion?.id ?? null }, 201)
   }
   const bloqueo = ruta.match(/^\/plataforma\/cuentas\/([^/]+)\/(bloquear|desbloquear)$/)
   if (m === 'POST' && bloqueo) {
@@ -344,16 +370,23 @@ async function atenderCuentas(req: Request, ruta: string, url: URL): Promise<Res
     r.permisos = (await cuerpo<{ permisos: Rol['permisos'] }>(req)).permisos
     return json(r)
   }
+  if (m === 'GET' && ruta === '/plataforma/asignaciones') {
+    const cuenta = url.searchParams.get('cuenta_id')
+    return json(asignaciones.filter((a) => !cuenta || a.cuenta_id === cuenta).sort((a, b) => b.vigente_desde.localeCompare(a.vigente_desde)))
+  }
   if (m === 'POST' && ruta === '/plataforma/asignaciones') {
     const p = await cuerpo<{ cuenta_id: string; rol_id: string }>(req)
-    const a = nuevoId()
-    asignaciones.set(a, p.rol_id)
-    return json({ id: a }, 201)
+    const a: AsignacionPlataforma = { id: nuevoId(), cuenta_id: p.cuenta_id, rol_id: p.rol_id, vigente_desde: new Date().toISOString(), vigente_hasta: null, asignado_por: cuentaSesion }
+    asignaciones.push(a)
+    return json({ id: a.id }, 201)
   }
   const quitar = ruta.match(/^\/plataforma\/asignaciones\/([^/]+)$/)
   if (m === 'DELETE' && quitar) {
-    if (asignaciones.get(quitar[1] ?? '') === id(15001)) return error(409, 'conflicto', 'No se puede quitar el último superusuario.')
-    asignaciones.delete(quitar[1] ?? '')
+    const a = asignaciones.find((x) => x.id === quitar[1] && !x.vigente_hasta)
+    if (!a) return error(404, 'no_encontrado', 'La asignación no existe o ya terminó.')
+    const superusuarios = asignaciones.filter((x) => x.rol_id === id(15001) && !x.vigente_hasta)
+    if (a.rol_id === id(15001) && superusuarios.length === 1) return error(409, 'conflicto', 'No se puede quitar el último superusuario.')
+    a.vigente_hasta = new Date().toISOString()
     return sinContenido()
   }
   return null
@@ -518,6 +551,7 @@ async function atenderPublicidad(req: Request, ruta: string, url: URL): Promise<
     if (m === 'POST' && resto === '/estado') {
       const p = await cuerpo<{ estado: Anunciante['estado']; motivo?: string | null }>(req)
       if ((p.estado === 'rechazado' || p.estado === 'suspendido') && !p.motivo?.trim()) return error(422, 'validacion', 'Escriba el motivo.')
+      if (p.estado === a.estado) return error(409, 'conflicto_estado', 'El comercio ya está en ese estado.')
       a.estado = p.estado
       a.motivo_estado = p.motivo ?? null
       return json(a)

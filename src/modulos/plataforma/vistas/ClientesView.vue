@@ -1,8 +1,8 @@
 <script setup lang="ts">
 /**
  * Clientes de la plataforma: PH, empresas y la plataforma en una tabla (búsqueda por nombre o
- * NIT en el backend; tipo y estado filtran lo cargado), el alta con su administrador y la ficha
- * de cada cliente (`:id`).
+ * NIT, tipo y estado, todos en el backend), el alta con su administrador y la ficha de cada
+ * cliente (`:id`).
  */
 import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
@@ -18,7 +18,7 @@ import HudSelector from '@/hud/componentes/HudSelector.vue'
 import HudTabla from '@/hud/componentes/HudTabla.vue'
 import IVolver from '~icons/tabler/arrow-left'
 import IMas from '~icons/tabler/plus'
-import { listarEntidades } from '../api-clientes'
+import { listarEntidades, type FiltrosEntidades } from '../api-clientes'
 import AltaCliente from '../componentes/AltaCliente.vue'
 import FichaCliente from '../componentes/FichaCliente.vue'
 import { NOMBRE_MODULO, TONO_ESTADO_ENTIDAD } from '../reglas'
@@ -30,17 +30,12 @@ const clientes = useClientes()
 const { puede } = usePermisosPlataforma()
 
 const clienteId = computed(() => (typeof route.params.id === 'string' ? route.params.id : ''))
-const filtros = ref({ q: '' })
-const tipo = ref<TipoEntidad | ''>('')
-const estado = ref<EstadoEntidad | ''>('')
+const filtros = ref<Required<FiltrosEntidades>>({ q: '', tipo: '', estado: '' })
 const creando = ref(false)
 const resultado = ref<string | null>(null)
 
-const listado = useListado((despues, f: { q: string }) => listarEntidades(despues, f.q), { filtros })
+const listado = useListado((despues, f: FiltrosEntidades) => listarEntidades(despues, f), { filtros })
 const puedeAlta = computed(() => puede('plataforma.copropiedades.crear') || puede('plataforma.entidades.crear'))
-const filas = computed(() =>
-  listado.filas.value.filter((e) => (!tipo.value || e.tipo === tipo.value) && (!estado.value || e.estado === estado.value)),
-)
 const opcionesTipo = [{ valor: '', etiqueta: 'Todos' }, ...(Object.keys(TIPO_ENTIDAD) as TipoEntidad[]).map((t) => ({ valor: t, etiqueta: TIPO_ENTIDAD[t] }))]
 const opcionesEstado = [
   { valor: '', etiqueta: 'Todos' },
@@ -111,12 +106,12 @@ async function creada(id: string, nombre: string) {
           autocompletar="off"
         />
         <HudSelector
-          v-model="tipo"
+          v-model="filtros.tipo"
           etiqueta="Tipo"
           :opciones="opcionesTipo"
         />
         <HudSelector
-          v-model="estado"
+          v-model="filtros.estado"
           etiqueta="Estado"
           :opciones="opcionesEstado"
         />
@@ -134,13 +129,13 @@ async function creada(id: string, nombre: string) {
         @reintentar="listado.recargar()"
       />
       <HudEstado
-        v-else-if="filas.length === 0 && !listado.hayMas.value"
+        v-else-if="listado.estado.value === 'vacio'"
         estado="vacio"
-        :mensaje="filtros.q || tipo || estado ? 'Ningún cliente coincide con la búsqueda.' : 'Aún no hay clientes.'"
+        :mensaje="filtros.q || filtros.tipo || filtros.estado ? 'Ningún cliente coincide con la búsqueda.' : 'Aún no hay clientes.'"
       />
       <template v-else>
         <HudTabla
-          :filas="filas"
+          :filas="listado.filas.value"
           :columnas="COLUMNAS"
           clave="id"
           titulo="Clientes de la plataforma"

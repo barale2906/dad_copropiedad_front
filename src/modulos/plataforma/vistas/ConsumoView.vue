@@ -59,7 +59,7 @@ watch([desde, hasta], () => void cargar(), { immediate: true })
         Consumo de facturación electrónica
       </h1>
       <p class="texto-2">
-        Documentos validados, enviados o en contingencia por entidad. Es la base para cobrar los paquetes.
+        Documentos validados, enviados o en contingencia por entidad, contando completos el día inicial y el final. Es la base para cobrar los paquetes.
       </p>
     </header>
     <div class="filtros">

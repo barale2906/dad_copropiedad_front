@@ -17,6 +17,7 @@ import HudFecha from '@/hud/componentes/HudFecha.vue'
 import HudInsignia from '@/hud/componentes/HudInsignia.vue'
 import HudPanel from '@/hud/componentes/HudPanel.vue'
 import HudSelector from '@/hud/componentes/HudSelector.vue'
+import { useCuenta } from '@/stores/cuenta'
 import { useEntidad } from '@/stores/entidad'
 import { acuerdos as pedirAcuerdos, anularAcuerdo, aprobarAcuerdo, proponerAcuerdo } from '../api'
 import ElegirUnidad from '../componentes/ElegirUnidad.vue'
@@ -25,6 +26,7 @@ import { useCartera } from '../store'
 
 const entidad = useEntidad()
 const cartera = useCartera()
+const cuenta = useCuenta()
 const id = computed(() => entidad.activa?.entidad_id ?? '')
 const hoy = hoyEn(entidad.zonaHoraria)
 const permisos = computed(() => ({ aprobar: entidad.tienePermiso('cartera.liquidar'), anular: entidad.tienePermiso('cartera.ajustar') }))
@@ -39,7 +41,9 @@ const form = ref({ bien: '', cuotas: '3', primer: sumarDias(hoy, 30), observacio
 const problema = ref<string | null>(null)
 
 const opcionesEstado = (Object.keys(ESTADO_ACUERDO) as EstadoAcuerdo[]).map((valor) => ({ valor, etiqueta: ESTADO_ACUERDO[valor].texto }))
-const filas = computed(() => lista.value.filter((a) => !filtro.value || a.estado === filtro.value))
+const filas = computed(() =>
+  lista.value.filter((a) => !filtro.value || a.estado === filtro.value).map((a) => ({ a, acciones: accionesAcuerdo(a, permisos.value, cuenta.id) })),
+)
 
 const proponer = useAccion((clave) =>
   proponerAcuerdo(id.value, { bien_privado_id: form.value.bien, numero_cuotas: Number(form.value.cuotas), primer_vencimiento: form.value.primer, observaciones: form.value.observaciones.trim() || null }, clave),
@@ -72,7 +76,7 @@ async function alAnular(a: AcuerdoPago) {
 
 async function cargar() {
   try {
-    const [l] = await Promise.all([pedirAcuerdos(id.value), cartera.asegurar(id.value)])
+    const [l] = await Promise.all([pedirAcuerdos(id.value), cartera.asegurar(id.value), cuenta.asegurar().catch(() => undefined)])
     lista.value = l
     estado.value = 'listo'
   } catch (e) {
@@ -200,13 +204,14 @@ onMounted(cargar)
       aria-label="Acuerdos de pago"
     >
       <li
-        v-for="a in filas"
+        v-for="{ a, acciones } in filas"
         :key="a.id"
       >
         <span class="crece">
           <strong>{{ cartera.codigo(a.bien_privado_id) }} · {{ moneda(a.valor) }} en {{ a.cuotas.length }} cuota{{ a.cuotas.length === 1 ? '' : 's' }}</strong>
           <small>Desde el {{ fechaCalendario(a.fecha) }} · primera cuota el {{ a.cuotas[0] ? fechaCalendario(a.cuotas[0].vencimiento) : '—' }}{{ a.pagado ? ` · pagado ${moneda(a.pagado)}` : '' }}</small>
           <small v-if="a.observaciones">{{ a.observaciones }}</small>
+          <small v-if="a.estado === 'propuesto' && a.propuesto_por === cuenta.id">Lo propuso usted: lo aprueba otra cuenta con permiso para liquidar.</small>
         </span>
         <HudInsignia :tono="ESTADO_ACUERDO[a.estado].tono">
           {{ ESTADO_ACUERDO[a.estado].texto }}
@@ -219,7 +224,7 @@ onMounted(cargar)
         </HudInsignia>
         <span class="botones">
           <HudBoton
-            v-if="accionesAcuerdo(a, permisos).includes('aprobar')"
+            v-if="acciones.includes('aprobar')"
             variante="secundario"
             :cargando="aprobar.cargando.value"
             @click="alAprobar(a)"
@@ -227,7 +232,7 @@ onMounted(cargar)
             Aprobar<span class="solo-lector"> el acuerdo de {{ cartera.codigo(a.bien_privado_id) }}</span>
           </HudBoton>
           <HudBoton
-            v-if="accionesAcuerdo(a, permisos).includes('anular')"
+            v-if="acciones.includes('anular')"
             variante="fantasma"
             :cargando="anular.cargando.value"
             @click="alAnular(a)"

@@ -64,7 +64,7 @@ let cuentas: CuentaCobro[] = []
 let recibos: (Recibo & { bien: string })[] = []
 let pagos: { recibo_id: string; fecha: string; obligacion_id: string; valor: string }[] = []
 let causaciones: (CausacionIntereses & { detalle: DetalleInteres[] })[] = []
-let acuerdos: (AcuerdoPago & { propuesto_por: string })[] = []
+let acuerdos: AcuerdoPago[] = []
 let certificados: CertificadoCartera[] = []
 let consecutivo = 82000
 let cuentaActual = ''
@@ -290,13 +290,14 @@ export function iniciarCartera(usuario: string): void {
 
 const hace = (dias: number) => new Date(Date.now() - dias * 86_400_000).toISOString()
 
-function acuerdoDemo(n: number, bienId: string, estado: AcuerdoPago['estado'], por: string, numero: number): AcuerdoPago & { propuesto_por: string } {
+function acuerdoDemo(n: number, bienId: string, estado: AcuerdoPago['estado'], por: string, numero: number): AcuerdoPago {
   const deuda = estadoCuenta(bienId).saldo
   const cuota = n2(num(deuda) / numero)
   return {
     id: id(n), bien_privado_id: bienId, deudor_persona_id: deudor(bienId), fecha: fechaDemo(-10), valor: deuda, estado, observaciones: 'Acuerdo de pago con el propietario', creado_en: hace(10),
     aprobado_en: estado === 'vigente' ? hace(8) : null, cuotas: Array.from({ length: numero }, (_, i) => ({ numero: i + 1, vencimiento: fechaDemo(20 + 30 * i), valor: cuota })),
     pagado: '0.00', situacion: estado === 'vigente' ? 'al_dia' : null, propuesto_por: por,
+    aprobado_por: estado === 'vigente' ? cuentaActual : null,
   }
 }
 
@@ -306,8 +307,6 @@ function sin<T extends object, K extends keyof T>(o: T, clave: K): Omit<T, K> {
   delete copia[clave]
   return copia as Omit<T, K>
 }
-
-const sinPropuesto = (a: AcuerdoPago & { propuesto_por: string }): AcuerdoPago => sin(a, 'propuesto_por')
 
 export const cartera: Manejador = async (req, ruta) => {
   const b = ruta.match(/^\/copropiedades\/[^/]+\/cartera(\/.*)$/)
@@ -662,7 +661,7 @@ export const cartera: Manejador = async (req, ruta) => {
 
   // Acuerdos
   if (r === '/acuerdos') {
-    if (m === 'GET') return json(acuerdos.filter((a) => !q.get('bien_privado_id') || a.bien_privado_id === q.get('bien_privado_id')).map(sinPropuesto))
+    if (m === 'GET') return json(acuerdos.filter((a) => !q.get('bien_privado_id') || a.bien_privado_id === q.get('bien_privado_id')))
     if (m === 'POST') {
       const d = await cuerpo<NuevoAcuerdoPago>(req)
       const e = estadoCuenta(d.bien_privado_id)
@@ -673,10 +672,10 @@ export const cartera: Manejador = async (req, ruta) => {
       const nuevo = {
         id: id(++consecutivo), bien_privado_id: d.bien_privado_id, deudor_persona_id: deudor(d.bien_privado_id), fecha: d.fecha ?? hoy(), valor: e.saldo, estado: 'propuesto' as const,
         observaciones: d.observaciones ?? null, creado_en: ahora(), cuotas: Array.from({ length: d.numero_cuotas }, (_, i) => ({ numero: i + 1, vencimiento: moverPeriodo(d.primer_vencimiento, i).slice(0, 8) + d.primer_vencimiento.slice(8), valor: cuota })),
-        pagado: '0.00', situacion: null, propuesto_por: cuentaActual,
+        pagado: '0.00', situacion: null, propuesto_por: cuentaActual, aprobado_por: null,
       }
       acuerdos.unshift(nuevo)
-      return json(sinPropuesto(nuevo), 201)
+      return json(nuevo, 201)
     }
   }
   const ac = r.match(/^\/acuerdos\/([^/]+)\/(aprobacion|anulacion)$/)
@@ -686,12 +685,12 @@ export const cartera: Manejador = async (req, ruta) => {
     if (ac[2] === 'aprobacion') {
       if (a.estado !== 'propuesto') return error(409, 'conflicto_estado', 'El acuerdo ya no está propuesto.')
       if (a.propuesto_por === cuentaActual) return error(409, 'conflicto', 'Usted propuso este acuerdo: lo debe aprobar otra cuenta.')
-      Object.assign(a, { estado: 'vigente', aprobado_en: ahora(), situacion: 'al_dia' })
-      return json(sinPropuesto(a))
+      Object.assign(a, { estado: 'vigente', aprobado_en: ahora(), aprobado_por: cuentaActual, situacion: 'al_dia' })
+      return json(a)
     }
     if (a.estado !== 'propuesto' && a.estado !== 'vigente') return error(409, 'conflicto_estado', 'Solo se anula un acuerdo propuesto o vigente.')
     Object.assign(a, { estado: 'anulado', cerrado_en: ahora(), situacion: null })
-    return json(sinPropuesto(a))
+    return json(a)
   }
 
   // Integraciones
