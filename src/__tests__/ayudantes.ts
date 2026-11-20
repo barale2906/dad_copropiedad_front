@@ -4,13 +4,14 @@ import { vi } from 'vitest'
 import { type ConfigApp, cargarConfig } from '@/app/config'
 import { iniciarCliente } from '@/api/cliente'
 import type { Capacidades, EntidadDeLaCuenta } from '@/api/tipos'
-import { fetchDemo } from '@/mocks/demo'
+import { fetchDemo, sinLatenciaDemo } from '@/mocks/demo'
 import { useEntidad } from '@/stores/entidad'
 
 export const API = 'http://api.prueba'
 
 /** Pinia limpio + cliente HTTP contra el backend simulado del modo demo. */
 export function prepararConDemo(): void {
+  sinLatenciaDemo()
   localStorage.clear()
   setActivePinia(createPinia())
   iniciarCliente(API, fetchDemo)

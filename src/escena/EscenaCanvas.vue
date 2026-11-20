@@ -7,10 +7,10 @@ import { onBeforeUnmount, onMounted, shallowRef, useTemplateRef, watch } from 'v
 import { movimientoReducido, type PerfilCalidad } from './calidad'
 import { type EstadoZona, type EtiquetaPos, type Holgura, Motor } from './motor'
 import { conjunto } from './plantillas/conjunto'
-import { oficina } from './plantillas/oficina'
+import { oficina, plataforma } from './plantillas/oficina'
 import type { IdPlantilla } from './plantillas/zonas'
 
-const PLANTILLAS = { conjunto, oficina }
+const PLANTILLAS = { conjunto, oficina, plataforma }
 
 const props = withDefaults(
   defineProps<{

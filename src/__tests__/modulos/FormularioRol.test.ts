@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 import type { Permiso, Rol } from '@/api/tipos'
-import FormularioRol from '@/modulos/entidad/componentes/FormularioRol.vue'
+import FormularioRol from '@/hud/componentes/FormularioRol.vue'
 
 const ROLES = [
   { id: 'r1', codigo: 'contador', nombre: 'Contador', permisos: ['contabilidad.ver', 'cartera.ajustar'] },

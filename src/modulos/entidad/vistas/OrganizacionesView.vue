@@ -7,6 +7,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { mensajeDeError } from '@/api/errores'
 import type { ContratoServicio, CuentaEncontrada, Rol } from '@/api/tipos'
+import { listarRoles } from '@/api/usuarios'
 import { useAccion } from '@/composables/useAccion'
 import { moneda } from '@/formato/decimales'
 import { fecha } from '@/formato/fechas'
@@ -18,11 +19,10 @@ import HudSelector from '@/hud/componentes/HudSelector.vue'
 import HudTabla from '@/hud/componentes/HudTabla.vue'
 import { useEntidad } from '@/stores/entidad'
 import IMas from '~icons/tabler/plus'
-import { listarRoles } from '../api'
 import { asignarPorContrato, contratos, terminarContrato } from '../api-organizaciones'
 import BuscarCuenta from '../componentes/BuscarCuenta.vue'
 import VincularOrganizacion from '../componentes/VincularOrganizacion.vue'
-import { TIPO_ORGANIZACION } from '../organizaciones'
+import { TIPO_ORGANIZACION } from '@/formato/organizaciones'
 
 const entidad = useEntidad()
 const id = computed(() => entidad.activa?.entidad_id ?? '')

@@ -227,6 +227,13 @@ export const entidad: Manejador = async (req, ruta) => {
     const cuenta = new URL(req.url).searchParams.get('cuenta_id')
     return json(asignaciones.filter((a) => !cuenta || a.cuenta_id === cuenta).reverse())
   }
+  if (m === 'POST' && base === '/asignaciones') {
+    const p = await cuerpo<{ cuenta_id: string; rol_id: string }>(req)
+    const rol = ROLES.find((r) => r.id === p.rol_id)
+    if (!rol) return error(404, 'no_encontrado', 'El rol no existe en la entidad.')
+    const a = asignar(p.cuenta_id, rol.codigo)
+    return a ? json(a, 201) : error(422, 'validacion', 'No se pudo asignar el rol.')
+  }
   const quitar = base.match(/^\/asignaciones\/([^/]+)$/)
   if (m === 'DELETE' && quitar) {
     const a = asignaciones.find((x) => x.id === quitar[1])

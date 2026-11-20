@@ -115,6 +115,10 @@ function alTecla(e: KeyboardEvent) {
             Módulo no contratado. Escríbanos para activarlo en esta entidad.
           </span>
           <span v-else-if="s.estado === 'proximamente'">Disponible próximamente.</span>
+          <span v-else-if="nav.sinSegundoFactor(s.seccion.slug)">
+            La consola exige el segundo factor.
+            <RouterLink :to="{ name: 'cuenta', hash: '#segundo-factor' }">Actívelo en Mi cuenta</RouterLink>.
+          </span>
           <span v-else>Su rol no tiene permisos en este módulo.</span>
         </p>
       </section>

@@ -1,8 +1,8 @@
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 import type { Permiso } from '@/api/tipos'
-import MatrizPermisos from '@/modulos/entidad/componentes/MatrizPermisos.vue'
-import type { GrupoPermisos } from '@/modulos/entidad/permisos'
+import MatrizPermisos from '@/hud/componentes/MatrizPermisos.vue'
+import type { GrupoPermisos } from '@/formato/permisos'
 
 const GRUPOS: GrupoPermisos[] = [
   {

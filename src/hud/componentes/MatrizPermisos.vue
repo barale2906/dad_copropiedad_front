@@ -8,9 +8,9 @@
  */
 import { computed, ref } from 'vue'
 import type { Permiso } from '@/api/tipos'
-import HudCampo from '@/hud/componentes/HudCampo.vue'
+import HudCampo from './HudCampo.vue'
 import IBuscar from '~icons/tabler/search'
-import type { GrupoPermisos } from '../permisos'
+import type { GrupoPermisos } from '@/formato/permisos'
 
 const props = withDefaults(
   defineProps<{

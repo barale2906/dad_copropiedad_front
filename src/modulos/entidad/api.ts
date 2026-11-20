@@ -1,9 +1,7 @@
 /** Llamadas del módulo «Datos y usuarios» (`/entidades/{id}/…`). */
 import { descargar } from '@/api/archivos'
-import { api, exigir, idempotencia } from '@/api/cliente'
-import { ErrorApi } from '@/api/errores'
+import { api, exigir, idempotencia, siExiste } from '@/api/cliente'
 import type {
-  Asignacion,
   CambiosCopropiedad,
   CambiosEntidad,
   DatosCopropiedad,
@@ -14,92 +12,10 @@ import type {
   NuevoPuntoAtencion,
   PuntoAtencion,
   Importacion,
-  NuevoRol,
-  NuevoUsuario,
-  Permiso,
-  PermisoDelCatalogo,
-  Rol,
-  UsuarioCreado,
   VistaPreviaUsuarios,
 } from '@/api/tipos'
 
 const ruta = (entidadId: string) => ({ path: { entidad_id: entidadId } })
-
-/** Página de usuarios de la entidad (búsqueda `q` por nombre, usuario o correo). */
-export function listarUsuarios(entidadId: string, despues?: string, q?: string) {
-  return exigir(
-    api().GET('/api/v1/entidades/{entidad_id}/usuarios', {
-      params: { ...ruta(entidadId), query: { limite: 50, despues, q: q?.trim() || undefined } },
-    }),
-  )
-}
-
-/** Crea el usuario con su rol, o asigna el rol a la cuenta que ya tiene ese correo. */
-export function crearUsuario(entidadId: string, datos: NuevoUsuario, clave: string): Promise<UsuarioCreado> {
-  return exigir(
-    api().POST('/api/v1/entidades/{entidad_id}/usuarios', {
-      params: ruta(entidadId),
-      body: datos,
-      headers: idempotencia(clave),
-    }),
-  )
-}
-
-export async function reenviarCodigo(entidadId: string, cuentaId: string): Promise<void> {
-  await exigir(
-    api().POST('/api/v1/entidades/{entidad_id}/usuarios/{cuenta_id}/codigo-contrasena', {
-      params: { path: { entidad_id: entidadId, cuenta_id: cuentaId } },
-    }),
-  )
-}
-
-export function listarRoles(entidadId: string): Promise<Rol[]> {
-  return exigir(api().GET('/api/v1/entidades/{entidad_id}/roles', { params: ruta(entidadId) }))
-}
-
-/** Catálogo completo de permisos (de la plataforma y de las entidades). */
-export function catalogoPermisos(): Promise<PermisoDelCatalogo[]> {
-  return exigir(api().GET('/api/v1/permisos'))
-}
-
-/** Crea un rol propio (403 si incluye permisos que quien lo crea no tiene; 409 si el código existe). */
-export function crearRol(entidadId: string, datos: NuevoRol, clave: string): Promise<Rol> {
-  return exigir(
-    api().POST('/api/v1/entidades/{entidad_id}/roles', {
-      params: ruta(entidadId),
-      body: datos,
-      headers: idempotencia(clave),
-    }),
-  )
-}
-
-/** Reemplaza los permisos de un rol propio (las plantillas responden 409). */
-export function cambiarPermisos(entidadId: string, rolId: string, permisos: Permiso[]): Promise<Rol> {
-  return exigir(
-    api().PUT('/api/v1/entidades/{entidad_id}/roles/{rol_id}/permisos', {
-      params: { path: { entidad_id: entidadId, rol_id: rolId } },
-      body: { permisos },
-    }),
-  )
-}
-
-/** Historial de asignaciones de una cuenta en la entidad (más recientes primero). */
-export function asignacionesDe(entidadId: string, cuentaId: string): Promise<Asignacion[]> {
-  return exigir(
-    api().GET('/api/v1/entidades/{entidad_id}/asignaciones', {
-      params: { ...ruta(entidadId), query: { cuenta_id: cuentaId } },
-    }),
-  )
-}
-
-/** Termina una asignación desde ahora (409 si dejaría la entidad sin administrador). */
-export async function quitarAsignacion(entidadId: string, asignacionId: string): Promise<void> {
-  await exigir(
-    api().DELETE('/api/v1/entidades/{entidad_id}/asignaciones/{asignacion_id}', {
-      params: { path: { entidad_id: entidadId, asignacion_id: asignacionId } },
-    }),
-  )
-}
 
 export function descargarPlantilla(entidadId: string) {
   return descargar(
@@ -185,13 +101,8 @@ export async function cambiarHorario(copropiedadId: string, puntoId: string, hor
 export type SuscripcionDeLaEntidad = MiSuscripcion
 
 /** Plan, consumo y facturas de la entidad con la plataforma; `null` si no tiene suscripción (404). */
-export async function miSuscripcion(entidadId: string): Promise<SuscripcionDeLaEntidad | null> {
-  try {
-    return await exigir(api().GET('/api/v1/entidades/{entidad_id}/suscripcion', { params: ruta(entidadId) }))
-  } catch (e) {
-    if (e instanceof ErrorApi && e.estado === 404) return null
-    throw e
-  }
+export function miSuscripcion(entidadId: string): Promise<SuscripcionDeLaEntidad | null> {
+  return siExiste(exigir(api().GET('/api/v1/entidades/{entidad_id}/suscripcion', { params: ruta(entidadId) })))
 }
 
 export interface FiltrosAuditoria {

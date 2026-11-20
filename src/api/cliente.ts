@@ -80,6 +80,19 @@ export async function exigir<T>(
   return r.data as T
 }
 
+/**
+ * `null` si la respuesta es 404: en las búsquedas exactas y los recursos opcionales (una cuenta,
+ * una organización por NIT, la suscripción) el 404 significa «no existe», no un error.
+ */
+export async function siExiste<T>(p: Promise<T>): Promise<T | null> {
+  try {
+    return await p
+  } catch (e) {
+    if (e instanceof ErrorApi && e.estado === 404) return null
+    throw e
+  }
+}
+
 /** Cabecera `Idempotency-Key`: genere una por acción del usuario y reutilícela al reintentar. */
 export function idempotencia(clave: string = uuid()): { 'Idempotency-Key': string } {
   return { 'Idempotency-Key': clave }

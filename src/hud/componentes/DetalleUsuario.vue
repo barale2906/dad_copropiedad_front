@@ -1,60 +1,27 @@
 <script setup lang="ts">
 /**
  * Detalle de un usuario: sus roles vigentes (quitar los asignados a mano; así se inactiva a
- * alguien en la entidad) y reenviar el código si aún no define su contraseña.
+ * alguien en la entidad) y reenviar el código si aún no define su contraseña. Solo presenta: la
+ * lógica llega en `detalle` (`useDetalleUsuario`, por la ruta de la entidad o de la plataforma).
  */
 import { ref, watch } from 'vue'
-import { mensajeDeError } from '@/api/errores'
-import type { Rol, Usuario } from '@/api/tipos'
-import { useAccion } from '@/composables/useAccion'
-import HudBoton from '@/hud/componentes/HudBoton.vue'
-import HudDialogo from '@/hud/componentes/HudDialogo.vue'
-import HudEstado from '@/hud/componentes/HudEstado.vue'
-import HudInsignia from '@/hud/componentes/HudInsignia.vue'
-import { asignacionesDe, quitarAsignacion, reenviarCodigo } from '../api'
-import { type AsignacionVisible, asignacionesVigentes, estadoDeUsuario, textoOrigen } from '../usuarios'
+import type { Usuario } from '@/api/tipos'
+import { type AsignacionVisible, type EstadoDetalleUsuario, estadoDeUsuario, textoOrigen } from '@/formato/usuarios'
+import HudBoton from './HudBoton.vue'
+import HudDialogo from './HudDialogo.vue'
+import HudEstado from './HudEstado.vue'
+import HudInsignia from './HudInsignia.vue'
 
-const props = defineProps<{ usuario: Usuario | null; roles: Rol[]; entidadId: string; puedeAsignar: boolean }>()
+const props = defineProps<{ usuario: Usuario | null; detalle: EstadoDetalleUsuario; puedeAsignar: boolean }>()
 const abierto = defineModel<boolean>('abierto', { required: true })
-const emit = defineEmits<{ cambio: [] }>()
 
-const estado = ref<'cargando' | 'listo' | 'error'>('cargando')
-const errorCarga = ref<string | null>(null)
-const asignaciones = ref<AsignacionVisible[]>([])
 const porQuitar = ref<AsignacionVisible | null>(null)
-const codigoEnviado = ref(false)
 
-async function cargar() {
-  if (!props.usuario) return
-  estado.value = 'cargando'
-  try {
-    asignaciones.value = asignacionesVigentes(await asignacionesDe(props.entidadId, props.usuario.cuenta_id), props.roles)
-    estado.value = 'listo'
-  } catch (e) {
-    errorCarga.value = mensajeDeError(e)
-    estado.value = 'error'
-  }
+watch(abierto, () => (porQuitar.value = null))
+
+async function confirmarQuitar(id: string) {
+  if (await props.detalle.quitar(id)) porQuitar.value = null
 }
-
-const quitar = useAccion((_clave, id: string) => quitarAsignacion(props.entidadId, id), {
-  alExito: () => {
-    porQuitar.value = null
-    emit('cambio')
-    void cargar()
-  },
-})
-const reenviar = useAccion(() => reenviarCodigo(props.entidadId, props.usuario?.cuenta_id ?? ''), {
-  alExito: () => (codigoEnviado.value = true),
-})
-
-watch(abierto, (si) => {
-  if (!si) return
-  porQuitar.value = null
-  codigoEnviado.value = false
-  quitar.reiniciar()
-  reenviar.reiniciar()
-  void cargar()
-})
 </script>
 
 <template>
@@ -78,41 +45,41 @@ watch(abierto, (si) => {
         <p>Aún no define su contraseña. Si el código venció o no le llegó, envíele otro.</p>
         <HudBoton
           variante="secundario"
-          :cargando="reenviar.cargando.value"
-          @click="reenviar.ejecutar()"
+          :cargando="detalle.reenviando"
+          @click="detalle.reenviar()"
         >
           Reenviar código
         </HudBoton>
         <p
-          v-if="codigoEnviado"
+          v-if="detalle.codigoEnviado"
           role="status"
           class="exito"
         >
           Le enviamos un código nuevo a {{ usuario.correo }}.
         </p>
         <p
-          v-if="reenviar.error.value"
+          v-if="detalle.errorReenviar"
           role="alert"
           class="error"
         >
-          {{ reenviar.error.value }}
+          {{ detalle.errorReenviar }}
         </p>
       </section>
 
       <h3>Roles en la entidad</h3>
       <HudEstado
-        v-if="estado === 'cargando'"
+        v-if="detalle.estado === 'cargando'"
         estado="cargando"
         :filas="2"
       />
       <HudEstado
-        v-else-if="estado === 'error'"
+        v-else-if="detalle.estado === 'error'"
         estado="error"
-        :mensaje="errorCarga ?? undefined"
-        @reintentar="cargar"
+        :mensaje="detalle.error ?? undefined"
+        @reintentar="detalle.cargar()"
       />
       <HudEstado
-        v-else-if="asignaciones.length === 0"
+        v-else-if="detalle.asignaciones.length === 0"
         estado="vacio"
         mensaje="No tiene roles vigentes en esta entidad."
       />
@@ -121,7 +88,7 @@ watch(abierto, (si) => {
         class="roles"
       >
         <li
-          v-for="a in asignaciones"
+          v-for="a in detalle.asignaciones"
           :key="a.id"
         >
           <span>
@@ -149,11 +116,11 @@ watch(abierto, (si) => {
           sus permisos desde ahora.
         </p>
         <p
-          v-if="quitar.error.value"
+          v-if="detalle.errorQuitar"
           role="alert"
           class="error"
         >
-          {{ quitar.error.value }}
+          {{ detalle.errorQuitar }}
         </p>
         <div class="botones">
           <HudBoton
@@ -163,8 +130,8 @@ watch(abierto, (si) => {
             Cancelar
           </HudBoton>
           <HudBoton
-            :cargando="quitar.cargando.value"
-            @click="quitar.ejecutar(porQuitar.id)"
+            :cargando="detalle.quitando"
+            @click="confirmarQuitar(porQuitar.id)"
           >
             Quitar rol
           </HudBoton>

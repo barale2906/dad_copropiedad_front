@@ -1,17 +1,9 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import type { Asignacion, Rol } from '@/api/tipos'
 import { limpiar } from '@/api/tokens'
-import {
-  asignacionesDe,
-  confirmarImportacion,
-  crearUsuario,
-  importarUsuarios,
-  listarRoles,
-  listarUsuarios,
-  quitarAsignacion,
-  reenviarCodigo,
-} from '@/modulos/entidad/api'
-import { asignacionesVigentes, estadoDeUsuario, nombresDeRoles, textoOrigen, vigente } from '@/modulos/entidad/usuarios'
+import { asignacionesDe, crearUsuario, listarRoles, listarUsuarios, quitarAsignacion, reenviarCodigo } from '@/api/usuarios'
+import { asignacionesVigentes, estadoDeUsuario, nombresDeRoles, textoOrigen, vigente } from '@/formato/usuarios'
+import { confirmarImportacion, importarUsuarios } from '@/modulos/entidad/api'
 import { useSesion } from '@/stores/sesion'
 import { prepararConDemo } from '../ayudantes'
 

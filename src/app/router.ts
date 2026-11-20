@@ -2,6 +2,7 @@ import { createRouter, createWebHistory, type RouteLocationNormalized } from 'vu
 import { SECCIONES } from '@/escena/mapa-modulos'
 import LoginView from '@/pantallas/LoginView.vue'
 import SelectorEntidadView from '@/pantallas/SelectorEntidadView.vue'
+import { useCuenta } from '@/stores/cuenta'
 import { useEntidad } from '@/stores/entidad'
 import { useSesion } from '@/stores/sesion'
 
@@ -86,11 +87,14 @@ router.beforeEach(async (to) => {
     return { name: 'ingresar', query: to.fullPath !== '/' ? { volver: to.fullPath } : {} }
   }
   if (to.meta.entidad) {
+    const entidad = useEntidad()
     try {
-      await useEntidad().entrar(String(to.params.entidadId))
+      await entidad.entrar(String(to.params.entidadId))
     } catch {
       return { name: 'entidades' }
     }
+    // La consola de la plataforma se habilita con los permisos de `GET /yo` (y su segundo factor).
+    if (entidad.capacidades?.tipo === 'plataforma') await useCuenta().asegurar().catch(() => undefined)
   }
   return existeEnElMapa(to) || noEncontrado(to)
 })

@@ -25,7 +25,7 @@ import {
   revocarAutorizacion,
   tramitarSolicitud,
 } from '@/modulos/entidad/api-proteccion'
-import { normalizarNit, tiposConocidos } from '@/modulos/entidad/organizaciones'
+import { normalizarNit, tiposConocidos } from '@/formato/organizaciones'
 import { accionesDeSolicitud, finalidadesVigentes, plazoVisible, venceEl } from '@/modulos/entidad/proteccion'
 import { useSesion } from '@/stores/sesion'
 import { conRespuesta, prepararConDemo } from '../ayudantes'

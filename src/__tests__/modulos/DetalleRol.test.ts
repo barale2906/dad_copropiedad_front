@@ -2,7 +2,7 @@ import { flushPromises, mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { Rol } from '@/api/tipos'
 import DetalleRol from '@/modulos/entidad/componentes/DetalleRol.vue'
-import type { GrupoPermisos } from '@/modulos/entidad/permisos'
+import type { GrupoPermisos } from '@/formato/permisos'
 import { conCapacidades, conRespuesta, ENTIDAD_PH, prepararConDemo } from '../ayudantes'
 
 vi.mock('vue-router', () => ({ useRouter: () => ({ push: vi.fn() }) }))

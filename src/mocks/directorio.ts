@@ -25,7 +25,8 @@ const categoria = (codigo: string, nombre: string, padre: string | null = null, 
   codigo, nombre, padre, sinonimos, restringida, activa: true,
 })
 
-const CATEGORIAS: CategoriaDirectorio[] = [
+/** Catálogo del demo (la plataforma también lo edita: `plataforma.ts`). */
+export const CATEGORIAS: CategoriaDirectorio[] = [
   categoria('hogar', 'Hogar y reparaciones'),
   categoria('plomeria', 'Plomería', 'hogar', ['plomero', 'fontanero', 'fuga']),
   categoria('electrodomesticos', 'Electrodomésticos', 'hogar', ['lavadora', 'lavadoras', 'nevera', 'técnico']),

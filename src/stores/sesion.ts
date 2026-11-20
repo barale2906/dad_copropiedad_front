@@ -103,6 +103,15 @@ export const useSesion = defineStore('sesion', () => {
     }
   }
 
+  /**
+   * Agrega a la sesión una entidad que la cuenta abre como **soporte** de la plataforma (no está
+   * en sus entidades): así se puede entrar a ella con las rutas normales durante el acceso.
+   */
+  function agregarSoporte(e: EntidadDeLaCuenta): void {
+    if (entidades.value.some((x) => x.entidad_id === e.entidad_id)) return
+    entidades.value = [...entidades.value, { ...e, roles: ['soporte'] }]
+  }
+
   /** Limpia el estado local (también cuando la sesión vence o se cierra en otra pestaña). */
   function alTerminar(): void {
     estado.value = 'anonimo'
@@ -121,5 +130,6 @@ export const useSesion = defineStore('sesion', () => {
     definirContrasena,
     cerrar,
     alTerminar,
+    agregarSoporte,
   }
 })

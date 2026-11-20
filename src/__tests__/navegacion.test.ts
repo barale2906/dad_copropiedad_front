@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { useNavegacion } from '@/pantallas/navegacion'
+import { useCuenta } from '@/stores/cuenta'
 import { conCapacidades, ENTIDAD_PH, prepararConDemo } from './ayudantes'
 
 describe('useNavegacion', () => {
@@ -44,9 +45,33 @@ describe('useNavegacion', () => {
   })
 
 
-  it('la plataforma usa la maqueta de oficina', () => {
+  it('la plataforma usa la oficina con el centro de operación', () => {
     conCapacidades({ tipo: 'plataforma', modulos: [], permisos: [] }, { ...ENTIDAD_PH, tipo: 'plataforma' })
-    expect(useNavegacion().plantilla.value).toBe('oficina')
+    const nav = useNavegacion()
+    expect(nav.plantilla.value).toBe('plataforma')
+    expect(nav.zonas.value.map((z) => z.id)).toContain('centro-operacion')
+  })
+
+  it('el centro de operación se habilita con los permisos de plataforma de la cuenta y su segundo factor', () => {
+    conCapacidades({ tipo: 'plataforma', modulos: [], permisos: [] }, { ...ENTIDAD_PH, tipo: 'plataforma' })
+    const cuenta = useCuenta()
+    const nav = useNavegacion()
+    expect(nav.estadosZonas.value['centro-operacion']).toBe('sin_acceso')
+    expect(nav.sinSegundoFactor('plataforma')).toBe(false)
+    cuenta.perfil = { id: 'c', nombre: 'Ana', correo_verificado: true, segundo_factor_activo: false, es_superusuario: false, permisos_plataforma: ['plataforma.copropiedades.ver'] }
+    expect(nav.estadosZonas.value['centro-operacion']).toBe('sin_acceso')
+    expect(nav.sinSegundoFactor('plataforma')).toBe(true)
+    cuenta.perfil = { ...cuenta.perfil, segundo_factor_activo: true }
+    expect(nav.estadosZonas.value['centro-operacion']).toBe('activa')
+    expect(nav.vistaSeccion('plataforma')!.acciones.map((a) => a.id)).toEqual(['clientes'])
+  })
+
+  it('la empresa no tiene centro de operación aunque la cuenta tenga permisos de plataforma', () => {
+    conCapacidades({ tipo: 'empresa', modulos: [], permisos: [] }, { ...ENTIDAD_PH, tipo: 'empresa' })
+    useCuenta().perfil = { id: 'c', nombre: 'Ana', correo_verificado: true, segundo_factor_activo: true, es_superusuario: true, permisos_plataforma: ['plataforma.copropiedades.ver'] }
+    const nav = useNavegacion()
+    expect(nav.zonas.value.some((z) => z.id === 'centro-operacion')).toBe(false)
+    expect(nav.vistaSeccion('plataforma')!.estado).toBe('sin_acceso')
   })
 
   it('en la empresa el directorio no ofrece las acciones propias de la PH', () => {

@@ -13,6 +13,7 @@ import IHogar from '~icons/tabler/home-heart'
 import IImpuesto from '~icons/tabler/receipt-tax'
 import ILista from '~icons/tabler/clipboard-list'
 import IPiscina from '~icons/tabler/pool'
+import IRadar from '~icons/tabler/radar'
 import ITv from '~icons/tabler/device-tv'
 import IUsuarios from '~icons/tabler/users'
 import IBilletera from '~icons/tabler/wallet'
@@ -34,4 +35,5 @@ export const ICONOS: Record<string, Component> = {
   entidad: IFicha,
   archivo: IArchivo,
   nomina: IUsuarios,
+  plataforma: IRadar,
 }

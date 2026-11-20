@@ -5,7 +5,7 @@
  */
 import type { TipoEntidad } from '@/api/tipos'
 
-export type IdPlantilla = 'conjunto' | 'oficina'
+export type IdPlantilla = 'conjunto' | 'oficina' | 'plataforma'
 
 export interface ZonaInfo {
   id: string
@@ -15,6 +15,17 @@ export interface ZonaInfo {
   /** Se pasa como `?zona=` para dejar preseleccionado el bien común en el módulo. */
   zona?: string
 }
+
+const OFICINA: ZonaInfo[] = [
+  { id: 'recepcion', nombre: 'Recepción', secciones: ['entidad', 'directorio'] },
+  { id: 'contabilidad', nombre: 'Contabilidad', secciones: ['contabilidad'] },
+  { id: 'tesoreria', nombre: 'Tesorería', secciones: ['tesoreria'] },
+  { id: 'facturacion', nombre: 'Facturación', secciones: ['facturacion'] },
+  { id: 'tributario', nombre: 'Tributario', secciones: ['tributario'] },
+  { id: 'archivo', nombre: 'Archivo', secciones: ['archivo'] },
+  { id: 'sala-juntas', nombre: 'Sala de juntas', secciones: ['reportes'] },
+  { id: 'nomina', nombre: 'Nómina', secciones: ['nomina'] },
+]
 
 export const ZONAS: Record<IdPlantilla, ZonaInfo[]> = {
   conjunto: [
@@ -41,21 +52,15 @@ export const ZONAS: Record<IdPlantilla, ZonaInfo[]> = {
     { id: 'porteria', nombre: 'Portería', secciones: ['porteria'] },
     { id: 'pantalla', nombre: 'Pantalla del lobby', secciones: ['directorio'] },
   ],
-  oficina: [
-    { id: 'recepcion', nombre: 'Recepción', secciones: ['entidad', 'directorio'] },
-    { id: 'contabilidad', nombre: 'Contabilidad', secciones: ['contabilidad'] },
-    { id: 'tesoreria', nombre: 'Tesorería', secciones: ['tesoreria'] },
-    { id: 'facturacion', nombre: 'Facturación', secciones: ['facturacion'] },
-    { id: 'tributario', nombre: 'Tributario', secciones: ['tributario'] },
-    { id: 'archivo', nombre: 'Archivo', secciones: ['archivo'] },
-    { id: 'sala-juntas', nombre: 'Sala de juntas', secciones: ['reportes'] },
-    { id: 'nomina', nombre: 'Nómina', secciones: ['nomina'] },
-  ],
+  oficina: OFICINA,
+  // La entidad de la plataforma es una empresa más el centro de operación (la consola).
+  plataforma: [...OFICINA, { id: 'centro-operacion', nombre: 'Centro de operación', secciones: ['plataforma'] }],
 }
 
-/** La PH usa el conjunto; la empresa y la plataforma, la oficina. */
+/** La PH usa el conjunto; la empresa, la oficina; la plataforma, la oficina con el centro de operación. */
 export function plantillaDe(tipo: TipoEntidad): IdPlantilla {
-  return tipo === 'propiedad_horizontal' ? 'conjunto' : 'oficina'
+  if (tipo === 'propiedad_horizontal') return 'conjunto'
+  return tipo === 'plataforma' ? 'plataforma' : 'oficina'
 }
 
 /** Secciones de la plantilla sin repetir, en el orden en que aparecen las zonas. */

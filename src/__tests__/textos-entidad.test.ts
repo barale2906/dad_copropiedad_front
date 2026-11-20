@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { EstadoEntidad } from '@/api/tipos'
-import { avisoDeEstado, ESTADO_ENTIDAD } from '@/pantallas/textos-entidad'
+import { avisoDeEstado, ESTADO_ENTIDAD } from '@/formato/textos-entidad'
 
 describe('textos de la entidad', () => {
   it('una entidad activa no lleva aviso', () => {

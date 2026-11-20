@@ -16,7 +16,7 @@ import IFlecha from '~icons/tabler/chevron-right'
 import ISalir from '~icons/tabler/logout'
 import IUsuario from '~icons/tabler/user-circle'
 import MarcaDad from './componentes/MarcaDad.vue'
-import { ESTADO_ENTIDAD, TIPO_ENTIDAD } from './textos-entidad'
+import { ESTADO_ENTIDAD, TIPO_ENTIDAD } from '@/formato/textos-entidad'
 
 const sesion = useSesion()
 const entidad = useEntidad()

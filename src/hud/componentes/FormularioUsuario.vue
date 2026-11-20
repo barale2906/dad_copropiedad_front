@@ -5,10 +5,10 @@
  */
 import { computed, ref, watch } from 'vue'
 import type { NuevoUsuario, Rol } from '@/api/tipos'
-import HudBoton from '@/hud/componentes/HudBoton.vue'
-import HudCampo from '@/hud/componentes/HudCampo.vue'
-import HudDialogo from '@/hud/componentes/HudDialogo.vue'
-import HudSelector from '@/hud/componentes/HudSelector.vue'
+import HudBoton from './HudBoton.vue'
+import HudCampo from './HudCampo.vue'
+import HudDialogo from './HudDialogo.vue'
+import HudSelector from './HudSelector.vue'
 
 const props = withDefaults(defineProps<{ roles: Rol[]; cargando?: boolean; error?: string | null }>(), {
   cargando: false,

@@ -5,14 +5,14 @@
  */
 import { computed, ref, watch } from 'vue'
 import type { Permiso, Rol } from '@/api/tipos'
+import { cambiarPermisos } from '@/api/usuarios'
+import { diferencia, etiquetaPermiso, type GrupoPermisos, noOtorgables } from '@/formato/permisos'
 import { useAccion } from '@/composables/useAccion'
 import HudBoton from '@/hud/componentes/HudBoton.vue'
 import HudInsignia from '@/hud/componentes/HudInsignia.vue'
 import HudPanel from '@/hud/componentes/HudPanel.vue'
+import MatrizPermisos from '@/hud/componentes/MatrizPermisos.vue'
 import { useEntidad } from '@/stores/entidad'
-import { cambiarPermisos } from '../api'
-import { diferencia, etiquetaPermiso, type GrupoPermisos, noOtorgables } from '../permisos'
-import MatrizPermisos from './MatrizPermisos.vue'
 
 const props = defineProps<{
   rol: Rol

@@ -6,25 +6,26 @@
 import { computed, onMounted, ref } from 'vue'
 import { ErrorApi, mensajeDeError } from '@/api/errores'
 import type { NuevoUsuario, Rol, Usuario, UsuarioCreado } from '@/api/tipos'
+import { crearUsuario, listarRoles, listarUsuarios } from '@/api/usuarios'
 import { useAccion } from '@/composables/useAccion'
+import { useDetalleUsuario } from '@/composables/useDetalleUsuario'
 import { useListado } from '@/composables/useListado'
+import { estadoDeUsuario, nombresDeRoles } from '@/formato/usuarios'
 import { fechaHora } from '@/formato/fechas'
 import HudBoton from '@/hud/componentes/HudBoton.vue'
+import FormularioUsuario from '@/hud/componentes/FormularioUsuario.vue'
 import HudCampo from '@/hud/componentes/HudCampo.vue'
 import HudCargarMas from '@/hud/componentes/HudCargarMas.vue'
 import HudEstado from '@/hud/componentes/HudEstado.vue'
 import HudInsignia from '@/hud/componentes/HudInsignia.vue'
 import HudPanel from '@/hud/componentes/HudPanel.vue'
 import HudTabla from '@/hud/componentes/HudTabla.vue'
+import DetalleUsuario from '@/hud/componentes/DetalleUsuario.vue'
 import { useEntidad } from '@/stores/entidad'
 import IBuscar from '~icons/tabler/search'
 import IMas from '~icons/tabler/user-plus'
 import ISubir from '~icons/tabler/table-import'
-import { crearUsuario, listarRoles, listarUsuarios } from '../api'
-import DetalleUsuario from '../componentes/DetalleUsuario.vue'
-import FormularioUsuario from '../componentes/FormularioUsuario.vue'
 import ImportarUsuarios from '../componentes/ImportarUsuarios.vue'
-import { estadoDeUsuario, nombresDeRoles } from '../usuarios'
 
 const entidad = useEntidad()
 const entidadId = computed(() => entidad.activa?.entidad_id ?? '')
@@ -73,8 +74,15 @@ function abrirCrear() {
   creando.value = true
 }
 
+const detalle = useDetalleUsuario(
+  () => entidadId.value,
+  () => roles.value,
+  () => void usuarios.recargar(),
+)
+
 function gestionar(u: Usuario) {
   elegido.value = u
+  detalle.abrir(u)
   verDetalle.value = true
 }
 
@@ -236,10 +244,8 @@ onMounted(cargarRoles)
     <DetalleUsuario
       v-model:abierto="verDetalle"
       :usuario="elegido"
-      :roles="roles"
-      :entidad-id="entidadId"
+      :detalle="detalle"
       :puede-asignar="puedeAsignar"
-      @cambio="usuarios.recargar()"
     />
   </section>
 </template>

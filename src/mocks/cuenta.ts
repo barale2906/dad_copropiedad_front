@@ -1,5 +1,5 @@
 /** Demo de la cuenta del usuario (`/yo/…`) y de «definir contraseña». */
-import type { DispositivoPush, Perfil } from '@/api/tipos'
+import type { DispositivoPush, Perfil, Permiso } from '@/api/tipos'
 import { CODIGO_DEMO, cuerpo, error, json, type Manejador, sinContenido } from './http'
 
 let perfil: Perfil | null = null
@@ -13,6 +13,20 @@ let dispositivos: DispositivoPush[] = []
 export const cuentaDemoId = (usuario: string) =>
   usuario.includes('revisor') ? '01930000-0000-7000-8000-00000000c002' : '01930000-0000-7000-8000-00000000c001'
 
+/** Todos los permisos de plataforma: los tienen los usuarios demo `plataforma` y `operador`. */
+export const PERMISOS_PLATAFORMA: Permiso[] = [
+  'plataforma.copropiedades.crear', 'plataforma.copropiedades.ver', 'plataforma.cuentas.ver', 'plataforma.cuentas.bloquear',
+  'plataforma.cuentas.crear', 'plataforma.roles.gestionar', 'plataforma.roles.asignar', 'plataforma.organizaciones.revisar',
+  'plataforma.modulos.gestionar', 'plataforma.entidades.crear', 'plataforma.entidades.usuarios', 'plataforma.soporte.ver',
+  'plataforma.entidad_propia.designar', 'plataforma.plantillas_contables.publicar', 'plataforma.normativa.gestionar',
+  'plataforma.auditoria.ver', 'plataforma.publicidad.moderar', 'plataforma.publicidad.gestionar', 'plataforma.publicidad.liquidar',
+  'plataforma.directorio.gestionar', 'plataforma.facturacion.ver', 'plataforma.comercial.gestionar', 'plataforma.cobros.aprobar',
+  'plataforma.cobros.facturar', 'plataforma.whatsapp.gestionar',
+]
+
+/** Usuario demo del equipo de la plataforma: `plataforma` (con segundo factor) u `operador` (sin él). */
+export const esDePlataforma = (usuario: string) => usuario.includes('plataforma') || usuario.includes('operador')
+
 export function iniciarCuenta(usuario: string): void {
   perfil = {
     id: cuentaDemoId(usuario),
@@ -20,9 +34,9 @@ export function iniciarCuenta(usuario: string): void {
     usuario,
     correo: `${usuario.replace(/[^a-z0-9]/g, '') || 'demo'}@demo.dad`,
     correo_verificado: !usuario.includes('sinverificar'),
-    segundo_factor_activo: usuario.includes('2fa'),
-    es_superusuario: false,
-    permisos_plataforma: [],
+    segundo_factor_activo: usuario.includes('2fa') || usuario.includes('plataforma'),
+    es_superusuario: usuario.includes('plataforma'),
+    permisos_plataforma: esDePlataforma(usuario) ? PERMISOS_PLATAFORMA : [],
   }
   dispositivos = [
     {

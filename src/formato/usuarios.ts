@@ -56,3 +56,19 @@ export function asignacionesVigentes(
     .filter((a) => vigente(a, ahora))
     .map((a) => ({ id: a.id, rol: porId.get(a.rol_id) ?? 'Rol', quitable: a.origen === 'manual', origen: a.origen }))
 }
+
+/** Estado y acciones del detalle para `<DetalleUsuario>` (lo arma `useDetalleUsuario`). */
+export interface EstadoDetalleUsuario {
+  estado: 'cargando' | 'listo' | 'error'
+  error: string | null
+  asignaciones: AsignacionVisible[]
+  codigoEnviado: boolean
+  quitando: boolean
+  errorQuitar: string | null
+  reenviando: boolean
+  errorReenviar: string | null
+  cargar: () => Promise<void>
+  /** `true` si se quitó. */
+  quitar: (asignacionId: string) => Promise<boolean>
+  reenviar: () => Promise<void>
+}

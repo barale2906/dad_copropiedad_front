@@ -665,3 +665,76 @@ test('directorio: enlace para los grupos', async ({ page }) => {
   await expect(page.getByText('Cargando')).toHaveCount(0)
   await revisar(page)
 })
+
+/** Entra como equipo de la plataforma y revisa pantallas de la consola (ruta → título). */
+async function revisarConsola(page: Page, pantallas: [string, string][]) {
+  await entrar(page, 'plataforma')
+  await expect(page).toHaveURL(/\/e\/[^/]+$/)
+  const base = `${new URL(page.url()).pathname}/plataforma`
+  for (const [ruta, titulo] of pantallas) {
+    await page.goto(`${base}/${ruta}`)
+    await expect(page.getByRole('heading', { name: titulo, exact: true, level: 1 })).toBeVisible()
+    await expect(page.getByText('Cargando')).toHaveCount(0)
+    await revisar(page)
+  }
+}
+
+test('consola: clientes, ficha y usuarios', async ({ page }) => {
+  await revisarConsola(page, [
+    ['clientes', 'Clientes'],
+    ['clientes/01930000-0000-7000-8000-000000000001', 'Conjunto Residencial Los Robles'],
+    ['usuarios?vista=roles', 'Usuarios de la plataforma'],
+    ['usuarios', 'Usuarios de la plataforma'],
+  ])
+  await page.getByRole('button', { name: 'Crear usuario' }).click()
+  await expect(page.getByRole('dialog', { name: 'Crear usuario de la plataforma' })).toBeVisible()
+  await revisar(page)
+})
+
+test('consola: organizaciones, WhatsApp y consumo', async ({ page }) => {
+  await revisarConsola(page, [
+    ['organizaciones', 'Organizaciones'],
+    ['whatsapp', 'WhatsApp'],
+    ['consumo', 'Consumo de facturación electrónica'],
+  ])
+})
+
+test('consola: normativa', async ({ page }) => {
+  await revisarConsola(page, [
+    ['normativa', 'Normativa'],
+    ['normativa?vista=tributario', 'Normativa'],
+    ['normativa?vista=exogena', 'Normativa'],
+    ['normativa?vista=tasas', 'Normativa'],
+    ['normativa?vista=puc', 'Normativa'],
+    ['normativa?vista=plantillas', 'Normativa'],
+  ])
+})
+
+test('consola: comercios, campaña y moderación', async ({ page }) => {
+  await revisarConsola(page, [
+    ['comercios', 'Comercios y campañas'],
+    ['comercios?vista=categorias', 'Comercios y campañas'],
+    ['comercios/01930000-0000-7000-8000-000000014001?campana=01930000-0000-7000-8000-000000015201', 'Modistería Rosa'],
+    ['moderacion', 'Moderación'],
+    ['moderacion?vista=campanas', 'Moderación'],
+  ])
+})
+
+test('consola: publicidad y cobros', async ({ page }) => {
+  await revisarConsola(page, [
+    ['publicidad', 'Publicidad'],
+    ['publicidad?vista=liquidaciones', 'Publicidad'],
+    ['publicidad?vista=exclusiones', 'Publicidad'],
+    ['cobros', 'Cobros'],
+    ['cobros?vista=suscripciones', 'Cobros'],
+    ['cobros?vista=productos', 'Cobros'],
+  ])
+})
+
+test('consola: candado sin segundo factor y franja de soporte', async ({ page }) => {
+  await entrar(page, 'operador')
+  await expect(page).toHaveURL(/\/e\/[^/]+$/)
+  await page.goto(`${new URL(page.url()).pathname}/plataforma/clientes`)
+  await expect(page.getByText('La consola de la plataforma exige el segundo factor')).toBeVisible()
+  await revisar(page)
+})

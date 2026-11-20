@@ -2,13 +2,13 @@
 /** Una pieza publicitaria: título, texto, condiciones, vigencia, enlace del comercio, cupón y reporte. */
 import { computed } from 'vue'
 import type { CuponPublicidad, PiezaPublicidad } from '@/api/tipos'
+import { FORMATO_PIEZA } from '@/composables/textos-publicidad'
 import { enlaceSeguro } from '@/formato/directorio'
 import { fecha } from '@/formato/fechas'
 import HudBoton from '@/hud/componentes/HudBoton.vue'
 import HudInsignia from '@/hud/componentes/HudInsignia.vue'
 import SecretoUnaVez from '@/hud/componentes/SecretoUnaVez.vue'
 import IEnlace from '~icons/tabler/external-link'
-import { FORMATO_PIEZA } from '../reglas'
 
 const props = withDefaults(
   defineProps<{ pieza: PiezaPublicidad; zona: string; cupon?: CuponPublicidad | null; pidiendoCupon?: boolean }>(),

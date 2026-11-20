@@ -15,10 +15,12 @@
  *    ejecutó el administrador)
  *  - que contenga `porteria` → guarda y jefe de seguridad de la PH (portería, plan 06)
  *  - que contenga `residente` → propietario y residente de la PH (portal «Mi hogar», plan 05)
+ *  - que contenga `plataforma` → equipo de la plataforma con segundo factor (consola, plan 15);
+ *    `operador` → igual pero sin segundo factor (el centro de operación sale con candado)
  */
 import type { Capacidades, EntidadDeLaCuenta, Permiso, Tokens } from '@/api/tipos'
 import { archivos, iniciarArchivos } from './archivos'
-import { cuenta, cuentaPublica, iniciarCuenta } from './cuenta'
+import { cuenta, cuentaPublica, esDePlataforma, iniciarCuenta } from './cuenta'
 import { entidad, iniciarEntidad, permisos } from './entidad'
 import { ficha, iniciarFicha } from './ficha'
 import { iniciarProteccion, proteccion } from './proteccion'
@@ -31,13 +33,14 @@ import { iniciarTesoreria, tesoreria } from './tesoreria'
 import { iniciarTributario, tributario } from './tributario'
 import { gestion, iniciarGestion } from './gestion'
 import { iniciarMi, mi } from './mi'
+import { accesoSoporte, iniciarPlataforma, plataforma } from './plataforma'
 import { iniciarPorteria, porteria } from './porteria'
 import { iniciarUnidades, unidades } from './unidades'
 import { iniciarZonasComunes, zonasComunes } from './zonas-comunes'
 import { error, json, ZONA_DEMO, type Manejador } from './http'
 
 /** Manejadores que exigen sesión, en orden; el primero que responda gana. */
-const CON_SESION: Manejador[] = [cuenta, archivos, ficha, unidades, mi, directorio, gestion, asambleas, cartera, facturacion, tesoreria, tributario, contabilidad, porteria, proteccion, zonasComunes, entidad, permisos]
+const CON_SESION: Manejador[] = [cuenta, plataforma, archivos, ficha, unidades, mi, directorio, gestion, asambleas, cartera, facturacion, tesoreria, tributario, contabilidad, porteria, proteccion, zonasComunes, entidad, permisos]
 /** Manejadores sin sesión (además del inicio de sesión). */
 const SIN_SESION: Manejador[] = [cuentaPublica]
 
@@ -121,6 +124,25 @@ const ENTIDADES: (EntidadDeLaCuenta & { capacidades: Capacidades })[] = [
   },
 ]
 
+/** La entidad que opera la plataforma (GISLA): oficina con el centro de operación. */
+const ENTIDAD_PLATAFORMA: EntidadDeLaCuenta & { capacidades: Capacidades } = {
+  entidad_id: '01930000-0000-7000-8000-000000000005',
+  nombre: 'GISLA S.A.S.',
+  nit: '901999000-2',
+  tipo: 'plataforma',
+  estado: 'activa',
+  roles: ['superusuario'],
+  capacidades: { tipo: 'plataforma', permisos: TODOS, modulos: ['contabilidad', 'facturacion_electronica'], modo_soporte: false, entidad_suspendida: false, zona_horaria: ZONA_DEMO },
+}
+
+/**
+ * Capacidades en modo soporte: solo lectura (los permisos `….ver`), como las entrega el backend
+ * durante las 2 h de acceso.
+ */
+function comoSoporte(c: Capacidades): Capacidades {
+  return { ...c, modo_soporte: true, permisos: c.permisos.filter((p) => /\.ver(_|$)/.test(p)) }
+}
+
 let usuario = ''
 
 function tokens(): Tokens {
@@ -173,6 +195,10 @@ function capacidadesDe(u: string): Capacidades | null {
 
 function entidadesDe(u: string): EntidadDeLaCuenta[] {
   if (u.includes('nuevo')) return []
+  if (esDePlataforma(u)) {
+    const e = ENTIDAD_PLATAFORMA
+    return [{ entidad_id: e.entidad_id, nombre: e.nombre, nit: e.nit, tipo: e.tipo, estado: e.estado, roles: e.roles }]
+  }
   const roles = u.includes('residente') ? ['propietario', 'residente'] : u.includes('porteria') ? ['portero'] : null
   if (roles) {
     const e = ENTIDADES[0]!
@@ -197,8 +223,19 @@ function entidadesDe(u: string): EntidadDeLaCuenta[] {
 
 const espera = (ms: number) => new Promise((r) => setTimeout(r, ms))
 
+/** Latencia simulada de la red (en el navegador se ven los estados de carga). */
+let latencia = true
+
+/**
+ * Sin latencia simulada: las pruebas no dependen de esperas aleatorias (con 250–500 ms por
+ * petición, una prueba de muchas llamadas pasaba o no según el azar).
+ */
+export function sinLatenciaDemo(): void {
+  latencia = false
+}
+
 export async function fetchDemo(req: Request): Promise<Response> {
-  await espera(250 + Math.random() * 250)
+  if (latencia) await espera(250 + Math.random() * 250)
   const ruta = new URL(req.url).pathname.replace(/^.*\/api\/v1/, '')
   const m = req.method
 
@@ -223,6 +260,7 @@ export async function fetchDemo(req: Request): Promise<Response> {
     iniciarFacturacion()
     iniciarCartera(usuario)
     iniciarDirectorio()
+    iniciarPlataforma(usuario)
     if (usuario.includes('2fa')) {
       return json({ resultado: 'segundo_factor', desafio: 'demo-desafio', desafio_expira_en: new Date(Date.now() + 300_000).toISOString() })
     }
@@ -253,6 +291,7 @@ export async function fetchDemo(req: Request): Promise<Response> {
     iniciarFacturacion()
     iniciarCartera(usuario)
     iniciarDirectorio()
+    iniciarPlataforma(usuario)
     return json(tokens())
   }
   if (m === 'POST' && ruta === '/auth/contrasena/recuperar') return new Response(null, { status: 202 })
@@ -267,7 +306,9 @@ export async function fetchDemo(req: Request): Promise<Response> {
   if (m === 'GET' && ruta === '/yo/entidades') return json(entidadesDe(usuario))
   const cap = ruta.match(/^\/entidades\/([^/]+)\/capacidades$/)
   if (m === 'GET' && cap) {
+    if (cap[1] === ENTIDAD_PLATAFORMA.entidad_id) return json(ENTIDAD_PLATAFORMA.capacidades)
     const e = ENTIDADES.find((x) => x.entidad_id === cap[1])
+    if (e && esDePlataforma(usuario)) return accesoSoporte(e.entidad_id) ? json(comoSoporte(e.capacidades)) : error(403, 'sin_permiso', 'Abra un acceso de soporte.')
     const fijas = capacidadesDe(usuario)
     if (e && fijas) return json(fijas)
     return e ? json(e.capacidades) : error(404, 'no_encontrado', 'No encontrada.')

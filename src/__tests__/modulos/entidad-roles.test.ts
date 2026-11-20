@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import { ErrorApi } from '@/api/errores'
 import type { PermisoDelCatalogo } from '@/api/tipos'
 import { limpiar } from '@/api/tokens'
-import { cambiarPermisos, catalogoPermisos, crearRol, listarRoles } from '@/modulos/entidad/api'
+import { cambiarPermisos, catalogoPermisos, crearRol, listarRoles } from '@/api/usuarios'
 import {
   agruparPermisos,
   CODIGO_ROL,
@@ -10,7 +10,7 @@ import {
   etiquetaPermiso,
   noOtorgables,
   sugerirCodigo,
-} from '@/modulos/entidad/permisos'
+} from '@/formato/permisos'
 import { useSesion } from '@/stores/sesion'
 import { prepararConDemo } from '../ayudantes'
 

@@ -12,6 +12,7 @@ import IVolver from '~icons/tabler/arrow-left'
 import ICandado from '~icons/tabler/lock'
 import IMenu from '~icons/tabler/list'
 import BarraSuperior from './componentes/BarraSuperior.vue'
+import FranjaSoporte from './componentes/FranjaSoporte.vue'
 import ModuloNoDisponible from './componentes/ModuloNoDisponible.vue'
 import { ICONOS } from './iconos'
 import { useNavegacion } from './navegacion'
@@ -64,6 +65,7 @@ watch(() => route.fullPath, () => (menuAbierto.value = false))
         <IMenu /><span class="texto">Menú</span>
       </button>
     </BarraSuperior>
+    <FranjaSoporte />
 
     <div class="cuerpo">
       <nav
@@ -155,6 +157,7 @@ watch(() => route.fullPath, () => (menuAbierto.value = false))
           v-else-if="estado && estado !== 'activa'"
           :estado="estado"
           :seccion="vista.seccion"
+          :segundo-factor="nav.sinSegundoFactor(slug)"
         />
 
         <template v-else-if="!accion">

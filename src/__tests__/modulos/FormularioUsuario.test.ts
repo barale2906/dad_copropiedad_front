@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 import type { Rol } from '@/api/tipos'
-import FormularioUsuario from '@/modulos/entidad/componentes/FormularioUsuario.vue'
+import FormularioUsuario from '@/hud/componentes/FormularioUsuario.vue'
 
 const ROLES = [{ id: 'r1', codigo: 'contador', nombre: 'Contador' }] as Rol[]
 

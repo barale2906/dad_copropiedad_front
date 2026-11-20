@@ -5,11 +5,11 @@
  */
 import { computed, ref, watch } from 'vue'
 import type { NuevoRol, Permiso, Rol } from '@/api/tipos'
-import HudBoton from '@/hud/componentes/HudBoton.vue'
-import HudCampo from '@/hud/componentes/HudCampo.vue'
-import HudDialogo from '@/hud/componentes/HudDialogo.vue'
-import HudSelector from '@/hud/componentes/HudSelector.vue'
-import { CODIGO_ROL, noOtorgables, sugerirCodigo } from '../permisos'
+import { CODIGO_ROL, noOtorgables, sugerirCodigo } from '@/formato/permisos'
+import HudBoton from './HudBoton.vue'
+import HudCampo from './HudCampo.vue'
+import HudDialogo from './HudDialogo.vue'
+import HudSelector from './HudSelector.vue'
 
 const props = withDefaults(
   defineProps<{

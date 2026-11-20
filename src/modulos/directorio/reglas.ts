@@ -1,5 +1,5 @@
 /** Reglas puras del directorio: categorías en árbol, textos y el lote de eventos de las piezas. */
-import type { CategoriaDirectorio, EventoPublicidad, FormatoCreativo } from '@/api/tipos'
+import type { CategoriaDirectorio, EventoPublicidad } from '@/api/tipos'
 
 /** Opciones del filtro: cada rama seguida de sus subcategorías (con sangría), por nombre. */
 export function opcionesCategorias(lista: readonly CategoriaDirectorio[]): { valor: string; etiqueta: string }[] {
@@ -25,16 +25,6 @@ export function categoriaPrincipal(codigos: readonly string[], lista: readonly C
   const codigo = codigos[0]
   if (!codigo) return undefined
   return lista.find((c) => c.codigo === codigo)?.nombre ?? codigo
-}
-
-/** Textos del formato de una pieza. */
-export const FORMATO_PIEZA: Record<FormatoCreativo, string> = {
-  banner: 'Anuncio',
-  tarjeta_destacada: 'Destacado',
-  oferta_cupon: 'Oferta con cupón',
-  mensaje_whatsapp: 'Mensaje',
-  boletin_correo: 'Boletín',
-  pantalla_lobby: 'Pantalla del lobby',
 }
 
 /** Tope por contador que acepta el backend en cada envío. */

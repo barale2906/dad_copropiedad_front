@@ -7,7 +7,7 @@ import ICambiar from '~icons/tabler/switch-horizontal'
 import IUsuario from '~icons/tabler/user-circle'
 import ISalir from '~icons/tabler/logout'
 import IAlerta from '~icons/tabler/alert-triangle'
-import { avisoDeEstado, ESTADO_ENTIDAD, TIPO_ENTIDAD } from '../textos-entidad'
+import { avisoDeEstado, ESTADO_ENTIDAD, TIPO_ENTIDAD } from '@/formato/textos-entidad'
 import AvisoComunicados from './AvisoComunicados.vue'
 import MarcaDad from './MarcaDad.vue'
 

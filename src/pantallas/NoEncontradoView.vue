@@ -23,7 +23,7 @@ const tipo = computed(() => {
   const ultima = entidad.ultima()
   return sesion.entidades.find((e) => e.entidad_id === ultima)?.tipo
 })
-const escenario = computed(() => (tipo.value ? plantillaDe(tipo.value) : 'oficina'))
+const escenario = computed(() => (tipo.value && plantillaDe(tipo.value) === 'conjunto' ? 'conjunto' : 'oficina'))
 
 const regreso = computed(() => {
   if (entidad.activa) {

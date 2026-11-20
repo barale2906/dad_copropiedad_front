@@ -25,6 +25,7 @@ import ICubo from '~icons/tabler/cube-3d-sphere'
 import ICandado from '~icons/tabler/lock'
 import ILista from '~icons/tabler/list'
 import BarraSuperior from './componentes/BarraSuperior.vue'
+import FranjaSoporte from './componentes/FranjaSoporte.vue'
 import MenuAlterno from './componentes/MenuAlterno.vue'
 import PanelZona from './componentes/PanelZona.vue'
 import { useNavegacion } from './navegacion'
@@ -162,6 +163,7 @@ onDeactivated(() => (activa.value = false))
         <span class="texto">{{ prefs.vista === 'maqueta' ? 'Lista' : 'Maqueta' }}</span>
       </button>
     </BarraSuperior>
+    <FranjaSoporte />
 
     <div
       v-if="usar3D"

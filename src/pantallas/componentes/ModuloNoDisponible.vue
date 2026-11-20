@@ -9,7 +9,15 @@ import { type EstadoSeccion, type Seccion, TEXTO_ESTADO } from '@/escena/mapa-mo
 import HudPanel from '@/hud/componentes/HudPanel.vue'
 import ICandado from '~icons/tabler/lock'
 
-const props = defineProps<{ estado: Exclude<EstadoSeccion, 'activa'>; seccion: Seccion }>()
+const props = withDefaults(
+  defineProps<{
+    estado: Exclude<EstadoSeccion, 'activa'>
+    seccion: Seccion
+    /** El candado es por el segundo factor (consola de la plataforma), no por el rol. */
+    segundoFactor?: boolean
+  }>(),
+  { segundoFactor: false },
+)
 
 const contacto = computed(() => config().contactoComercial)
 
@@ -19,7 +27,9 @@ const TEXTO: Record<Exclude<EstadoSeccion, 'activa'>, string> = {
     'Su rol no tiene permiso para esta función. Si la necesita, pida al administrador de su entidad que se la asigne.',
   proximamente: 'Esta función estará disponible próximamente.',
 }
-const texto = computed(() => TEXTO[props.estado])
+const texto = computed(() =>
+  props.segundoFactor ? 'La consola de la plataforma exige el segundo factor en su cuenta.' : TEXTO[props.estado],
+)
 </script>
 
 <template>
@@ -36,6 +46,11 @@ const texto = computed(() => TEXTO[props.estado])
       {{ seccion.resumen }}
     </p>
     <p>{{ texto }}</p>
+    <p v-if="segundoFactor">
+      <RouterLink :to="{ name: 'cuenta', hash: '#segundo-factor' }">
+        Activar el segundo factor en Mi cuenta
+      </RouterLink>
+    </p>
     <p v-if="estado === 'no_contratada'">
       <template v-if="contacto">
         Para contratarlo, escríbanos a
@@ -59,6 +74,10 @@ const texto = computed(() => TEXTO[props.estado])
   margin-bottom: 8px;
   font-size: 32px;
   color: var(--ambar);
+}
+
+.no-disponible a {
+  color: var(--cian);
 }
 
 .resumen {

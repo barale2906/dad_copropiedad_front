@@ -40,6 +40,11 @@ export interface Seccion {
   /** Aún no existe en el backend: se muestra apagada con «Próximamente». */
   proximamente?: boolean
   soloPH?: boolean
+  /**
+   * Consola de la plataforma: solo en la entidad de tipo `plataforma`. Sus acciones se habilitan
+   * con los permisos de plataforma de la cuenta (`GET /yo`) y exigen segundo factor.
+   */
+  plataforma?: boolean
   acciones: Accion[]
 }
 
@@ -294,6 +299,36 @@ export const SECCIONES: Record<string, Seccion> = {
     modulos: [],
     acciones: [a('documentos', 'Documentos', 'Subir archivos y abrirlos con enlace seguro.', ['archivos.ver', 'archivos.subir'])],
   },
+  plataforma: {
+    slug: 'plataforma',
+    nombre: 'Centro de operación',
+    resumen: 'Clientes, usuarios, normativa, publicidad y cobros de la plataforma.',
+    modulos: [],
+    plataforma: true,
+    acciones: [
+      a('clientes', 'Clientes', 'PH y empresas: alta, estado, módulos, usuarios y soporte.', ['plataforma.copropiedades.ver']),
+      a('usuarios', 'Usuarios de la plataforma', 'Cuentas, bloqueos, roles y permisos.', [
+        'plataforma.cuentas.ver', 'plataforma.cuentas.crear', 'plataforma.cuentas.bloquear',
+        'plataforma.roles.gestionar', 'plataforma.roles.asignar',
+      ]),
+      a('organizaciones', 'Organizaciones', 'Reclamaciones de fichas y sus miembros.', ['plataforma.organizaciones.revisar']),
+      a('normativa', 'Normativa', 'PUC, retenciones, UVT, IVA, ICA, exógena, tasas y plantillas.', [
+        'plataforma.normativa.gestionar', 'plataforma.plantillas_contables.publicar',
+      ]),
+      a('whatsapp', 'WhatsApp', 'Líneas de la plataforma y tarifas.', ['plataforma.whatsapp.gestionar']),
+      a('comercios', 'Comercios y campañas', 'Directorio, categorías, campañas, piezas y leads.', [
+        'plataforma.directorio.gestionar', 'plataforma.publicidad.gestionar', 'plataforma.publicidad.moderar',
+      ]),
+      a('moderacion', 'Moderación', 'Piezas, campañas, reseñas y reportes por revisar.', ['plataforma.publicidad.moderar']),
+      a('publicidad', 'Publicidad', 'Tarifas, política, liquidaciones y exclusiones.', [
+        'plataforma.publicidad.liquidar', 'plataforma.publicidad.gestionar',
+      ]),
+      a('consumo', 'Consumo', 'Documentos electrónicos transmitidos por entidad.', ['plataforma.facturacion.ver']),
+      a('cobros', 'Cobros', 'Productos, suscripciones y cortes de facturación.', [
+        'plataforma.comercial.gestionar', 'plataforma.cobros.aprobar', 'plataforma.cobros.facturar',
+      ]),
+    ],
+  },
   nomina: {
     slug: 'nomina',
     nombre: 'Nómina electrónica',
@@ -313,6 +348,12 @@ export interface Consulta {
   esPH: boolean
   /** Roles de la cuenta en la entidad (para las acciones por vínculo). */
   tieneRol?: (rol: string) => boolean
+  /** La entidad activa es la de la plataforma (tipo `plataforma`). */
+  esPlataforma?: boolean
+  /** Permisos de plataforma de la cuenta (`GET /yo`), para la consola. */
+  tienePermisoPlataforma?: (p: Permiso) => boolean
+  /** La cuenta tiene el segundo factor activo (lo exige la consola). */
+  segundoFactor?: boolean
 }
 
 const algunoDe = (modulos: Modulo[] | undefined, c: Consulta) =>
@@ -324,6 +365,9 @@ export function seccionContratada(s: Seccion, c: Consulta): boolean {
 }
 
 export function accionesVisibles(s: Seccion, c: Consulta): Accion[] {
+  if (s.plataforma) {
+    return c.esPlataforma ? s.acciones.filter((x) => x.permisos.some((p) => c.tienePermisoPlataforma?.(p))) : []
+  }
   return s.acciones.filter(
     (x) =>
       (!x.soloPH || c.esPH) &&
@@ -335,7 +379,16 @@ export function accionesVisibles(s: Seccion, c: Consulta): Accion[] {
 export function estadoSeccion(s: Seccion, c: Consulta): EstadoSeccion {
   if (s.proximamente) return 'proximamente'
   if (!seccionContratada(s, c)) return 'no_contratada'
+  if (faltaSegundoFactor(s, c)) return 'sin_acceso'
   return accionesVisibles(s, c).length > 0 ? 'activa' : 'sin_acceso'
+}
+
+/**
+ * La consola de la plataforma está con candado porque falta el segundo factor (la cuenta sí
+ * tiene permisos): se ofrece activarlo en Mi cuenta.
+ */
+export function faltaSegundoFactor(s: Seccion, c: Consulta): boolean {
+  return !!s.plataforma && !c.segundoFactor && accionesVisibles(s, c).length > 0
 }
 
 /**

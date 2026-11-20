@@ -8,10 +8,12 @@ import {
   type EstadoSeccion,
   estadoDeSecciones,
   estadoSeccion,
+  faltaSegundoFactor,
   SECCIONES,
   type Seccion,
 } from '@/escena/mapa-modulos'
 import { type IdPlantilla, plantillaDe, seccionesDe, ZONAS, type ZonaInfo } from '@/escena/plantillas/zonas'
+import { useCuenta } from '@/stores/cuenta'
 import { useEntidad } from '@/stores/entidad'
 
 export interface SeccionVista {
@@ -22,12 +24,20 @@ export interface SeccionVista {
 
 export function useNavegacion() {
   const entidad = useEntidad()
+  const cuenta = useCuenta()
   const consulta: Consulta = {
     tieneModulo: (m) => entidad.tieneModulo(m),
     tienePermiso: (p) => entidad.tienePermiso(p),
     tieneRol: (r) => entidad.tieneRol(r),
+    tienePermisoPlataforma: (p) => cuenta.permisosPlataforma.has(p),
     get esPH() {
       return entidad.esPH
+    },
+    get esPlataforma() {
+      return (entidad.capacidades?.tipo ?? entidad.activa?.tipo) === 'plataforma'
+    },
+    get segundoFactor() {
+      return cuenta.segundoFactorActivo
     },
   }
 
@@ -50,6 +60,12 @@ export function useNavegacion() {
   function estadoDeAccion(slug: string, accionId: string): EstadoSeccion | null {
     const s = SECCIONES[slug]
     return s ? estadoAccion(s, accionId, consulta) : null
+  }
+
+  /** La sección está con candado solo porque falta el segundo factor (consola de la plataforma). */
+  function sinSegundoFactor(slug: string): boolean {
+    const s = SECCIONES[slug]
+    return !!s && faltaSegundoFactor(s, consulta)
   }
 
   const secciones = computed<SeccionVista[]>(() =>
@@ -78,5 +94,5 @@ export function useNavegacion() {
     }
   }
 
-  return { plantilla, zonas, estadosZonas, secciones, vistaSeccion, estadoDeAccion, rutaAccion, rutaMaqueta }
+  return { plantilla, zonas, estadosZonas, secciones, vistaSeccion, estadoDeAccion, sinSegundoFactor, rutaAccion, rutaMaqueta }
 }

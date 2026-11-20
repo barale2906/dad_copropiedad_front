@@ -15,7 +15,7 @@ import HudFecha from '@/hud/componentes/HudFecha.vue'
 import HudSelector from '@/hud/componentes/HudSelector.vue'
 import { useEntidad } from '@/stores/entidad'
 import { buscarOrganizacion, crearContrato, crearOrganizacion } from '../api-organizaciones'
-import { NATURALEZA, normalizarNit, TIPO_ORGANIZACION, tiposConocidos } from '../organizaciones'
+import { NATURALEZA, normalizarNit, TIPO_ORGANIZACION, tiposConocidos } from '@/formato/organizaciones'
 
 const props = defineProps<{ copropiedadId: string }>()
 const emit = defineEmits<{ vinculado: [contrato: ContratoServicio]; cancelar: [] }>()
