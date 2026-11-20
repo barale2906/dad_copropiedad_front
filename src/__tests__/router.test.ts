@@ -32,3 +32,11 @@ describe('rutas de módulo', () => {
     expect(router.resolve('/no/existe').name).toBe('no-encontrado')
   })
 })
+
+describe('rutas públicas', () => {
+  it('papeleta, directorio, pantalla, comercio y verificación son externas', () => {
+    for (const ruta of [`/papeleta/${ID}`, `/directorio/${ID}`, `/pantalla/${ID}`, '/comercio', `/verificar/${ID}`]) {
+      expect(router.resolve(ruta).meta.externa, ruta).toBe(true)
+    }
+  })
+})

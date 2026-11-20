@@ -278,3 +278,16 @@ export const directorio: Manejador = async (req, ruta) => {
   }
   return null
 }
+
+/** Directorio público de la PH (`X-Enlace-Directorio`): solo con el token vigente del enlace. */
+export const directorioPublicoDemo: Manejador = (req, ruta) => {
+  if (req.method !== 'GET' || !/^\/copropiedades\/[^/]+\/directorio\/publico$/.test(ruta)) return null
+  if (!enlace.activo || !enlace.token || req.headers.get('X-Enlace-Directorio') !== enlace.token) return error(401, 'no_autenticado', 'El enlace no es válido.')
+  const url = new URL(req.url)
+  const q = url.searchParams.get('q')
+  const filtradas = FICHAS_PH.filter((f) => !q || coincide(f, q)).sort((a, b) => Number(b.destacada) - Number(a.destacada))
+  return json({ copropiedad: 'Conjunto Residencial Los Robles', whatsapp_url: enlace.whatsapp_url, fichas: { datos: filtradas, siguiente: null } })
+}
+
+/** Piezas del demo (las usa también la pantalla del lobby). */
+export const piezasDemo = (): PiezaPublicidad[] => PIEZAS

@@ -24,16 +24,17 @@ import { cuenta, cuentaPublica, esDePlataforma, iniciarCuenta } from './cuenta'
 import { entidad, iniciarEntidad, permisos } from './entidad'
 import { ficha, iniciarFicha } from './ficha'
 import { iniciarProteccion, proteccion } from './proteccion'
-import { asambleas, iniciarAsambleas } from './asambleas'
+import { asambleas, iniciarAsambleas, papeletaDemo } from './asambleas'
 import { cartera, iniciarCartera } from './cartera'
 import { contabilidad, iniciarContabilidad } from './contabilidad'
-import { directorio, iniciarDirectorio } from './directorio'
+import { directorio, directorioPublicoDemo, iniciarDirectorio } from './directorio'
 import { facturacion, iniciarFacturacion } from './facturacion'
 import { iniciarTesoreria, tesoreria } from './tesoreria'
 import { iniciarTributario, tributario } from './tributario'
 import { gestion, iniciarGestion } from './gestion'
 import { iniciarMi, mi } from './mi'
-import { accesoSoporte, iniciarPlataforma, plataforma } from './plataforma'
+import { accesoSoporte, iniciarPlataforma, plataforma, publicidadPublicaDemo } from './plataforma'
+import { iniciarPublico, verificacionDemo } from './publico'
 import { iniciarPorteria, porteria } from './porteria'
 import { iniciarUnidades, unidades } from './unidades'
 import { iniciarZonasComunes, zonasComunes } from './zonas-comunes'
@@ -41,8 +42,8 @@ import { error, json, ZONA_DEMO, type Manejador } from './http'
 
 /** Manejadores que exigen sesión, en orden; el primero que responda gana. */
 const CON_SESION: Manejador[] = [cuenta, plataforma, archivos, ficha, unidades, mi, directorio, gestion, asambleas, cartera, facturacion, tesoreria, tributario, contabilidad, porteria, proteccion, zonasComunes, entidad, permisos]
-/** Manejadores sin sesión (además del inicio de sesión). */
-const SIN_SESION: Manejador[] = [cuentaPublica]
+/** Manejadores sin sesión (además del inicio de sesión): definir contraseña y las páginas públicas. */
+const SIN_SESION: Manejador[] = [cuentaPublica, papeletaDemo, directorioPublicoDemo, publicidadPublicaDemo, verificacionDemo]
 
 const TODOS: Permiso[] = [
   'copropiedad.datos.ver', 'roles.ver', 'roles.gestionar', 'auditoria.ver', 'archivos.ver',
@@ -221,6 +222,33 @@ function entidadesDe(u: string): EntidadDeLaCuenta[] {
   }))
 }
 
+/** ¿Ya se cargaron los datos del demo? (una página pública puede abrirse sin iniciar sesión). */
+let iniciado = false
+
+/** Datos iniciales de todas las áreas para el usuario (se reinician en cada inicio de sesión). */
+function iniciarDemo(u: string): void {
+  iniciado = true
+  iniciarCuenta(u)
+  iniciarEntidad()
+  iniciarUnidades()
+  iniciarMi()
+  iniciarPorteria(u.includes('residente'))
+  iniciarGestion(u, u.includes('residente'))
+  iniciarAsambleas()
+  iniciarContabilidad(u)
+  iniciarTesoreria(u)
+  iniciarTributario(u)
+  iniciarFicha(ENTIDADES)
+  iniciarProteccion()
+  iniciarZonasComunes()
+  iniciarArchivos()
+  iniciarFacturacion()
+  iniciarCartera(u)
+  iniciarDirectorio()
+  iniciarPlataforma(u)
+  iniciarPublico()
+}
+
 const espera = (ms: number) => new Promise((r) => setTimeout(r, ms))
 
 /** Latencia simulada de la red (en el navegador se ven los estados de carga). */
@@ -243,24 +271,7 @@ export async function fetchDemo(req: Request): Promise<Response> {
     const p = (await req.json()) as { identificador: string; contrasena: string }
     if (!p.identificador || !p.contrasena) return error(401, 'credenciales_invalidas', 'Usuario o contraseña incorrectos.')
     usuario = p.identificador.toLowerCase()
-    iniciarCuenta(usuario)
-    iniciarEntidad()
-    iniciarUnidades()
-    iniciarMi()
-    iniciarPorteria(usuario.includes('residente'))
-    iniciarGestion(usuario, usuario.includes('residente'))
-    iniciarAsambleas()
-    iniciarContabilidad(usuario)
-    iniciarTesoreria(usuario)
-    iniciarTributario(usuario)
-    iniciarFicha(ENTIDADES)
-    iniciarProteccion()
-    iniciarZonasComunes()
-    iniciarArchivos()
-    iniciarFacturacion()
-    iniciarCartera(usuario)
-    iniciarDirectorio()
-    iniciarPlataforma(usuario)
+    iniciarDemo(usuario)
     if (usuario.includes('2fa')) {
       return json({ resultado: 'segundo_factor', desafio: 'demo-desafio', desafio_expira_en: new Date(Date.now() + 300_000).toISOString() })
     }
@@ -274,28 +285,12 @@ export async function fetchDemo(req: Request): Promise<Response> {
   if (m === 'POST' && ruta === '/auth/sesion/renovar') {
     const p = (await req.json()) as { token_renovacion: string }
     usuario = p.token_renovacion.split('-')[2] ?? ''
-    iniciarCuenta(usuario)
-    iniciarEntidad()
-    iniciarUnidades()
-    iniciarMi()
-    iniciarPorteria(usuario.includes('residente'))
-    iniciarGestion(usuario, usuario.includes('residente'))
-    iniciarAsambleas()
-    iniciarContabilidad(usuario)
-    iniciarTesoreria(usuario)
-    iniciarTributario(usuario)
-    iniciarFicha(ENTIDADES)
-    iniciarProteccion()
-    iniciarZonasComunes()
-    iniciarArchivos()
-    iniciarFacturacion()
-    iniciarCartera(usuario)
-    iniciarDirectorio()
-    iniciarPlataforma(usuario)
+    iniciarDemo(usuario)
     return json(tokens())
   }
   if (m === 'POST' && ruta === '/auth/contrasena/recuperar') return new Response(null, { status: 202 })
   if (m === 'DELETE' && ruta === '/auth/sesion') return new Response(null, { status: 204 })
+  if (!iniciado) iniciarDemo('')
   for (const atender of SIN_SESION) {
     const r = await atender(req, ruta)
     if (r) return r

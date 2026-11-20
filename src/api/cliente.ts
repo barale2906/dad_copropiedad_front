@@ -6,6 +6,7 @@
  */
 import createClient, { type Client, type Middleware } from 'openapi-fetch'
 import type { paths } from './esquema'
+import { CABECERAS_EXTERNAS } from './credencial-externa'
 import { ErrorApi } from './errores'
 import { configurarTokens, haySesion, renovar, tokenAcceso } from './tokens'
 import { uuid } from './uuid'
@@ -16,7 +17,7 @@ let cliente: Client<paths> | null = null
 let transporte: Transporte = (r) => fetch(r)
 const copias = new Map<string, Request>()
 
-const SIN_SESION = ['/auth/sesion', '/auth/contrasena/']
+const SIN_SESION = ['/auth/sesion', '/auth/contrasena/', '/certificados/verificacion']
 
 function esRutaSinSesion(url: string): boolean {
   const ruta = new URL(url, location.origin).pathname
@@ -27,6 +28,8 @@ const autenticacion: Middleware = {
   async onRequest({ request, id }) {
     request.headers.set('X-Request-Id', uuid())
     if (esRutaSinSesion(request.url) && request.method === 'POST') return request
+    // Enlace público: su credencial es la cabecera; no se mezcla con la sesión de la persona.
+    if (CABECERAS_EXTERNAS.some((c) => request.headers.has(c))) return request
     if (!tokenAcceso() && haySesion()) await renovar().catch(() => false)
     const token = tokenAcceso()
     if (token) request.headers.set('Authorization', `Bearer ${token}`)

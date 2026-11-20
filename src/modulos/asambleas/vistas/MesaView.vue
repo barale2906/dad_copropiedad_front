@@ -6,6 +6,7 @@
  */
 import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import { enlacePublico } from '@/api/enlaces'
 import { mensajeDeError } from '@/api/errores'
 import type { Asistente, DetalleReunion, RegistroAsistente } from '@/api/tipos'
 import { useAccion } from '@/composables/useAccion'
@@ -18,6 +19,7 @@ import HudDialogo from '@/hud/componentes/HudDialogo.vue'
 import HudEstado from '@/hud/componentes/HudEstado.vue'
 import HudInsignia from '@/hud/componentes/HudInsignia.vue'
 import HudPanel from '@/hud/componentes/HudPanel.vue'
+import QrCompartir from '@/hud/componentes/QrCompartir.vue'
 import { useEntidad } from '@/stores/entidad'
 import IImprimir from '~icons/tabler/printer'
 import { asistentes, detalleReunion, imprimirRotulos, listarReuniones } from '../api'
@@ -45,6 +47,9 @@ const detalle = ref<DetalleReunion | null>(null)
 const lista = ref<Asistente[]>([])
 const resultado = ref<string | null>(null)
 const avisos = ref<string[]>([])
+/** Enlace personal de la papeleta del último registrado: el backend lo entrega una sola vez. */
+const papeleta = ref<{ nombre: string; enlace: string } | null>(null)
+const verPapeleta = ref(false)
 const poderesRef = ref<InstanceType<typeof PoderesPendientes> | null>(null)
 const reunion = computed(() => detalle.value?.reunion ?? null)
 const codigos = computed(() => Object.fromEntries(lista.value.flatMap((a) => a.bienes.map((b) => [b.bien_privado_id, b.codigo]))))
@@ -59,6 +64,10 @@ const rotulos = useAccion(() => imprimirRotulos(id.value, prefijo.value.trim().t
 async function registrado(r: RegistroAsistente) {
   resultado.value = `${r.asistente.nombre} registrado con ${r.asistente.bienes.length} bien(es).`
   avisos.value = r.avisos
+  if (r.token_papeleta) {
+    papeleta.value = { nombre: r.asistente.nombre, enlace: enlacePublico('papeleta', id.value, r.token_papeleta) }
+    verPapeleta.value = true
+  }
   await Promise.all([recargarAsistentes(), poderesRef.value?.cargar()])
 }
 
@@ -289,6 +298,27 @@ watch(reunionId, () => {
         </li>
       </ul>
     </template>
+    <HudDialogo
+      v-model:abierto="verPapeleta"
+      :titulo="papeleta ? `Papeleta de ${papeleta.nombre}` : 'Papeleta'"
+    >
+      <template v-if="papeleta">
+        <p class="aviso">
+          Este enlace se entrega <strong>una sola vez</strong>: compártalo ahora con el asistente para que vote desde su celular.
+        </p>
+        <QrCompartir
+          :texto="papeleta.enlace"
+          :mensaje="`Su papeleta para votar en la asamblea, ${papeleta.nombre}:`"
+          nombre-archivo="papeleta.png"
+          :descripcion="`Código QR de la papeleta de ${papeleta.nombre}`"
+        />
+      </template>
+      <template #acciones>
+        <HudBoton @click="verPapeleta = false">
+          Listo
+        </HudBoton>
+      </template>
+    </HudDialogo>
   </section>
 </template>
 

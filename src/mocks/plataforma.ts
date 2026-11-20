@@ -38,7 +38,7 @@ import type {
   Uvt,
 } from '@/api/tipos'
 import { cuentaDemoId } from './cuenta'
-import { CATEGORIAS } from './directorio'
+import { CATEGORIAS, piezasDemo } from './directorio'
 import { entidad } from './entidad'
 import { cuerpo, error, fechaDemo, json, type Manejador, sinContenido } from './http'
 
@@ -823,4 +823,32 @@ export const plataforma: Manejador = async (req, ruta) => {
     (await atenderPublicidad(req, ruta, url)) ??
     (await atenderCobros(req, ruta, url))
   )
+}
+
+/**
+ * Lo público de la publicidad: la cartelera de la pantalla del lobby (`X-Pantalla`) y la redención
+ * de cupones en el mostrador del comercio (`X-Comercio`; el código `VENCIDO1` simula una oferta
+ * vencida).
+ */
+export const publicidadPublicaDemo: Manejador = async (req, ruta) => {
+  const pantalla = ruta.match(/^\/copropiedades\/([^/]+)\/publicidad\/pantalla$/)
+  if (req.method === 'GET' && pantalla) {
+    const token = pantallas.get(pantalla[1] ?? '')
+    if (!token || req.headers.get('X-Pantalla') !== token) return error(401, 'no_autenticado', 'La pantalla no tiene un token vigente.')
+    return json(piezasDemo())
+  }
+  if (req.method === 'POST' && ruta === '/publicidad/cupones/redimir') {
+    const token = req.headers.get('X-Comercio')
+    const anuncianteId = [...enlaces.entries()].find(([, t]) => t === token)?.[0]
+    if (!token || !anuncianteId) return error(401, 'no_autenticado', 'El enlace del comercio no es válido.')
+    const { codigo } = await cuerpo<{ codigo: string }>(req)
+    if (codigo === 'VENCIDO1') return error(422, 'validacion', 'La oferta ya venció.')
+    const campanasDelComercio = new Set(campanas.filter((c) => c.anunciante_id === anuncianteId).map((c) => c.id))
+    const x = creativos.find((c) => c.cupon_codigo === codigo && campanasDelComercio.has(c.campana_id))
+    if (!x) return error(404, 'no_encontrado', 'El código no existe.')
+    if (x.cupon_limite != null && x.cupon_usos >= x.cupon_limite) return error(422, 'validacion', 'El cupón ya no tiene usos disponibles.')
+    x.cupon_usos++
+    return json({ creativo_id: x.id, titulo: x.titulo, usos: x.cupon_usos, restantes: x.cupon_limite == null ? null : x.cupon_limite - x.cupon_usos })
+  }
+  return null
 }

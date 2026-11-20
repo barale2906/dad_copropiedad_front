@@ -34,7 +34,9 @@ alCerrarSesion(() => {
   useSesion().alTerminar()
   useEntidad().salir()
   useCuenta().limpiar()
-  if (router.currentRoute.value.name !== 'ingresar') router.replace({ name: 'ingresar' })
+  const actual = router.currentRoute.value
+  // Las páginas públicas no dependen de la sesión de la persona.
+  if (actual.name !== 'ingresar' && !actual.meta.externa) router.replace({ name: 'ingresar' })
 })
 
 app.mount('#app')

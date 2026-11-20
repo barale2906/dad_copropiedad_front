@@ -144,7 +144,7 @@ export function iniciarAsambleas(): void {
     { persona_id: titular(1).persona, nombre: titular(1).nombre, canal: 'whatsapp', estado_envio: 'enviado', acuse: 'delivered', enviado_en: enDias(-7) },
     { persona_id: titular(2).persona, nombre: titular(2).nombre, canal: 'correo', estado_envio: 'fallido', enviado_en: enDias(-7) },
   ]
-  const registro = base(reunion(4003, 'Asamblea ordinaria 2026', 'en_registro', { fecha_programada: enDias(0, 13), convocada_en: enDias(-20) }))
+  const registro = base(reunion(4003, 'Asamblea ordinaria 2026', 'en_registro', { fecha_programada: enDias(0, 13), convocada_en: enDias(-20), modalidad: 'mixta', enlace_video: 'https://meet.google.com/dad-demo-2026' }))
   registro.puntos = [punto(4031, 1, 'Verificación del quórum'), punto(4032, 2, 'Informe de gestión'), punto(4033, 3, 'Elección del consejo')]
   registro.asistentes = [asistente(4301, [0, 1]), asistente(4302, [4]), asistente(4303, [10], { presente: false })]
   registro.poderes = [{ id: id(4351), bien_privado_id: bienesDemo()[6]?.id ?? '', apoderado_persona_id: id(5001), soporte_archivo_id: id(1), estado: 'pendiente', registrado_en: enDias(0, 13) }]
@@ -301,6 +301,67 @@ const TRANSICIONES: Record<string, { desde: Reunion['estado'][]; hacia: Reunion[
   reanudar: { desde: ['suspendida'], hacia: 'instalada' },
   cerrar: { desde: ['instalada', 'suspendida', 'convocada'], hacia: 'cerrada' },
   cancelar: { desde: ['borrador', 'convocada', 'en_registro'], hacia: 'cancelada' },
+}
+
+/** Mismas reglas del voto en la mesa y en la papeleta: idempotencia, presencia, estado, opciones, mora y un voto por bien. */
+function emitirVoto(req: Request, r: ReunionDemo, x: PreguntaDemo, a: Asistente | undefined, opciones: string[], canal: NuevoVoto['canal'], noInscrito: string): Response {
+  const clave = req.headers.get('Idempotency-Key')
+  if (!clave) return error(422, 'validacion', 'Falta la cabecera Idempotency-Key.')
+  const repetido = votosPorClave.get(clave)
+  if (repetido) return json({ ...repetido, registrado: false }, 201)
+  if (!a || !a.presente) return error(403, 'no_inscrito', noInscrito)
+  if (x.p.estado !== 'abierta') return error(409, 'conflicto_estado', 'La votación ya cerró.')
+  const max = x.p.tipo === 'seleccion_multiple' ? x.p.max_selecciones : 1
+  if (!opciones.length || opciones.length > max || opciones.some((o) => !x.p.opciones.some((y) => y.id === o))) {
+    return error(422, 'validacion', 'El número de opciones elegidas no corresponde a la pregunta.')
+  }
+  const restaMora = r.reunion.configuracion.efecto_mora !== 'informativo'
+  const yaVotaron = new Set(x.votos.map((v) => v.bien))
+  const habilitados = a.bienes.filter((b) => !(restaMora && b.moroso) && !yaVotaron.has(b.bien_privado_id))
+  const omitidos = a.bienes.filter((b) => !habilitados.includes(b)).map((b) => b.codigo)
+  if (!habilitados.length) return error(409, 'ya_voto', 'Sus bienes ya votaron esta pregunta.')
+  habilitados.forEach((b) => x.votos.push({ bien: b.bien_privado_id, opciones, canal, asistente: a, apoderado: b.calidad === 'apoderado', en: ahora() }))
+  const voto: Voto = { registrado: true, asistente_id: a.id, nombre: a.nombre, bienes: habilitados.map((b) => b.codigo), omitidos }
+  votosPorClave.set(clave, voto)
+  return json(voto, 201)
+}
+
+/** Token demo de la papeleta: el prefijo más el id del asistente (el real es opaco). */
+export const PREFIJO_PAPELETA = 'demo-papeleta-'
+
+/**
+ * Papeleta virtual sin sesión (`X-Papeleta`): la reunión, el asistente, sus preguntas abiertas,
+ * el ingreso y la salida (solo en virtuales o mixtas) y el voto por la web.
+ */
+export const papeletaDemo: Manejador = async (req, ruta) => {
+  const base = ruta.match(/^\/copropiedades\/[^/]+\/papeleta(\/ingreso|\/salida|\/votos)?$/)
+  if (!base) return null
+  const token = req.headers.get('X-Papeleta') ?? ''
+  const asistenteId = token.startsWith(PREFIJO_PAPELETA) ? token.slice(PREFIJO_PAPELETA.length) : ''
+  const r = reuniones.find((x) => x.asistentes.some((a) => a.id === asistenteId))
+  const a = r?.asistentes.find((x) => x.id === asistenteId)
+  if (!r || !a || ['cerrada', 'cancelada'].includes(r.reunion.estado)) return error(401, 'no_autenticado', 'La papeleta no es válida.')
+  const m = req.method
+  const accion = base[1]
+  if (m === 'GET' && !accion) {
+    const votados = (x: PreguntaDemo) => a.bienes.every((b) => x.votos.some((v) => v.bien === b.bien_privado_id))
+    const abiertas = r.preguntas.filter((x) => x.p.estado === 'abierta').map((x) => ({ pregunta: x.p, ya_voto: votados(x) }))
+    return json({ reunion: r.reunion, asistente: a, preguntas_abiertas: abiertas })
+  }
+  if (m === 'POST' && (accion === '/ingreso' || accion === '/salida')) {
+    const entra = accion === '/ingreso'
+    if (entra && (r.reunion.modalidad === 'presencial' || a.presente)) return error(409, 'conflicto', a.presente ? 'Ya está presente.' : 'La reunión es presencial: regístrese en la mesa.')
+    if (!entra && !a.presente) return error(409, 'conflicto', 'No estaba presente.')
+    a.presente = entra
+    return json(a)
+  }
+  if (m === 'POST' && accion === '/votos') {
+    const d = await cuerpo<{ pregunta_id: string; opciones: string[] }>(req)
+    const x = r.preguntas.find((y) => y.p.id === d.pregunta_id)
+    if (!x) return error(404, 'no_encontrado', 'La pregunta no existe.')
+    return emitirVoto(req, r, x, a, d.opciones, 'web', 'Registre su ingreso o acuda a la mesa para votar.')
+  }
+  return null
 }
 
 function bienOcupado(r: ReunionDemo, bienId: string) {
@@ -494,7 +555,7 @@ export const asambleas: Manejador = async (req, ruta) => {
       poderes.forEach((x) => r.poderes.push({ id: id(++consecutivo), bien_privado_id: x.bien_privado_id, apoderado_persona_id: nuevo.persona_id, soporte_archivo_id: x.soporte_archivo_id, estado: 'pendiente', registrado_en: ahora() }))
       r.asistentes.push(nuevo)
       const avisos = nuevo.bienes.filter((x) => x.moroso).map((x) => `${x.codigo} está en mora: ${reu.configuracion.efecto_mora === 'informativo' ? 'vota igual' : 'no vota'}.`)
-      return json({ asistente: nuevo, token_papeleta: null, avisos }, 201)
+      return json({ asistente: nuevo, token_papeleta: `${PREFIJO_PAPELETA}${nuevo.id}`, avisos }, 201)
     }
   }
   const asi = sub.match(/^\/asistentes\/([^/]+)\/(salida|reingreso|rotulo|poderes|confirmacion)$/)
@@ -588,27 +649,10 @@ export const asambleas: Manejador = async (req, ruta) => {
       return json(x.p)
     }
     if (accion === '/votos' && m === 'POST') {
-      const clave = req.headers.get('Idempotency-Key')
-      if (!clave) return error(422, 'validacion', 'Falta la cabecera Idempotency-Key.')
-      const repetido = votosPorClave.get(clave)
-      if (repetido) return json({ ...repetido, registrado: false }, 201)
       const d = await cuerpo<NuevoVoto>(req)
       const a = r.asistentes.find((y) => (d.asistente_id ? y.id === d.asistente_id : !!d.rotulo && y.rotulo === d.rotulo))
-      if (!a || !a.presente) return error(403, 'no_inscrito', d.rotulo ? `El rótulo ${d.rotulo} no corresponde a un asistente presente.` : 'El asistente no está presente en la sala.')
-      if (x.p.estado !== 'abierta') return error(409, 'conflicto_estado', 'La votación ya cerró.')
-      const max = x.p.tipo === 'seleccion_multiple' ? x.p.max_selecciones : 1
-      if (!d.opciones.length || d.opciones.length > max || d.opciones.some((o) => !x.p.opciones.some((y) => y.id === o))) {
-        return error(422, 'validacion', 'El número de opciones elegidas no corresponde a la pregunta.')
-      }
-      const restaMora = reu.configuracion.efecto_mora !== 'informativo'
-      const yaVotaron = new Set(x.votos.map((v) => v.bien))
-      const habilitados = a.bienes.filter((b) => !(restaMora && b.moroso) && !yaVotaron.has(b.bien_privado_id))
-      const omitidos = a.bienes.filter((b) => !habilitados.includes(b)).map((b) => b.codigo)
-      if (!habilitados.length) return error(409, 'ya_voto', 'Sus bienes ya votaron esta pregunta.')
-      habilitados.forEach((b) => x.votos.push({ bien: b.bien_privado_id, opciones: d.opciones, canal: d.canal, asistente: a, apoderado: b.calidad === 'apoderado', en: ahora() }))
-      const voto: Voto = { registrado: true, asistente_id: a.id, nombre: a.nombre, bienes: habilitados.map((b) => b.codigo), omitidos }
-      votosPorClave.set(clave, voto)
-      return json(voto, 201)
+      const noInscrito = d.rotulo ? `El rótulo ${d.rotulo} no corresponde a un asistente presente.` : 'El asistente no está presente en la sala.'
+      return emitirVoto(req, r, x, a, d.opciones, d.canal, noInscrito)
     }
     if (accion === '/resultados' && m === 'GET') return json({ pregunta: x.p, escrutinio: x.resultado ?? escrutinioDe(r, x) })
     if (accion === '/detalle' && m === 'GET') {

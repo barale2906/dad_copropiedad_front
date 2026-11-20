@@ -50,6 +50,10 @@ test.describe('asambleas', () => {
     const coincidencias = page.getByRole('list', { name: 'Coincidencias en el padrón' })
     await coincidencias.getByRole('button', { name: /Registrar a Titular T1-401/ }).click()
     await expect(page.getByRole('status')).toContainText('Titular T1-401 registrado con 1 bien(es)')
+    const papeleta = page.getByRole('dialog', { name: 'Papeleta de Titular T1-401' })
+    await expect(papeleta).toContainText('una sola vez')
+    await expect(papeleta.getByRole('link', { name: 'Enviar por WhatsApp' })).toHaveAttribute('href', /papeleta%2F/)
+    await papeleta.getByRole('button', { name: 'Listo' }).click()
     await expect(page.getByRole('list', { name: 'Asistentes' })).toContainText('Titular T1-401')
     await expect(page.getByRole('list', { name: 'Asistentes' })).toContainText('2,500000 %')
 

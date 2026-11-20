@@ -14,6 +14,11 @@ declare module 'vue-router' {
     entidad?: boolean
     /** Se muestra con o sin sesión, sin redirigir (p. ej. «no encontrado»). */
     libre?: boolean
+    /**
+     * Página pública con su propia credencial (papeleta, directorio, pantalla, comercio,
+     * verificación): no restaura la sesión de la persona ni la entidad.
+     */
+    externa?: boolean
   }
 }
 
@@ -38,6 +43,31 @@ export const router = createRouter({
       meta: { publica: true },
     },
     { path: '/entidades', name: 'entidades', component: SelectorEntidadView },
+    {
+      path: '/papeleta/:copropiedadId',
+      name: 'papeleta',
+      component: () => import('@/pantallas/publicas/PapeletaView.vue'),
+      meta: { externa: true },
+    },
+    {
+      path: '/directorio/:copropiedadId',
+      name: 'directorio-publico',
+      component: () => import('@/pantallas/publicas/DirectorioPublicoView.vue'),
+      meta: { externa: true },
+    },
+    {
+      path: '/pantalla/:copropiedadId',
+      name: 'pantalla',
+      component: () => import('@/pantallas/publicas/PantallaView.vue'),
+      meta: { externa: true },
+    },
+    { path: '/comercio', name: 'comercio', component: () => import('@/pantallas/publicas/ComercioView.vue'), meta: { externa: true } },
+    {
+      path: '/verificar/:copropiedadId',
+      name: 'verificar',
+      component: () => import('@/pantallas/publicas/VerificarView.vue'),
+      meta: { externa: true },
+    },
     { path: '/cuenta', name: 'cuenta', component: () => import('@/pantallas/cuenta/CuentaView.vue') },
     {
       path: '/e/:entidadId',
@@ -78,6 +108,7 @@ const noEncontrado = (to: RouteLocationNormalized) => ({
 })
 
 router.beforeEach(async (to) => {
+  if (to.meta.externa) return true
   const sesion = useSesion()
   if (sesion.estado === 'desconocido') await sesion.restaurar()
 

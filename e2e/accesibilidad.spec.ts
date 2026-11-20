@@ -738,3 +738,22 @@ test('consola: candado sin segundo factor y franja de soporte', async ({ page })
   await expect(page.getByText('La consola de la plataforma exige el segundo factor')).toBeVisible()
   await revisar(page)
 })
+
+test('páginas públicas: papeleta, directorio, pantalla, comercio y verificación', async ({ page }) => {
+  const PH = '01930000-0000-7000-8000-000000000001'
+  const pantallas: [string, string][] = [
+    [`/papeleta/${PH}#t=demo-papeleta-01930000-0000-7000-8000-000000004409`, 'Asamblea ordinaria de mitad de año'],
+    [`/papeleta/${PH}#t=demo-papeleta-01930000-0000-7000-8000-000000004303`, 'Asamblea ordinaria 2026'],
+    [`/directorio/${PH}#t=demo-directorio-7Q4K`, 'Directorio de Conjunto Residencial Los Robles'],
+    [`/pantalla/${PH}#t=demo-pantalla-ROBLES`, '10 % en arreglos de ropa'],
+    ['/comercio#t=demo-cupones-ROSA', 'Redimir un cupón'],
+    [`/verificar/${PH}`, 'Verificar un certificado'],
+    [`/papeleta/${PH}`, 'Papeleta de la asamblea'],
+  ]
+  for (const [ruta, titulo] of pantallas) {
+    await page.goto(ruta)
+    await expect(page.getByRole('heading', { name: titulo, level: 1 })).toBeVisible()
+    await expect(page.getByText('Cargando')).toHaveCount(0)
+    await revisar(page)
+  }
+})
