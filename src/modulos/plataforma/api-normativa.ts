@@ -1,10 +1,19 @@
 /**
  * Catálogos normativos de la plataforma (PUC, retenciones, UVT, IVA, ICA, exógena, tasas de
  * referencia y plantillas contables), líneas y tarifas de WhatsApp y reclamaciones de
- * organizaciones. Las versiones nuevas rigen desde su fecha: las anteriores no se editan.
+ * organizaciones y el catálogo laboral de la nómina. Las versiones nuevas rigen desde su fecha:
+ * las anteriores no se editan.
  */
 import { api, exigir, idempotencia } from '@/api/cliente'
 import type {
+  Administradora,
+  CambiosAdministradora,
+  CatalogoLaboral,
+  NuevaAdministradora,
+  NuevaTablaLaboral,
+  NuevoParametroLaboral,
+  ParametroLaboral,
+  TablaLaboral,
   CambiosFichaOrganizacion,
   CambiosLineaWhatsapp,
   CatalogoRetenciones,
@@ -31,6 +40,31 @@ import type {
   TasaReferencia,
   Uvt,
 } from '@/api/tipos'
+
+// Catálogo laboral (nómina) ------------------------------------------------------------------
+
+/** Todas las versiones de los parámetros y las tablas, y todas las administradoras. */
+export function catalogoLaboral(): Promise<CatalogoLaboral> {
+  return exigir(api().GET('/api/v1/plataforma/nomina/catalogo'))
+}
+
+/** Versión nueva de un parámetro (solo inserción: un error se corrige con otra versión). */
+export function crearParametroLaboral(datos: NuevoParametroLaboral): Promise<ParametroLaboral> {
+  return exigir(api().POST('/api/v1/plataforma/nomina/parametros', { body: datos }))
+}
+
+/** La tabla completa de retención o del fondo de solidaridad desde una fecha. */
+export function crearTablaLaboral(datos: NuevaTablaLaboral): Promise<TablaLaboral> {
+  return exigir(api().POST('/api/v1/plataforma/nomina/tablas', { body: datos }))
+}
+
+export function crearAdministradora(datos: NuevaAdministradora): Promise<Administradora> {
+  return exigir(api().POST('/api/v1/plataforma/nomina/administradoras', { body: datos }))
+}
+
+export function editarAdministradora(id: string, cambios: CambiosAdministradora): Promise<Administradora> {
+  return exigir(api().PUT('/api/v1/plataforma/nomina/administradoras/{administradora_id}', { params: { path: { administradora_id: id } }, body: cambios }))
+}
 
 // Normativa contable y tributaria ----------------------------------------------------------
 

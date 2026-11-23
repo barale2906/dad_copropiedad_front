@@ -122,7 +122,27 @@ describe('mapa de módulos', () => {
   })
 
   it('las secciones próximas siempre están apagadas', () => {
-    expect(estadoSeccion(SECCIONES.nomina!, consulta([], []))).toBe('proximamente')
-    expect(estadoDeSecciones(['nomina'], consulta([], []))).toBe('proximamente')
+    const proxima = { ...SECCIONES.nomina!, proximamente: true }
+    expect(estadoSeccion(proxima, consulta(['nomina'], ['nomina.ver']))).toBe('proximamente')
+  })
+
+  it('la nómina se vende sola, en la PH y en la empresa', () => {
+    expect(estadoSeccion(SECCIONES.nomina!, consulta([], ['nomina.ver']))).toBe('no_contratada')
+    expect(estadoSeccion(SECCIONES.nomina!, consulta(['nomina'], ['nomina.ver'], false))).toBe('activa')
+    expect(estadoSeccion(SECCIONES.nomina!, consulta(['nomina'], []))).toBe('sin_acceso')
+    expect(ZONAS.conjunto.find((z) => z.id === 'administracion')!.secciones).toContain('nomina')
+  })
+
+  it('la nómina muestra cada acción por su permiso', () => {
+    const c = consulta(['nomina'], ['nomina.ver', 'nomina.novedades.registrar'])
+    expect(ids('nomina', c)).toEqual(['inicio', 'empleados', 'novedades', 'periodos'])
+    expect(ids('nomina', consulta(['nomina'], ['nomina.ver', 'nomina.salarios.ver']))).toContain('reportes')
+  })
+
+  it('una acción que aún no existe en el backend abre «Próximamente»', () => {
+    const c = consulta(['nomina'], ['nomina.ver', 'nomina.salarios.ver'])
+    expect(ids('nomina', c)).toContain('pila')
+    expect(estadoAccion(SECCIONES.nomina!, 'pila', c)).toBe('proximamente')
+    expect(estadoAccion(SECCIONES.nomina!, 'reportes', c)).toBe('activa')
   })
 })

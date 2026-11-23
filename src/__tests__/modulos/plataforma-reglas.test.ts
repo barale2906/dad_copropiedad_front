@@ -49,8 +49,9 @@ describe('alta de un cliente', () => {
     expect(estadosSiguientes('retirada')).toEqual([])
   })
 
-  it('a las empresas solo se les venden contabilidad y factura electrónica', () => {
-    expect(modulosDe('empresa')).toEqual(['contabilidad', 'facturacion_electronica'])
+  it('a las empresas se les venden contabilidad, factura electrónica y nómina', () => {
+    expect(modulosDe('empresa')).toEqual(['contabilidad', 'facturacion_electronica', 'nomina'])
+    expect(modulosDe('propiedad_horizontal')).toContain('nomina')
     expect(modulosDe('propiedad_horizontal')).toContain('control_acceso')
   })
 })

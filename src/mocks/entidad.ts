@@ -166,7 +166,7 @@ function validar(texto: string, nombre: string): Response {
     total_filas: filas.length,
     filas_validas: validas.length,
     errores,
-    resumen: { bienes_privados: 0, agrupaciones_nuevas: 0, titulares: 0, personas_nuevas: 0, coeficientes: 0, usuarios: validas.length, cuentas_nuevas: 0 },
+    resumen: { bienes_privados: 0, agrupaciones_nuevas: 0, titulares: 0, personas_nuevas: 0, coeficientes: 0, usuarios: validas.length, cuentas_nuevas: 0, empleados: 0, novedades: 0 },
     creada_en: new Date().toISOString(),
   }
   importaciones.set(importacion.id, { importacion, filas: validas.map((v) => v.datos) })

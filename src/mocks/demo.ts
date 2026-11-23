@@ -15,6 +15,8 @@
  *    ejecutó el administrador)
  *  - que contenga `porteria` → guarda y jefe de seguridad de la PH (portería, plan 06)
  *  - que contenga `residente` → propietario y residente de la PH (portal «Mi hogar», plan 05)
+ *  - nómina (plan 17) en la PH y en «DAD Servicios»: el administrador es también empleado de la
+ *    PH (sus desprendibles salen en «Mi nómina»); `revisor` aprueba lo que liquida el administrador
  *  - que contenga `plataforma` → equipo de la plataforma con segundo factor (consola, plan 15);
  *    `operador` → igual pero sin segundo factor (el centro de operación sale con candado)
  */
@@ -33,6 +35,7 @@ import { iniciarTesoreria, tesoreria } from './tesoreria'
 import { iniciarTributario, tributario } from './tributario'
 import { gestion, iniciarGestion } from './gestion'
 import { iniciarMi, mi } from './mi'
+import { iniciarNomina, nomina } from './nomina'
 import { accesoSoporte, iniciarPlataforma, plataforma, publicidadPublicaDemo } from './plataforma'
 import { iniciarPublico, verificacionDemo } from './publico'
 import { iniciarPorteria, porteria } from './porteria'
@@ -41,7 +44,7 @@ import { iniciarZonasComunes, zonasComunes } from './zonas-comunes'
 import { error, json, ZONA_DEMO, type Manejador } from './http'
 
 /** Manejadores que exigen sesión, en orden; el primero que responda gana. */
-const CON_SESION: Manejador[] = [cuenta, plataforma, archivos, ficha, unidades, mi, directorio, gestion, asambleas, cartera, facturacion, tesoreria, tributario, contabilidad, porteria, proteccion, zonasComunes, entidad, permisos]
+const CON_SESION: Manejador[] = [nomina, cuenta, plataforma, archivos, ficha, unidades, mi, directorio, gestion, asambleas, cartera, facturacion, tesoreria, tributario, contabilidad, porteria, proteccion, zonasComunes, entidad, permisos]
 /** Manejadores sin sesión (además del inicio de sesión): definir contraseña y las páginas públicas. */
 const SIN_SESION: Manejador[] = [cuentaPublica, papeletaDemo, directorioPublicoDemo, publicidadPublicaDemo, verificacionDemo]
 
@@ -67,7 +70,8 @@ const TODOS: Permiso[] = [
   'presupuesto.gestionar', 'cartera.ajustar', 'tributario.preparar', 'terceros.gestionar', 'facturacion.ver',
   'facturacion.facturas.gestionar', 'facturacion.emitir', 'facturacion.items.gestionar', 'facturacion.exportar',
   'facturacion.configurar', 'facturacion.certificado.gestionar', 'facturacion.recibir', 'directorio.ver', 'directorio.compartir', 'directorio.resenar',
-  'importaciones.ejecutar',
+  'importaciones.ejecutar', 'nomina.ver', 'nomina.salarios.ver', 'nomina.empleados.gestionar', 'nomina.configurar',
+  'nomina.novedades.registrar', 'nomina.liquidar', 'nomina.aprobar',
   'roles.asignar', 'proteccion_datos.gestionar', 'tributario.configurar',
   'copropiedad.datos.editar', 'archivos.personales.ver', 'suscripcion.ver', 'organizaciones.crear',
   'organizaciones.vincular', 'contratos.gestionar', 'personas.datos_sensibles.ver',
@@ -91,7 +95,7 @@ const ENTIDADES: (EntidadDeLaCuenta & { capacidades: Capacidades })[] = [
       // Sin `control_acceso` (la portería se ve apagada) ni `facturacion_electronica` (sus
       // acciones propias no se ofrecen).
       modulos: ['bienes_comunes', 'asambleas', 'gestion_administrativa',
-        'contabilidad', 'contabilidad_ph'],
+        'contabilidad', 'contabilidad_ph', 'nomina'],
       modo_soporte: false, entidad_suspendida: false, zona_horaria: ZONA_DEMO,
     },
   },
@@ -111,7 +115,7 @@ const ENTIDADES: (EntidadDeLaCuenta & { capacidades: Capacidades })[] = [
     tipo: 'empresa',
     estado: 'activa',
     roles: ['contador'],
-    capacidades: { tipo: 'empresa', permisos: TODOS, modulos: ['contabilidad', 'facturacion_electronica'], modo_soporte: false, entidad_suspendida: false, zona_horaria: ZONA_DEMO },
+    capacidades: { tipo: 'empresa', permisos: TODOS, modulos: ['contabilidad', 'facturacion_electronica', 'nomina'], modo_soporte: false, entidad_suspendida: false, zona_horaria: ZONA_DEMO },
   },
   {
     // Solo factura electrónica (sin contabilidad): la facturación del plan 12 sin cuentas.
@@ -247,6 +251,7 @@ function iniciarDemo(u: string): void {
   iniciarDirectorio()
   iniciarPlataforma(u)
   iniciarPublico()
+  iniciarNomina(u)
 }
 
 const espera = (ms: number) => new Promise((r) => setTimeout(r, ms))

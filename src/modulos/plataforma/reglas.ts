@@ -44,12 +44,16 @@ export const NOMBRE_MODULO: Record<Modulo, string> = {
   control_acceso: 'Portería y control de acceso',
   asambleas: 'Asambleas',
   gestion_administrativa: 'Gestión administrativa',
+  nomina: 'Nómina',
 }
 
-/** Los módulos que se venden a cada tipo de entidad (la cartera y la portería son de la PH). */
+/**
+ * Los módulos que se venden a cada tipo de entidad (la cartera y la portería son de la PH; la
+ * nómina se vende sola a cualquiera).
+ */
 export function modulosDe(tipo: TipoEntidad): Modulo[] {
   const todos = Object.keys(NOMBRE_MODULO) as Modulo[]
-  return tipo === 'propiedad_horizontal' ? todos : ['contabilidad', 'facturacion_electronica']
+  return tipo === 'propiedad_horizontal' ? todos : ['contabilidad', 'facturacion_electronica', 'nomina']
 }
 
 export const TONO_ESTADO_ENTIDAD: Record<EstadoEntidad, Tono> = {

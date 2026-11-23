@@ -301,7 +301,8 @@ export interface paths {
         put?: never;
         /**
          * Habilita un módulo en una copropiedad (venta por módulo). Los endpoints del módulo dejan de
-         *     responder `modulo_no_habilitado` desde `desde`.
+         *     responder `modulo_no_habilitado` desde `desde`. Si la entidad tiene suscripción y hay un
+         *     producto con tarifa para el módulo, agrega su línea de cobro.
          */
         post: {
             parameters: {
@@ -7339,6 +7340,373 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/plataforma/nomina/catalogo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Catálogo laboral completo de la plataforma (todas las versiones y administradoras). */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Catálogo */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["CatalogoLaboralRespuesta"];
+                    };
+                };
+                /** @description Sin sesión o token vencido (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Sin `plataforma.normativa.gestionar` (`sin_permiso`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plataforma/nomina/parametros": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Agrega una versión de un parámetro laboral. El catálogo es de solo inserción: un error se
+         *     corrige con otra versión.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["NuevoParametroLaboralPeticion"];
+                };
+            };
+            responses: {
+                /** @description Versión creada */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ParametroLaboralRespuesta"];
+                    };
+                };
+                /** @description Sin sesión o token vencido (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Sin `plataforma.normativa.gestionar` (`sin_permiso`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Ya hay una versión con esa fecha (`conflicto`) */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description El valor no cabe en la unidad del parámetro (`validacion`) */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plataforma/nomina/administradoras": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Agrega una administradora de la seguridad social al catálogo. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["NuevaAdministradoraPeticion"];
+                };
+            };
+            responses: {
+                /** @description Administradora creada */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AdministradoraRespuesta"];
+                    };
+                };
+                /** @description Sin sesión o token vencido (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Sin `plataforma.normativa.gestionar` (`sin_permiso`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Ya existe una del mismo tipo con ese código (`conflicto`) */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Código, NIT o nombre inválidos (`validacion`) */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plataforma/nomina/administradoras/{administradora_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Cambia el nombre y el estado de una administradora. */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Administradora */
+                    administradora_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["CambiosAdministradoraPeticion"];
+                };
+            };
+            responses: {
+                /** @description Administradora actualizada */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AdministradoraRespuesta"];
+                    };
+                };
+                /** @description Sin sesión o token vencido (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Sin `plataforma.normativa.gestionar` (`sin_permiso`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Administradora inexistente */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Nombre inválido (`validacion`) */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plataforma/nomina/tablas": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Agrega una versión completa de una tabla por tramos (retención por salarios o fondo de
+         *     solidaridad). Nunca se edita: un error se corrige con otra versión.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["NuevaTablaLaboralPeticion"];
+                };
+            };
+            responses: {
+                /** @description Versión creada */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["TablaLaboralRespuesta"];
+                    };
+                };
+                /** @description Sin sesión o token vencido (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Sin `plataforma.normativa.gestionar` (`sin_permiso`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Ya hay una versión con esa fecha (`conflicto`) */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Tramos que no empiezan en cero, con huecos o sin el último abierto (`validacion`) */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/yo": {
         parameters: {
             query?: never;
@@ -7951,6 +8319,176 @@ export interface paths {
                 };
             };
         };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/yo/nomina/desprendibles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Mis desprendibles en todas las entidades donde trabajo o trabajé (periodos aprobados). */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Desprendibles de la cuenta */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["DesprendibleDeCuentaRespuesta"][];
+                    };
+                };
+                /** @description Sin sesión (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/yo/nomina/{entidad_id}/desprendibles/{liquidacion_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** PDF de uno de mis desprendibles. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Entidad empleadora */
+                    entidad_id: string;
+                    /** @description Liquidación */
+                    liquidacion_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description PDF del desprendible */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/pdf": number[];
+                    };
+                };
+                /** @description Sin sesión (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description No existe o no es de la persona vinculada a la cuenta */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description El periodo no está aprobado (`conflicto`) */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/yo/nomina/{entidad_id}/certificado-laboral": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Mi certificado laboral en una entidad donde trabajo o trabajé (con mi salario actual). */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Entidad empleadora */
+                    entidad_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description PDF del certificado */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/pdf": number[];
+                    };
+                };
+                /** @description Sin sesión (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description La cuenta no es empleada de la entidad */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -44882,6 +45420,2815 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/entidades/{entidad_id}/nomina/importaciones": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Sube y valida una planilla de empleados (CSV o XLSX; columnas en la plantilla). No crea
+         *     nada: devuelve la vista previa con los errores por fila; se aplica con
+         *     `…/nomina/importaciones/{id}/confirmar`.
+         */
+        post: {
+            parameters: {
+                query: {
+                    /** @example bienes_privados.xlsx */
+                    nombre: string;
+                };
+                header?: never;
+                path: {
+                    /** @description Entidad */
+                    entidad_id: string;
+                };
+                cookie?: never;
+            };
+            /** @description Contenido del CSV o XLSX */
+            requestBody: {
+                content: {
+                    "application/octet-stream": number[];
+                };
+            };
+            responses: {
+                /** @description Importación registrada (revise `estado` y `errores`) */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["VistaPreviaEmpleadosRespuesta"];
+                    };
+                };
+                /** @description Sin sesión o token vencido (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Sin `importaciones.ejecutar` o `nomina.empleados.gestionar` (`sin_permiso`) o sin el módulo `nomina` (`modulo_no_habilitado`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description No es CSV/XLSX o no se puede leer (`validacion`) */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/nomina/importaciones/plantilla": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Plantilla CSV de empleados (encabezados y una fila de ejemplo, separada por `;`). */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Entidad */
+                    entidad_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Plantilla CSV */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/csv": string;
+                    };
+                };
+                /** @description Sin sesión o token vencido (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description No exige permisos: basta un rol en la entidad */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/nomina/importaciones/{importacion_id}/confirmar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Crea los empleados de una importación validada en una sola transacción (si una fila choca,
+         *     no se crea ninguno y el mensaje dice la fila).
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Entidad */
+                    entidad_id: string;
+                    /** @description Importación de empleados */
+                    importacion_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Aplicada */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ImportacionRespuesta"];
+                    };
+                };
+                /** @description Sin sesión o token vencido (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Sin `importaciones.ejecutar` o `nomina.empleados.gestionar` (`sin_permiso`) o sin el módulo `nomina` (`modulo_no_habilitado`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description No existe o no es de empleados */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Ya aplicada, con errores, los datos cambiaron o una fila choca con lo existente (`conflicto`) */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/nomina/catalogo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Catálogo laboral vigente en la fecha y administradoras activas (lo que usan los contratos). */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Vigente en esta fecha (hoy si se omite). */
+                    fecha?: string;
+                };
+                header?: never;
+                path: {
+                    /** @description Entidad */
+                    entidad_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Catálogo vigente */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["CatalogoLaboralRespuesta"];
+                    };
+                };
+                /** @description Sin sesión o token vencido (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Sin `nomina.ver` (`sin_permiso`) o sin el módulo `nomina` (`modulo_no_habilitado`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/nomina/empleados": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Empleados de la entidad con su estado de hoy. */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Fragmento del nombre, el documento o el código (sin tildes ni mayúsculas). */
+                    q?: string;
+                    estado?: components["schemas"]["EstadoEmpleado"];
+                    /**
+                     * @description Elementos por página (1–200; 50 si se omite).
+                     * @example 50
+                     */
+                    limite?: number;
+                    /** @description Cursor: el valor `siguiente` de la página anterior. Se omite para la primera página. */
+                    despues?: string;
+                };
+                header?: never;
+                path: {
+                    /** @description Entidad */
+                    entidad_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Empleados */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PaginaRespuesta_EmpleadoResumenRespuesta"];
+                    };
+                };
+                /** @description Sin sesión o token vencido (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Sin `nomina.ver` (`sin_permiso`) o sin el módulo `nomina` (`modulo_no_habilitado`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /** Da de alta un empleado con su primer contrato (crea la persona si no está en la entidad). */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Entidad */
+                    entidad_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["NuevoEmpleadoPeticion"];
+                };
+            };
+            responses: {
+                /** @description Empleado creado */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["FichaEmpleadoRespuesta"];
+                    };
+                };
+                /** @description Sin sesión o token vencido (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Sin `nomina.empleados.gestionar` (`sin_permiso`) o sin el módulo `nomina` (`modulo_no_habilitado`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Persona inexistente */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Código repetido o la persona ya es empleada (`conflicto`) */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Contrato inválido: fechas, salario, afiliaciones o catálogo sin el parámetro vigente (`validacion`) */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/nomina/empleados/{empleado_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Ficha del empleado con todos sus contratos y versiones (salarios y cuentas solo con
+         *     `nomina.salarios.ver`).
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Entidad */
+                    entidad_id: string;
+                    /** @description Empleado */
+                    empleado_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Ficha */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["FichaEmpleadoRespuesta"];
+                    };
+                };
+                /** @description Sin sesión o token vencido (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Sin `nomina.ver` (`sin_permiso`) o sin el módulo `nomina` (`modulo_no_habilitado`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Empleado inexistente */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/nomina/contratos/por-vencer": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Contratos a término fijo sin terminar que vencen en los próximos días (los mismos del aviso por
+         *     correo), del más próximo al más lejano.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Días hacia adelante (por omisión 45, el plazo del aviso por correo; máximo 120). */
+                    dias?: number;
+                };
+                header?: never;
+                path: {
+                    /** @description Entidad */
+                    entidad_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Contratos por vencer */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ContratoPorVencerRespuesta"][];
+                    };
+                };
+                /** @description Sin sesión o token vencido (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Sin `nomina.ver` (`sin_permiso`) o sin el módulo `nomina` (`modulo_no_habilitado`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description `dias` mayor que 120 (`validacion`) */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/nomina/empleados/{empleado_id}/contratos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Agrega un contrato a un empleado (no se cruza en fechas con sus otros contratos). */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Entidad */
+                    entidad_id: string;
+                    /** @description Empleado */
+                    empleado_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["NuevoContratoLaboralPeticion"];
+                };
+            };
+            responses: {
+                /** @description Contrato creado */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ContratoConVersionesRespuesta"];
+                    };
+                };
+                /** @description Sin sesión o token vencido (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Sin `nomina.empleados.gestionar` (`sin_permiso`) o sin el módulo `nomina` (`modulo_no_habilitado`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Empleado inexistente */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Se cruza con otro contrato del empleado (`conflicto`) */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Contrato inválido (`validacion`) */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/nomina/contratos/{contrato_id}/versiones": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Modifica las condiciones del contrato desde una fecha (una versión nueva; las anteriores no
+         *     cambian).
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Entidad */
+                    entidad_id: string;
+                    /** @description Contrato laboral */
+                    contrato_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["ModificacionContratoPeticion"];
+                };
+            };
+            responses: {
+                /** @description Versión creada */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["VersionContratoRespuesta"];
+                    };
+                };
+                /** @description Sin sesión o token vencido (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Sin `nomina.empleados.gestionar` (`sin_permiso`) o sin el módulo `nomina` (`modulo_no_habilitado`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Contrato inexistente */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description El contrato ya terminó (`conflicto`) */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Fecha o condiciones inválidas (`validacion`) */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/nomina/contratos/{contrato_id}/prorroga": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Prorroga un contrato a término fijo. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Entidad */
+                    entidad_id: string;
+                    /** @description Contrato laboral */
+                    contrato_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["ProrrogaContratoPeticion"];
+                };
+            };
+            responses: {
+                /** @description Contrato prorrogado */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ContratoLaboralRespuesta"];
+                    };
+                };
+                /** @description Sin sesión o token vencido (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Sin `nomina.empleados.gestionar` (`sin_permiso`) o sin el módulo `nomina` (`modulo_no_habilitado`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Contrato inexistente */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Ya terminó o la prórroga lo cruza con otro contrato (`conflicto`) */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description No es a término fijo o la fecha no es posterior (`validacion`) */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/nomina/contratos/{contrato_id}/terminacion": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Termina un contrato con su motivo (la liquidación llega en la fase 4). */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Entidad */
+                    entidad_id: string;
+                    /** @description Contrato laboral */
+                    contrato_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["TerminacionContratoPeticion"];
+                };
+            };
+            responses: {
+                /** @description Contrato terminado */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ContratoLaboralRespuesta"];
+                    };
+                };
+                /** @description Sin sesión o token vencido (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Sin `nomina.empleados.gestionar` (`sin_permiso`) o sin el módulo `nomina` (`modulo_no_habilitado`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Contrato inexistente */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Ya terminó (`conflicto`) */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Fecha fuera del contrato o antes de su última versión, o motivo que no aplica al tipo (`validacion`) */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/nomina/configuracion": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Configuración de la nómina (la predeterminada, sin exoneración, si nunca se guardó). */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Entidad */
+                    entidad_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Configuración */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ConfiguracionNominaRespuesta"];
+                    };
+                };
+                /** @description Sin sesión o token vencido (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Sin `nomina.ver` (`sin_permiso`) o sin el módulo `nomina` (`modulo_no_habilitado`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
+        /** Guarda la configuración de la nómina. */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Entidad */
+                    entidad_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["ConfiguracionNominaPeticion"];
+                };
+            };
+            responses: {
+                /** @description Configuración guardada */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ConfiguracionNominaRespuesta"];
+                    };
+                };
+                /** @description Sin sesión o token vencido (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Sin `nomina.configurar` (`sin_permiso`) o sin el módulo `nomina` (`modulo_no_habilitado`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/nomina/contratos/{contrato_id}/novedades": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Registra una novedad del contrato (dentro de sus fechas y fuera de periodos aprobados). */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Entidad */
+                    entidad_id: string;
+                    /** @description Contrato laboral */
+                    contrato_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["NuevaNovedadPeticion"];
+                };
+            };
+            responses: {
+                /** @description Novedad registrada */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["NovedadNominaRespuesta"];
+                    };
+                };
+                /** @description Sin sesión o token vencido (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Sin `nomina.novedades.registrar` (`sin_permiso`) o sin el módulo `nomina` (`modulo_no_habilitado`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Contrato o soporte inexistente */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Medida o fechas que no corresponden, dominical que no cae en domingo o festivo, fuera del contrato o en un periodo aprobado (`validacion`) */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/nomina/novedades": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Novedades que tocan el rango (con las anuladas marcadas). Las incapacidades y licencias de
+         *     maternidad o paternidad solo con `personas.datos_sensibles.ver`.
+         */
+        get: {
+            parameters: {
+                query: {
+                    desde: string;
+                    hasta: string;
+                    /** @description Solo las de este contrato. */
+                    contrato_id?: string;
+                };
+                header?: never;
+                path: {
+                    /** @description Entidad */
+                    entidad_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Novedades */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["NovedadNominaRespuesta"][];
+                    };
+                };
+                /** @description Sin sesión o token vencido (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Sin `nomina.ver` (`sin_permiso`) o sin el módulo `nomina` (`modulo_no_habilitado`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description `hasta` antes de `desde` (`validacion`) */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/nomina/novedades/{novedad_id}/anulacion": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Anula una novedad (deja de entrar a la liquidación). */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Entidad */
+                    entidad_id: string;
+                    /** @description Novedad */
+                    novedad_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["AnulacionNovedadPeticion"];
+                };
+            };
+            responses: {
+                /** @description Anulada */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Sin sesión o token vencido (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Sin `nomina.novedades.registrar` (`sin_permiso`) o sin el módulo `nomina` (`modulo_no_habilitado`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Novedad inexistente */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Ya estaba anulada (`conflicto`) */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Cae en un periodo aprobado o falta el motivo (`validacion`) */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/nomina/periodos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Periodos de la entidad, el más reciente primero (a lo sumo 120). */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Entidad */
+                    entidad_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Periodos */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PeriodoNominaRespuesta"][];
+                    };
+                };
+                /** @description Sin sesión o token vencido (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Sin `nomina.ver` (`sin_permiso`) o sin el módulo `nomina` (`modulo_no_habilitado`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /** Abre un periodo (el mes completo, o la quincena del 1 al 15 o del 16 al fin de mes). */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Entidad */
+                    entidad_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["NuevoPeriodoNominaPeticion"];
+                };
+            };
+            responses: {
+                /** @description Periodo abierto */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PeriodoNominaRespuesta"];
+                    };
+                };
+                /** @description Sin sesión o token vencido (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Sin `nomina.liquidar` (`sin_permiso`) o sin el módulo `nomina` (`modulo_no_habilitado`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description El periodo ya existe (`conflicto`) */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description `desde` no inicia un periodo (`validacion`) */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/nomina/periodos/{periodo_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Periodo con sus liquidaciones (datos personales). */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Entidad */
+                    entidad_id: string;
+                    /** @description Periodo de nómina */
+                    periodo_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Periodo */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PeriodoLiquidadoRespuesta"];
+                    };
+                };
+                /** @description Sin sesión o token vencido (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Sin `nomina.salarios.ver` (`sin_permiso`) o sin el módulo `nomina` (`modulo_no_habilitado`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Periodo inexistente */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/nomina/periodos/{periodo_id}/liquidacion": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Liquida (o vuelve a liquidar) todos los contratos del periodo con su periodicidad. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Entidad */
+                    entidad_id: string;
+                    /** @description Periodo de nómina */
+                    periodo_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Liquidado */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PeriodoLiquidadoRespuesta"];
+                    };
+                };
+                /** @description Sin sesión o token vencido (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Sin `nomina.liquidar` (`sin_permiso`) o sin el módulo `nomina` (`modulo_no_habilitado`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Periodo inexistente */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Ya fue aprobado (`conflicto_estado`) */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Falta un parámetro, una tabla o la UVT vigentes, o un contrato no se puede liquidar (`validacion`; el mensaje dice el código del empleado) */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/nomina/periodos/{periodo_id}/aprobacion": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Aprueba la liquidación: otra cuenta distinta de la que liquidó y sin novedades posteriores. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Entidad */
+                    entidad_id: string;
+                    /** @description Periodo de nómina */
+                    periodo_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Aprobado */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PeriodoNominaRespuesta"];
+                    };
+                };
+                /** @description Sin sesión o token vencido (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Sin `nomina.aprobar` (`sin_permiso`) o sin el módulo `nomina` (`modulo_no_habilitado`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Periodo inexistente */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description No está liquidado (`conflicto_estado`), lo aprueba quien liquidó o hay novedades posteriores (`conflicto`) */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/nomina/periodos/{periodo_id}/pago": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Marca pagado un periodo aprobado. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Entidad */
+                    entidad_id: string;
+                    /** @description Periodo de nómina */
+                    periodo_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["PagoPeriodoNominaPeticion"];
+                };
+            };
+            responses: {
+                /** @description Pagado */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PeriodoNominaRespuesta"];
+                    };
+                };
+                /** @description Sin sesión o token vencido (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Sin `nomina.liquidar` (`sin_permiso`) o sin el módulo `nomina` (`modulo_no_habilitado`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Periodo inexistente */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description No está aprobado (`conflicto_estado`) */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/nomina/cesantias": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Cesantías del año por consignar (contratos con salario ordinario vigentes al 31 de diciembre). */
+        get: {
+            parameters: {
+                query: {
+                    /** @example 2026 */
+                    anio: number;
+                };
+                header?: never;
+                path: {
+                    /** @description Entidad */
+                    entidad_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Cesantías por contrato */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["CesantiasContratoRespuesta"][];
+                    };
+                };
+                /** @description Sin sesión o token vencido (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Sin `nomina.salarios.ver` (`sin_permiso`) o sin el módulo `nomina` (`modulo_no_habilitado`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Falta un parámetro del catálogo (`validacion`) */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/nomina/liquidaciones/{liquidacion_id}/desprendible": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * PDF del desprendible de una liquidación (periodo aprobado o pagado). Las incapacidades y
+         *     licencias salen como «Ausencia remunerada» y no lleva la cuenta bancaria.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Entidad */
+                    entidad_id: string;
+                    /** @description Liquidación */
+                    liquidacion_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description PDF del desprendible */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/pdf": number[];
+                    };
+                };
+                /** @description Sin sesión o token vencido (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Sin `nomina.salarios.ver` (`sin_permiso`) o sin el módulo `nomina` (`modulo_no_habilitado`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Liquidación inexistente */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description El periodo no está aprobado (`conflicto`) */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/nomina/periodos/{periodo_id}/desprendibles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Envía por correo el desprendible de cada empleado del periodo aprobado. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Entidad */
+                    entidad_id: string;
+                    /** @description Periodo de nómina */
+                    periodo_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Desprendibles encolados */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["EnvioDesprendiblesRespuesta"];
+                    };
+                };
+                /** @description Sin sesión o token vencido (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Sin `nomina.liquidar` (`sin_permiso`) o sin el módulo `nomina` (`modulo_no_habilitado`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Periodo inexistente */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description El periodo no está aprobado (`conflicto`) */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/nomina/empleados/{empleado_id}/certificado-laboral": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Certificado laboral del empleado en PDF (cargo, tipo de contrato y fechas; el salario solo si
+         *     se pide).
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Incluir el salario actual (exige `nomina.salarios.ver`). */
+                    con_salario?: boolean;
+                };
+                header?: never;
+                path: {
+                    /** @description Entidad */
+                    entidad_id: string;
+                    /** @description Empleado */
+                    empleado_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description PDF del certificado */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/pdf": number[];
+                    };
+                };
+                /** @description Sin sesión o token vencido (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Sin `nomina.ver` (o sin `nomina.salarios.ver` con salario) (`sin_permiso`) o sin el módulo `nomina` (`modulo_no_habilitado`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Empleado inexistente o sin contratos */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/nomina/aportes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Aportes a la seguridad social y parafiscales del mes, por empleado y por administradora
+         *     (insumo para diligenciar la PILA en el operador).
+         */
+        get: {
+            parameters: {
+                query: {
+                    /** @example 2026 */
+                    anio: number;
+                    /**
+                     * @description 1 a 12.
+                     * @example 3
+                     */
+                    mes: number;
+                };
+                header?: never;
+                path: {
+                    /** @description Entidad */
+                    entidad_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Aportes del mes */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ResumenAportesRespuesta"];
+                    };
+                };
+                /** @description Sin sesión o token vencido (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Sin `nomina.salarios.ver` (`sin_permiso`) o sin el módulo `nomina` (`modulo_no_habilitado`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Mes inválido (`validacion`) */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/nomina/ingresos-retenciones": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Ingresos y retenciones del año por empleado, en los grupos del certificado de ingresos y
+         *     retenciones por rentas de trabajo (insumo del formulario 220).
+         */
+        get: {
+            parameters: {
+                query: {
+                    /** @example 2026 */
+                    anio: number;
+                };
+                header?: never;
+                path: {
+                    /** @description Entidad */
+                    entidad_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Totales por empleado */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["IngresosEmpleadoRespuesta"][];
+                    };
+                };
+                /** @description Sin sesión o token vencido (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Sin `nomina.salarios.ver` (`sin_permiso`) o sin el módulo `nomina` (`modulo_no_habilitado`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Año inválido (`validacion`) */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/nomina/novedades/importaciones": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Sube y valida una planilla de novedades (columnas `codigo` del empleado, `tipo`, `desde`,
+         *     `hasta`, `cantidad` y `descripcion`). No registra nada: devuelve la vista previa.
+         */
+        post: {
+            parameters: {
+                query: {
+                    /** @example bienes_privados.xlsx */
+                    nombre: string;
+                };
+                header?: never;
+                path: {
+                    /** @description Entidad */
+                    entidad_id: string;
+                };
+                cookie?: never;
+            };
+            /** @description Contenido del CSV o XLSX */
+            requestBody: {
+                content: {
+                    "application/octet-stream": number[];
+                };
+            };
+            responses: {
+                /** @description Importación registrada (revise `estado` y `errores`) */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["VistaPreviaNovedadesRespuesta"];
+                    };
+                };
+                /** @description Sin sesión o token vencido (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Sin `importaciones.ejecutar` o `nomina.novedades.registrar` (`sin_permiso`) o sin el módulo `nomina` (`modulo_no_habilitado`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description No es CSV/XLSX o no se puede leer (`validacion`) */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/nomina/novedades/importaciones/plantilla": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Plantilla CSV de novedades. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Entidad */
+                    entidad_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Plantilla CSV */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/csv": string;
+                    };
+                };
+                /** @description Sin sesión o token vencido (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description No exige permisos: basta un rol en la entidad */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/nomina/novedades/importaciones/{importacion_id}/confirmar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Registra las novedades de una importación validada en una sola transacción. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Entidad */
+                    entidad_id: string;
+                    /** @description Importación de novedades */
+                    importacion_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Aplicada */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ImportacionRespuesta"];
+                    };
+                };
+                /** @description Sin sesión o token vencido (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Sin `importaciones.ejecutar` o `nomina.novedades.registrar` (`sin_permiso`) o sin el módulo `nomina` (`modulo_no_habilitado`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description No existe o no es de novedades */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Ya aplicada, con errores, los datos cambiaron o una fila cae en un periodo aprobado (`conflicto`) */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/nomina/contabilizacion": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Contabiliza los periodos aprobados o pagados entre las fechas (la nómina aprobada antes de
+         *     habilitar la contabilidad). Es idempotente; cada periodo va aparte.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Entidad */
+                    entidad_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["RangoContabilizacionNominaPeticion"];
+                };
+            };
+            responses: {
+                /** @description Informe */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["InformeContabilizacionNominaRespuesta"];
+                    };
+                };
+                /** @description Sin sesión o token vencido (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Sin `contabilidad.comprobantes.contabilizar` (`sin_permiso`) o sin los módulos `nomina` y `contabilidad` (`modulo_no_habilitado`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Rango invertido (`validacion`) */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/nomina/contratos/{contrato_id}/simulacion-terminacion": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Simula la terminación del contrato en una fecha y con un motivo: prestaciones, vacaciones
+         *     pendientes e indemnización, sin guardar nada.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Entidad */
+                    entidad_id: string;
+                    /** @description Contrato laboral */
+                    contrato_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["SimulacionTerminacionPeticion"];
+                };
+            };
+            responses: {
+                /** @description Simulación */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SimulacionTerminacionRespuesta"];
+                    };
+                };
+                /** @description Sin sesión o token vencido (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Sin `nomina.salarios.ver` (`sin_permiso`) o sin el módulo `nomina` (`modulo_no_habilitado`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Contrato inexistente */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description El contrato ya terminó (`conflicto`) */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Fecha o motivo que no aplican, o falta un parámetro del catálogo (`validacion`) */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/nomina/contratos/{contrato_id}/vacaciones": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Saldo de vacaciones del contrato: días causados, disfrutados y pendientes. */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Hoy si se omite (o la terminación, si el contrato terminó antes). */
+                    fecha?: string;
+                };
+                header?: never;
+                path: {
+                    /** @description Entidad */
+                    entidad_id: string;
+                    /** @description Contrato laboral */
+                    contrato_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Saldo */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SaldoVacacionesRespuesta"];
+                    };
+                };
+                /** @description Sin sesión o token vencido (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Sin `nomina.ver` (`sin_permiso`) o sin el módulo `nomina` (`modulo_no_habilitado`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Contrato inexistente */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Fecha antes del inicio o falta un parámetro del catálogo (`validacion`) */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/nomina/empleados/{empleado_id}/deducciones": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Deducciones de la retención del empleado. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Entidad */
+                    entidad_id: string;
+                    /** @description Empleado */
+                    empleado_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Deducciones */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["DeduccionRetencionRespuesta"][];
+                    };
+                };
+                /** @description Sin sesión o token vencido (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Sin `nomina.salarios.ver` (`sin_permiso`) o sin el módulo `nomina` (`modulo_no_habilitado`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /** Registra una deducción de la retención que declaró el empleado (con su soporte). */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Entidad */
+                    entidad_id: string;
+                    /** @description Empleado */
+                    empleado_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["NuevaDeduccionPeticion"];
+                };
+            };
+            responses: {
+                /** @description Deducción registrada */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["DeduccionRetencionRespuesta"];
+                    };
+                };
+                /** @description Sin sesión o token vencido (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Sin `nomina.empleados.gestionar` (`sin_permiso`) o sin el módulo `nomina` (`modulo_no_habilitado`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Empleado o soporte inexistente */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Dependientes con valor o los demás sin él (`validacion`) */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/nomina/deducciones/{deduccion_id}/terminacion": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Termina una deducción (desde el día siguiente ya no se aplica). */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Entidad */
+                    entidad_id: string;
+                    /** @description Deducción */
+                    deduccion_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["TerminacionDeduccionPeticion"];
+                };
+            };
+            responses: {
+                /** @description Deducción terminada */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["DeduccionRetencionRespuesta"];
+                    };
+                };
+                /** @description Sin sesión o token vencido (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Sin `nomina.empleados.gestionar` (`sin_permiso`) o sin el módulo `nomina` (`modulo_no_habilitado`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Deducción inexistente */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Antes de su inicio o ya terminada (`validacion`) */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -45064,6 +48411,22 @@ export interface components {
              */
             usuario?: string | null;
         };
+        /** @description Administradora de la seguridad social. */
+        AdministradoraRespuesta: {
+            /** Format: uuid */
+            id: string;
+            tipo: components["schemas"]["TipoAdministradora"];
+            /**
+             * @description Código en la PILA.
+             * @example EPS037
+             */
+            codigo: string;
+            /** @example 900156264-2 */
+            nit: string;
+            /** @example Nueva EPS */
+            nombre: string;
+            activa: boolean;
+        };
         /**
          * @description Advertencia legal que se muestra en la ficha de la copropiedad.
          * @enum {string}
@@ -45158,6 +48521,11 @@ export interface components {
          * @enum {string}
          */
         Ambito: "plataforma" | "copropiedad";
+        /** @description Motivo de la anulación. */
+        AnulacionNovedadPeticion: {
+            /** @example Registrada en el contrato equivocado */
+            motivo: string;
+        };
         /** @description Anulación de un documento (se revierte su comprobante). */
         AnulacionPeticion: {
             /** @example Consignación registrada dos veces */
@@ -45260,6 +48628,41 @@ export interface components {
              * @description Fecha contable (por defecto, hoy).
              */
             fecha?: string | null;
+        };
+        /** @description Aportes del mes de un empleado. */
+        AportesEmpleadoRespuesta: {
+            /** Format: uuid */
+            empleado_id: string;
+            /** Format: uuid */
+            contrato_id: string;
+            codigo: string;
+            documento?: string | null;
+            /**
+             * @description Tipo de cotizante de la PILA (`01` dependiente, `12` aprendiz lectivo, `19` aprendiz
+             *     productivo).
+             */
+            tipo_cotizante: string;
+            /** Format: int32 */
+            dias: number;
+            ibc: string;
+            /** @description Salud del empleado y del empleador. */
+            salud: string;
+            /** @description Pensión del empleado y del empleador. */
+            pension: string;
+            fondo_solidaridad: string;
+            arl: string;
+            caja: string;
+            icbf: string;
+            sena: string;
+            /** Format: uuid */
+            eps_id?: string | null;
+            /** Format: uuid */
+            afp_id?: string | null;
+            /** Format: uuid */
+            arl_id?: string | null;
+            /** Format: uuid */
+            ccf_id?: string | null;
+            clase_riesgo?: components["schemas"]["ClaseRiesgo"] | null;
         };
         /** @description Aprobación de un presupuesto por la asamblea. */
         AprobacionPresupuestoPeticion: {
@@ -45805,6 +49208,12 @@ export interface components {
             proveedor_organizacion_id?: string | null;
             estado?: components["schemas"]["EstadoActivo"] | null;
         };
+        /** @description Cambios de una administradora (el tipo, el código y el NIT no cambian). */
+        CambiosAdministradoraPeticion: {
+            nombre: string;
+            /** @description Una inactiva no se usa en contratos ni versiones nuevas. */
+            activa: boolean;
+        };
         /**
          * @description Cambios a un bien privado (los omitidos no cambian; un texto vacío lo borra). El
          *     coeficiente no se edita aquí: lo fija la activación de un cuadro.
@@ -46196,6 +49605,15 @@ export interface components {
             errores: components["schemas"]["ErrorFilaRespuesta"][];
             cargada: boolean;
         };
+        /** @description Catálogo laboral: versiones de los parámetros y administradoras. */
+        CatalogoLaboralRespuesta: {
+            /** @description En la entidad, la versión vigente de cada parámetro en la fecha; en la plataforma, todas. */
+            parametros: components["schemas"]["ParametroLaboralRespuesta"][];
+            /** @description En la entidad, las activas; en la plataforma, todas. */
+            administradoras: components["schemas"]["AdministradoraRespuesta"][];
+            /** @description Tablas por tramos: en la entidad, la vigente de cada una; en la plataforma, todas. */
+            tablas: components["schemas"]["TablaLaboralRespuesta"][];
+        };
         /** @description Catálogo de retenciones de la plataforma: todas las versiones de los conceptos y la UVT. */
         CatalogoRetencionesRespuesta: {
             conceptos: components["schemas"]["ConceptoRetencionRespuesta"][];
@@ -46368,6 +49786,23 @@ export interface components {
             total_base: string;
             total_retenido: string;
         };
+        /** @description Cesantías e intereses de un contrato en el año. */
+        CesantiasContratoRespuesta: {
+            /** Format: uuid */
+            empleado_id: string;
+            /** Format: uuid */
+            contrato_id: string;
+            /** Format: int32 */
+            dias: number;
+            /** @description Base mensual (último salario o promedio, más auxilio y lo variable). */
+            base: string;
+            /** @description Por consignar al fondo antes del 14 de febrero. */
+            cesantias: string;
+            /** @description Por pagar al empleado antes del 31 de enero (salen en el primer periodo de enero). */
+            intereses: string;
+            /** Format: uuid */
+            fondo_id?: string | null;
+        };
         /** @description Elemento del checklist. */
         ChecklistDto: {
             /** @example Sillas */
@@ -46389,6 +49824,16 @@ export interface components {
          * @enum {string}
          */
         ClaseActivo: "equipo" | "herramienta" | "mobiliario" | "dotacion";
+        /**
+         * @description Clase de una línea: devengo, deducción, aporte del empleador o provisión (informativa).
+         * @enum {string}
+         */
+        ClaseLineaNomina: "devengo" | "deduccion" | "aporte_empleador" | "provision";
+        /**
+         * @description Clase de riesgo laboral del puesto (1 a 5).
+         * @enum {string}
+         */
+        ClaseRiesgo: "1" | "2" | "3" | "4" | "5";
         /**
          * @description Sensibilidad del archivo (Ley 1581): define quién puede verlo y cuánto se protege.
          * @enum {string}
@@ -46619,6 +50064,11 @@ export interface components {
             creado_en: string;
         };
         /**
+         * @description Concepto de una línea de la liquidación.
+         * @enum {string}
+         */
+        ConceptoNomina: "basico" | "apoyo_sostenimiento" | "auxilio_transporte" | "hora_extra_diurna" | "hora_extra_nocturna" | "hora_extra_dominical_diurna" | "hora_extra_dominical_nocturna" | "recargo_nocturno" | "recargo_dominical" | "recargo_nocturno_dominical" | "incapacidad_comun" | "incapacidad_laboral" | "licencia_maternidad" | "licencia_paternidad" | "licencia_remunerada" | "vacaciones" | "bonificacion_salarial" | "bonificacion_no_salarial" | "comision" | "auxilio_no_salarial" | "prima" | "cesantias" | "intereses_cesantias" | "vacaciones_compensadas" | "indemnizacion" | "salud" | "pension" | "fondo_solidaridad" | "retencion_fuente" | "prestamo" | "libranza" | "embargo" | "otra_deduccion" | "salud_empleador" | "pension_empleador" | "arl" | "caja_compensacion" | "icbf" | "sena" | "provision_cesantias" | "provision_intereses" | "provision_prima" | "provision_vacaciones";
+        /**
          * @description Concepto de corrección de una nota débito (lista de la DIAN).
          * @enum {string}
          */
@@ -46689,6 +50139,56 @@ export interface components {
             lineas: components["schemas"]["LineaRefDto"][];
             deshecha: boolean;
         };
+        /** @description Condiciones de una versión del contrato. */
+        CondicionesContratoPeticion: {
+            /** @example Todero */
+            cargo: string;
+            /**
+             * @description Salario mensual (o apoyo de sostenimiento del aprendiz).
+             * @example 1750905
+             */
+            salario: string;
+            tipo_salario: components["schemas"]["TipoSalario"];
+            etapa_aprendizaje?: components["schemas"]["EtapaAprendizaje"] | null;
+            jornada: components["schemas"]["Jornada"];
+            /**
+             * @description Solo en jornada parcial.
+             * @example 21
+             */
+            horas_semanales?: string | null;
+            periodicidad: components["schemas"]["PeriodicidadPago"];
+            /** Format: uuid */
+            eps_id: string;
+            /**
+             * Format: uuid
+             * @description Salvo pensionados y aprendices.
+             */
+            afp_id?: string | null;
+            /**
+             * Format: uuid
+             * @description Solo con salario ordinario.
+             */
+            cesantias_id?: string | null;
+            /**
+             * Format: uuid
+             * @description Salvo aprendices.
+             */
+            ccf_id?: string | null;
+            /**
+             * Format: uuid
+             * @description Salvo el aprendiz en etapa lectiva; va con `clase_riesgo`.
+             */
+            arl_id?: string | null;
+            clase_riesgo?: components["schemas"]["ClaseRiesgo"] | null;
+            pensionado?: boolean;
+            /**
+             * Format: uuid
+             * @description Centro de costo del gasto (solo si la entidad lleva contabilidad).
+             */
+            centro_costo_id?: string | null;
+            medio_pago: components["schemas"]["MedioPago"];
+            cuenta?: components["schemas"]["CuentaNominaDto"] | null;
+        };
         /** @description Configuración del control de acceso de la PH. */
         ConfiguracionAccesoDto: {
             /**
@@ -46751,6 +50251,21 @@ export interface components {
              * @example 120
              */
             temporizador_segundos?: number | null;
+        };
+        /** @description Cambios de la configuración. */
+        ConfiguracionNominaPeticion: {
+            /** @description La deciden el contador y el revisor fiscal según la situación tributaria de la entidad. */
+            exonerada_aportes: boolean;
+        };
+        /** @description Configuración de la nómina de la entidad. */
+        ConfiguracionNominaRespuesta: {
+            /**
+             * @description Aplica la exoneración del art. 114-1 del ET (salud del empleador, ICBF y SENA por debajo
+             *     del tope del catálogo).
+             */
+            exonerada_aportes: boolean;
+            /** Format: date-time */
+            actualizada_en: string;
         };
         /** @description Versión nueva de la configuración. */
         ConfiguracionPeticion: {
@@ -46916,6 +50431,29 @@ export interface components {
             /** Format: int64 */
             cantidad: number;
         };
+        /** @description Contrato con sus versiones (de la más antigua a la más reciente). */
+        ContratoConVersionesRespuesta: {
+            contrato: components["schemas"]["ContratoLaboralRespuesta"];
+            versiones: components["schemas"]["VersionContratoRespuesta"][];
+        };
+        /** @description Contrato laboral (sin sus condiciones). */
+        ContratoLaboralRespuesta: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            empleado_id: string;
+            tipo: components["schemas"]["TipoContratoLaboral"];
+            /** Format: date */
+            fecha_inicio: string;
+            /** Format: date */
+            fecha_fin?: string | null;
+            descripcion_obra?: string | null;
+            /** Format: date */
+            fecha_terminacion?: string | null;
+            motivo_terminacion?: components["schemas"]["MotivoTerminacion"] | null;
+            /** Format: date-time */
+            creado_en: string;
+        };
         /** @description Contrato nuevo. */
         ContratoPeticion: {
             /** Format: uuid */
@@ -46927,6 +50465,23 @@ export interface components {
             vigente_hasta?: string | null;
             /** @example 2500000.00 */
             valor?: string | null;
+        };
+        /** @description Contrato a término fijo por vencer. */
+        ContratoPorVencerRespuesta: {
+            /** Format: uuid */
+            contrato_id: string;
+            /** Format: uuid */
+            empleado_id: string;
+            codigo: string;
+            nombre: string;
+            /** Format: date */
+            fecha_fin: string;
+            /**
+             * Format: date
+             * @description Último día para entregar el preaviso de no renovación (30 días antes del fin, CST art. 46);
+             *     si ya pasó, el contrato se prorroga solo por un periodo igual.
+             */
+            fecha_limite_preaviso: string;
         };
         /** @description Contrato de servicio. */
         ContratoRespuesta: {
@@ -47310,6 +50865,17 @@ export interface components {
             id: string;
             nombre: string;
         };
+        /** @description Cuenta bancaria de la nómina (dato personal). */
+        CuentaNominaDto: {
+            /** @example Bancolombia */
+            banco: string;
+            tipo: components["schemas"]["TipoCuentaBancaria"];
+            /**
+             * @description Solo dígitos (4 a 20).
+             * @example 0012345678
+             */
+            numero: string;
+        };
         /** @description Cuenta vista por la plataforma. */
         CuentaPlataformaRespuesta: {
             /** Format: uuid */
@@ -47620,6 +51186,42 @@ export interface components {
             /** @description `false` si otra persona ya había decidido; `visita` trae esa decisión. */
             decidida_ahora: boolean;
             visita: components["schemas"]["VisitaRespuesta"];
+        };
+        /** @description Deducción declarada. */
+        DeduccionRetencionRespuesta: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            empleado_id: string;
+            tipo: components["schemas"]["TipoDeduccion"];
+            valor_mensual: string;
+            /** Format: date */
+            vigente_desde: string;
+            /** Format: date */
+            vigente_hasta?: string | null;
+            /** Format: uuid */
+            soporte_archivo_id?: string | null;
+            /** Format: date-time */
+            creado_en: string;
+        };
+        /** @description Desprendible de la cuenta en una de sus entidades. */
+        DesprendibleDeCuentaRespuesta: {
+            /** Format: uuid */
+            entidad_id: string;
+            entidad: string;
+            /** Format: uuid */
+            liquidacion_id: string;
+            periodicidad: components["schemas"]["PeriodicidadPago"];
+            /** Format: date */
+            desde: string;
+            /** Format: date */
+            hasta: string;
+            estado: components["schemas"]["EstadoPeriodoNomina"];
+            /** Format: date */
+            fecha_pago?: string | null;
+            devengos: string;
+            deducciones: string;
+            neto: string;
         };
         /**
          * @description Cómo se cobra el valor de las reservas de un recurso: `manual`, `cartera` o `factura`.
@@ -47964,6 +51566,24 @@ export interface components {
             /** Format: date-time */
             vigente_hasta?: string | null;
         };
+        /** @description Empleado en el listado. */
+        EmpleadoResumenRespuesta: {
+            /** Format: uuid */
+            id: string;
+            codigo: string;
+            /** Format: uuid */
+            persona_id: string;
+            nombre: string;
+            documento?: string | null;
+            estado: components["schemas"]["EstadoEmpleado"];
+            /** @description Cargo de la versión vigente (o de la última, si ya se retiró). */
+            cargo?: string | null;
+            /**
+             * Format: date
+             * @description Inicio del primer contrato.
+             */
+            fecha_ingreso?: string | null;
+        };
         /** @description Encuesta de satisfacción. */
         EncuestaDto: {
             /**
@@ -48116,6 +51736,16 @@ export interface components {
         EnvioCuentasRespuesta: {
             enviadas: number;
             /** @description Pagadores sin correo. */
+            sin_correo: number;
+        };
+        /** @description Resultado del envío de los desprendibles. */
+        EnvioDesprendiblesRespuesta: {
+            /** Format: int32 */
+            enviados: number;
+            /**
+             * Format: int32
+             * @description Empleados sin correo: entrégueles el PDF a mano o por el portal.
+             */
             sin_correo: number;
         };
         /** @description Documento del set de pruebas enviado a la DIAN. */
@@ -48330,6 +51960,11 @@ export interface components {
          * @enum {string}
          */
         EstadoEgreso: "por_autorizar" | "autorizado" | "pagado" | "anulado";
+        /**
+         * @description Estado del empleado según sus contratos.
+         * @enum {string}
+         */
+        EstadoEmpleado: "activo" | "retirado";
         /** @description Estado del enlace público del directorio. */
         EstadoEnlaceRespuesta: {
             /** @description ¿Hay un enlace vigente? */
@@ -48460,6 +52095,11 @@ export interface components {
          * @enum {string}
          */
         EstadoPeriodo: "abierto" | "en_revision" | "cerrado";
+        /**
+         * @description Estado de un periodo de nómina (lo aprueba otra cuenta).
+         * @enum {string}
+         */
+        EstadoPeriodoNomina: "abierto" | "liquidado" | "aprobado" | "pagado";
         /** @description Estado nuevo del periodo (`en_revision`, `cerrado` o `abierto` desde revisión). */
         EstadoPeriodoPeticion: {
             estado: components["schemas"]["EstadoPeriodo"];
@@ -48606,6 +52246,11 @@ export interface components {
             cierre_contabilizado: boolean;
             notas: components["schemas"]["NotaRespuesta"][];
         };
+        /**
+         * @description Etapa del aprendiz SENA.
+         * @enum {string}
+         */
+        EtapaAprendizaje: "lectiva" | "productiva";
         /** @description Evento de acceso de la bitácora. */
         EventoAccesoRespuesta: {
             /** Format: uuid */
@@ -49044,6 +52689,18 @@ export interface components {
              */
             resenas: number;
         };
+        /** @description Empleado con su persona y su historia de contratos. */
+        FichaEmpleadoRespuesta: {
+            /** Format: uuid */
+            id: string;
+            codigo: string;
+            /** Format: uuid */
+            persona_id: string;
+            nombre: string;
+            tipo_documento?: components["schemas"]["TipoDocumento"] | null;
+            documento?: string | null;
+            contratos: components["schemas"]["ContratoConVersionesRespuesta"][];
+        };
         /** @description Datos generales de la entidad. */
         FichaEntidadRespuesta: {
             /** @example Tienda La Esquina SAS */
@@ -49200,6 +52857,20 @@ export interface components {
              * @example 0,5230 %
              */
             coeficiente: string;
+        };
+        /** @description Fila válida de la vista previa (sin datos personales). */
+        FilaEmpleadoPreviaRespuesta: {
+            /** Format: int32 */
+            fila: number;
+            codigo: string;
+            tipo_contrato: components["schemas"]["TipoContratoLaboral"];
+        };
+        /** @description Fila válida de la vista previa. */
+        FilaNovedadPreviaRespuesta: {
+            /** Format: int32 */
+            fila: number;
+            codigo: string;
+            tipo: components["schemas"]["TipoNovedad"];
         };
         /** @description Fila del libro de propietarios. */
         FilaPropietarioRespuesta: {
@@ -49404,6 +53075,11 @@ export interface components {
             /** Format: uuid */
             formato_id: string;
         };
+        /**
+         * @description Grupo del certificado de ingresos y retenciones por rentas de trabajo.
+         * @enum {string}
+         */
+        GrupoCertificado: "salarios" | "comisiones" | "prestaciones" | "cesantias" | "otros_pagos" | "aportes_salud" | "aportes_pension" | "retencion_fuente";
         /** @description Guardar la configuración de la entidad como plantilla (en borrador). */
         GuardarPlantillaPeticion: {
             /**
@@ -49515,6 +53191,11 @@ export interface components {
             /** @description Saldo del extracto − saldo conciliado (cero si cuadra). */
             diferencia?: string | null;
         };
+        /** @description Resultado de contabilizar la nómina pendiente. */
+        InformeContabilizacionNominaRespuesta: {
+            contabilizados: string[];
+            fallidos: components["schemas"]["PeriodoFallidoRespuesta"][];
+        };
         /** @description Resultado de contabilizar lo pendiente. */
         InformeContabilizacionRespuesta: {
             contabilizadas: string[];
@@ -49527,6 +53208,15 @@ export interface components {
             qr: string;
             /** Format: uuid */
             punto_acceso_id?: string | null;
+        };
+        /** @description Ingresos y retenciones del año de un empleado. */
+        IngresosEmpleadoRespuesta: {
+            /** Format: uuid */
+            empleado_id: string;
+            codigo: string;
+            nombre: string;
+            documento?: string | null;
+            totales: components["schemas"]["TotalGrupoCertificadoRespuesta"][];
         };
         /** @description Inicio de sesión. */
         InicioPeticion: {
@@ -49600,6 +53290,11 @@ export interface components {
             /** Format: date-time */
             actualizado_en: string;
         };
+        /**
+         * @description Jornada laboral (la parcial lleva las horas semanales).
+         * @enum {string}
+         */
+        Jornada: "completa" | "parcial";
         /**
          * @description Lado del movimiento que suma a una columna de la exógena.
          * @enum {string}
@@ -49717,6 +53412,14 @@ export interface components {
             valor: string;
             /** Format: uuid */
             conciliacion_id?: string | null;
+        };
+        /** @description Línea de una liquidación. */
+        LineaLiquidacionNominaRespuesta: {
+            concepto: components["schemas"]["ConceptoNomina"];
+            clase: components["schemas"]["ClaseLineaNomina"];
+            /** @description Días, horas o el porcentaje del aporte. */
+            cantidad: string;
+            valor: string;
         };
         /** @description Línea nueva (ya verificada en Meta). */
         LineaPeticion: {
@@ -49890,6 +53593,23 @@ export interface components {
             /** Format: date-time */
             anulada_en?: string | null;
         };
+        /** @description Liquidación de un contrato en el periodo. */
+        LiquidacionNominaRespuesta: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            contrato_id: string;
+            /** Format: uuid */
+            empleado_id: string;
+            /** Format: int32 */
+            dias: number;
+            ibc: string;
+            devengos: string;
+            deducciones: string;
+            neto: string;
+            aportes_empleador: string;
+            lineas: components["schemas"]["LineaLiquidacionNominaRespuesta"][];
+        };
         /** @description Liquidación de un anunciante en un mes (sin reparto a las copropiedades). */
         LiquidacionRespuesta: {
             /** Format: uuid */
@@ -50019,6 +53739,11 @@ export interface components {
             saldo_final: string;
         };
         /**
+         * @description Cómo se mide una novedad: horas en una fecha, un rango de días o un valor.
+         * @enum {string}
+         */
+        MedidaNovedad: "horas" | "dias" | "valor";
+        /**
          * @description Medio por el que el titular otorgó la autorización. Debe poder probarse (Decreto 1377, art. 7): el medio, la fecha y, si existe, la evidencia (archivo firmado).
          * @enum {string}
          */
@@ -50028,6 +53753,11 @@ export interface components {
          * @enum {string}
          */
         MedioEgreso: "efectivo" | "transferencia" | "consignacion" | "pse" | "cheque";
+        /**
+         * @description Medio de pago del salario (la transferencia lleva la cuenta).
+         * @enum {string}
+         */
+        MedioPago: "transferencia" | "cheque" | "efectivo";
         /**
          * @description Medio de un pago marcado a mano (sin tesorería).
          * @enum {string}
@@ -50214,6 +53944,15 @@ export interface components {
             /** @example Lenguaje ofensivo */
             motivo?: string | null;
         };
+        /** @description Modificación del contrato desde una fecha. */
+        ModificacionContratoPeticion: {
+            /**
+             * Format: date
+             * @description Posterior a la última versión y dentro de las fechas del contrato.
+             */
+            vigente_desde: string;
+            condiciones: components["schemas"]["CondicionesContratoPeticion"];
+        };
         /**
          * @description Cómo se asigna un recurso.
          * @enum {string}
@@ -50228,7 +53967,7 @@ export interface components {
          * @description Módulo contratable por la copropiedad.
          * @enum {string}
          */
-        Modulo: "contabilidad" | "contabilidad_ph" | "facturacion_electronica" | "bienes_comunes" | "control_acceso" | "asambleas" | "gestion_administrativa";
+        Modulo: "contabilidad" | "contabilidad_ph" | "facturacion_electronica" | "bienes_comunes" | "control_acceso" | "asambleas" | "gestion_administrativa" | "nomina";
         /** @description Módulo de contribución (crear o actualizar). */
         ModuloContribucionPeticion: {
             /** @example Torre con ascensor */
@@ -50310,6 +54049,11 @@ export interface components {
          * @enum {string}
          */
         MotivoSalida: "se_retiro" | "delego_poder" | "problema_tecnico" | "otro";
+        /**
+         * @description Motivo de la terminación de un contrato laboral.
+         * @enum {string}
+         */
+        MotivoTerminacion: "renuncia" | "mutuo_acuerdo" | "vencimiento_termino" | "fin_obra" | "justa_causa" | "sin_justa_causa" | "periodo_prueba" | "fallecimiento" | "otro";
         /** @description Movimiento del libro mayor. */
         MovimientoContableRespuesta: {
             /** Format: uuid */
@@ -50471,6 +54215,28 @@ export interface components {
             /** Format: date-time */
             creada_en: string;
         };
+        /** @description Novedad registrada. */
+        NovedadNominaRespuesta: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            contrato_id: string;
+            tipo: components["schemas"]["TipoNovedad"];
+            medida: components["schemas"]["MedidaNovedad"];
+            /** Format: date */
+            desde: string;
+            /** Format: date */
+            hasta: string;
+            /** @description Horas o valor; los valores en `0` sin `nomina.salarios.ver`. */
+            cantidad: string;
+            descripcion?: string | null;
+            /** Format: uuid */
+            soporte_archivo_id?: string | null;
+            /** Format: date-time */
+            creado_en: string;
+            anulada: boolean;
+            motivo_anulacion?: string | null;
+        };
         /** @description Novedad nueva. */
         NovedadPeticion: {
             tipo: components["schemas"]["TipoNovedadMinuta"];
@@ -50495,6 +54261,19 @@ export interface components {
             registrada_por?: string | null;
             /** Format: date-time */
             ocurrida_en: string;
+        };
+        /** @description Administradora nueva. */
+        NuevaAdministradoraPeticion: {
+            tipo: components["schemas"]["TipoAdministradora"];
+            /**
+             * @description Código en la PILA (único por tipo).
+             * @example EPS037
+             */
+            codigo: string;
+            /** @example 900156264-2 */
+            nit: string;
+            /** @example Nueva EPS */
+            nombre: string;
         };
         /** @description Agrupación nueva. */
         NuevaAgrupacionPeticion: {
@@ -50590,6 +54369,19 @@ export interface components {
             /** Format: uuid */
             pregunta_id?: string | null;
         };
+        /** @description Deducción nueva. */
+        NuevaDeduccionPeticion: {
+            tipo: components["schemas"]["TipoDeduccion"];
+            /**
+             * @description Valor mensual; no va en `dependientes`.
+             * @example 450000
+             */
+            valor_mensual?: string | null;
+            /** Format: date */
+            vigente_desde: string;
+            /** Format: uuid */
+            soporte_archivo_id?: string | null;
+        };
         /** @description Entidad sin vertical por crear. */
         NuevaEntidadPeticion: {
             /** @example Gimnasio Fuerza S.A.S. */
@@ -50647,6 +54439,31 @@ export interface components {
         NuevaMascotaPeticion: components["schemas"]["MascotaDatos"] & {
             /** Format: uuid */
             bien_privado_id: string;
+        };
+        /** @description Novedad nueva de un contrato. */
+        NuevaNovedadPeticion: {
+            tipo: components["schemas"]["TipoNovedad"];
+            /**
+             * Format: date
+             * @description Fecha (horas y valores) o primer día (días).
+             */
+            desde: string;
+            /**
+             * Format: date
+             * @description Último día: solo en las de días (incapacidades, licencias, ausencias).
+             */
+            hasta?: string | null;
+            /**
+             * @description Horas (de 0 a 24) o valor en pesos; no va en las de días.
+             * @example 4
+             */
+            cantidad?: string | null;
+            descripcion?: string | null;
+            /**
+             * Format: uuid
+             * @description Soporte ya subido a `/archivos` (incapacidad, licencia…).
+             */
+            soporte_archivo_id?: string | null;
         };
         /** @description Organización nueva. */
         NuevaOrganizacionPeticion: {
@@ -50762,6 +54579,16 @@ export interface components {
             vigente_hasta: string;
             /** @description Clave técnica que entrega la DIAN (secreto: no se devuelve). */
             clave_tecnica?: string | null;
+        };
+        /** @description Versión nueva de una tabla por tramos. */
+        NuevaTablaLaboralPeticion: {
+            tabla: components["schemas"]["TablaLaboral"];
+            /** Format: date */
+            vigente_desde: string;
+            /** @example Estatuto Tributario, art. 383 */
+            fuente: string;
+            /** @description Todos los tramos: empiezan en cero, contiguos y el último abierto. */
+            tramos: components["schemas"]["TramoDto"][];
         };
         /** @description Versión nueva de una tarifa de ICA. */
         NuevaTarifaIcaPeticion: {
@@ -50936,6 +54763,20 @@ export interface components {
             /** Format: date */
             vigente_desde: string;
         };
+        /** @description Contrato nuevo con sus condiciones iniciales. */
+        NuevoContratoLaboralPeticion: {
+            tipo: components["schemas"]["TipoContratoLaboral"];
+            /** Format: date */
+            fecha_inicio: string;
+            /**
+             * Format: date
+             * @description Término fijo y aprendizaje.
+             */
+            fecha_fin?: string | null;
+            /** @description Obra o labor. */
+            descripcion_obra?: string | null;
+            condiciones: components["schemas"]["CondicionesContratoPeticion"];
+        };
         /** @description Borrador nuevo. */
         NuevoCuadroPeticion: {
             /** @description Partir de los coeficientes del cuadro vigente. */
@@ -50974,6 +54815,21 @@ export interface components {
             facturas?: components["schemas"]["PagoFacturaDto"][];
             gastos?: components["schemas"]["GastoPeticion"][];
         };
+        /**
+         * @description Empleado nuevo con su primer contrato: `persona_id` (una persona de la entidad) **o**
+         *     `persona` (sus datos).
+         */
+        NuevoEmpleadoPeticion: {
+            /**
+             * @description Código interno: 1 a 30 caracteres `A-Z a-z 0-9 . _ -`.
+             * @example E-001
+             */
+            codigo: string;
+            /** Format: uuid */
+            persona_id?: string | null;
+            persona?: components["schemas"]["PersonaEmpleadoPeticion"] | null;
+            contrato: components["schemas"]["NuevoContratoLaboralPeticion"];
+        };
         /** @description Formato de exógena nuevo (la versión la asigna el sistema: la siguiente del año y código). */
         NuevoFormatoExogenaPeticion: {
             /** Format: int32 */
@@ -50994,6 +54850,19 @@ export interface components {
              * @example ASE-H
              */
             codigo: string;
+        };
+        /** @description Versión nueva de un parámetro laboral. */
+        NuevoParametroLaboralPeticion: {
+            parametro: components["schemas"]["ParametroLaboral"];
+            /**
+             * @description En la unidad del parámetro (porcentaje de 0 a 100, pesos, hora del día…).
+             * @example 1750905
+             */
+            valor: string;
+            /** @example Decreto 1572 de 2025 */
+            fuente: string;
+            /** Format: date */
+            vigente_desde: string;
         };
         /** @description Parqueadero nuevo. */
         NuevoParqueaderoPeticion: {
@@ -51023,6 +54892,15 @@ export interface components {
              */
             soporte_archivo_id?: string | null;
             observaciones?: string | null;
+        };
+        /** @description Periodo nuevo. */
+        NuevoPeriodoNominaPeticion: {
+            periodicidad: components["schemas"]["PeriodicidadPago"];
+            /**
+             * Format: date
+             * @description El día 1 (o el 16 en la quincenal).
+             */
+            desde: string;
         };
         /** @description Presupuesto nuevo (borrador). */
         NuevoPresupuestoPeticion: {
@@ -51820,6 +55698,32 @@ export interface components {
             siguiente?: string | null;
         };
         /** @description Página de resultados de un listado. */
+        PaginaRespuesta_EmpleadoResumenRespuesta: {
+            /** @description Elementos de esta página. */
+            datos: {
+                /** Format: uuid */
+                id: string;
+                codigo: string;
+                /** Format: uuid */
+                persona_id: string;
+                nombre: string;
+                documento?: string | null;
+                estado: components["schemas"]["EstadoEmpleado"];
+                /** @description Cargo de la versión vigente (o de la última, si ya se retiró). */
+                cargo?: string | null;
+                /**
+                 * Format: date
+                 * @description Inicio del primer contrato.
+                 */
+                fecha_ingreso?: string | null;
+            }[];
+            /**
+             * Format: uuid
+             * @description Cursor para pedir la página siguiente (`despues=<siguiente>`); `null` si es la última.
+             */
+            siguiente?: string | null;
+        };
+        /** @description Página de resultados de un listado. */
         PaginaRespuesta_EntidadPlataformaRespuesta: {
             /** @description Elementos de esta página. */
             datos: {
@@ -52432,6 +56336,11 @@ export interface components {
             /** @description Dato personal: referencia del pago (número de la transferencia…). */
             referencia?: string | null;
         };
+        /** @description Fecha en que se pagó la nómina. */
+        PagoPeriodoNominaPeticion: {
+            /** Format: date */
+            fecha_pago: string;
+        };
         /** @description Estado del pago. */
         PagoPeticion: {
             /** @description `pagado` o `exonerado`. */
@@ -52446,6 +56355,30 @@ export interface components {
             reunion: components["schemas"]["ReunionRespuesta"];
             asistente: components["schemas"]["AsistenteRespuesta"];
             preguntas_abiertas: components["schemas"]["PreguntaPapeletaRespuesta"][];
+        };
+        /**
+         * @description Parámetro del catálogo laboral de la plataforma (salario mínimo, recargos, aportes, prestaciones…); su unidad la da `unidad`.
+         * @enum {string}
+         */
+        ParametroLaboral: "salario_minimo" | "auxilio_transporte" | "tope_auxilio_transporte" | "jornada_maxima_semanal" | "inicio_jornada_nocturna" | "fin_jornada_nocturna" | "recargo_nocturno" | "hora_extra_diurna" | "hora_extra_nocturna" | "recargo_dominical_festivo" | "salud_empleador" | "salud_empleado" | "pension_empleador" | "pension_empleado" | "caja_compensacion" | "icbf" | "sena" | "arl_clase_1" | "arl_clase_2" | "arl_clase_3" | "arl_clase_4" | "arl_clase_5" | "salario_integral_minimo" | "factor_salario_integral" | "limite_pagos_no_salariales" | "dias_incapacidad_empleador" | "incapacidad_eps" | "dias_cesantias" | "intereses_cesantias" | "dias_prima" | "dias_vacaciones" | "apoyo_aprendiz_lectiva" | "apoyo_aprendiz_productiva" | "tope_ibc" | "tope_exoneracion_aportes" | "renta_exenta_laboral" | "tope_renta_exenta_laboral" | "limite_beneficios_retencion" | "tope_beneficios_retencion" | "porcentaje_dependientes" | "tope_dependientes" | "tope_intereses_vivienda" | "tope_medicina_prepagada" | "limite_aportes_voluntarios" | "tope_aportes_voluntarios";
+        /** @description Versión de un parámetro laboral. */
+        ParametroLaboralRespuesta: {
+            /** Format: uuid */
+            id: string;
+            parametro: components["schemas"]["ParametroLaboral"];
+            /**
+             * @description Unidad del valor (pesos, porcentaje, salarios mínimos, horas a la semana, hora del día o
+             *     días).
+             */
+            unidad: components["schemas"]["UnidadParametroLaboral"];
+            /** @example 1750905 */
+            valor: string;
+            /** @example Decreto 1572 de 2025 */
+            fuente: string;
+            /** Format: date */
+            vigente_desde: string;
+            /** Format: date-time */
+            creado_en: string;
         };
         /** @description Parámetros del perfil tributario (lo que dice el RUT y decide el contador). */
         ParametrosPerfilDto: {
@@ -52525,6 +56458,22 @@ export interface components {
             /** Format: date-time */
             confirmado_en?: string | null;
         };
+        /**
+         * @description Periodicidad de pago de la nómina.
+         * @enum {string}
+         */
+        PeriodicidadPago: "mensual" | "quincenal";
+        /** @description Periodo que no se pudo contabilizar. */
+        PeriodoFallidoRespuesta: {
+            /** Format: uuid */
+            periodo_id: string;
+            motivo: string;
+        };
+        /** @description Periodo con sus liquidaciones. */
+        PeriodoLiquidadoRespuesta: {
+            periodo: components["schemas"]["PeriodoNominaRespuesta"];
+            liquidaciones: components["schemas"]["LiquidacionNominaRespuesta"][];
+        };
         /** @description Periodo contratado de un módulo. */
         PeriodoModuloRespuesta: {
             modulo: components["schemas"]["Modulo"];
@@ -52532,6 +56481,34 @@ export interface components {
             desde: string;
             /** Format: date-time */
             hasta?: string | null;
+            /**
+             * Format: uuid
+             * @description Línea de cobro que se agregó a la suscripción de la entidad (si tiene suscripción y hay un
+             *     producto con tarifa para el módulo); `null` si no: el módulo queda en
+             *     `modulos_sin_cobro`.
+             */
+            linea_suscripcion_id?: string | null;
+        };
+        /** @description Periodo de nómina. */
+        PeriodoNominaRespuesta: {
+            /** Format: uuid */
+            id: string;
+            periodicidad: components["schemas"]["PeriodicidadPago"];
+            /** Format: date */
+            desde: string;
+            /** Format: date */
+            hasta: string;
+            estado: components["schemas"]["EstadoPeriodoNomina"];
+            /** Format: uuid */
+            liquidado_por?: string | null;
+            /** Format: date-time */
+            liquidado_en?: string | null;
+            /** Format: uuid */
+            aprobado_por?: string | null;
+            /** Format: date-time */
+            aprobado_en?: string | null;
+            /** Format: date */
+            fecha_pago?: string | null;
         };
         /** @description Periodo de la exportación. */
         PeriodoParametros: {
@@ -52564,7 +56541,7 @@ export interface components {
          * @description Permiso del catálogo. El texto (`modulo.recurso.accion`) es contrato con la BD y con los clientes: no se renombra sin migración.
          * @enum {string}
          */
-        Permiso: "plataforma.copropiedades.crear" | "plataforma.copropiedades.ver" | "plataforma.cuentas.ver" | "plataforma.cuentas.bloquear" | "plataforma.cuentas.crear" | "plataforma.roles.gestionar" | "plataforma.roles.asignar" | "plataforma.organizaciones.revisar" | "plataforma.modulos.gestionar" | "plataforma.entidades.crear" | "plataforma.entidades.usuarios" | "plataforma.soporte.ver" | "plataforma.entidad_propia.designar" | "plataforma.plantillas_contables.publicar" | "plataforma.normativa.gestionar" | "plataforma.auditoria.ver" | "plataforma.publicidad.moderar" | "plataforma.publicidad.gestionar" | "plataforma.publicidad.liquidar" | "plataforma.directorio.gestionar" | "plataforma.facturacion.ver" | "plataforma.comercial.gestionar" | "plataforma.cobros.aprobar" | "plataforma.cobros.facturar" | "plataforma.whatsapp.gestionar" | "copropiedad.datos.ver" | "copropiedad.datos.editar" | "roles.ver" | "roles.gestionar" | "roles.asignar" | "auditoria.ver" | "archivos.subir" | "archivos.ver" | "archivos.personales.ver" | "personas.ver" | "personas.editar" | "personas.datos_sensibles.ver" | "proteccion_datos.gestionar" | "suscripcion.ver" | "organizaciones.crear" | "organizaciones.vincular" | "contratos.gestionar" | "bienes_privados.ver" | "bienes_privados.editar" | "bienes_privados.coeficientes.editar" | "bienes_privados.coeficientes.activar" | "agrupaciones.editar" | "titulares.ver" | "titulares.editar" | "censo.ver" | "censo.editar" | "censo.aprobar" | "censo.exportar" | "importaciones.ejecutar" | "bienes_comunes.ver" | "bienes_comunes.editar" | "reservas.crear" | "reservas.aprobar" | "reservas.ver_todas" | "reservas.cancelar_cualquiera" | "reservas.entregas.registrar" | "reservas.restringir" | "parqueaderos.ver" | "parqueaderos.asignar" | "sorteos.gestionar" | "tickets.crear" | "tickets.asignar" | "tickets.atender" | "tickets.ver_todos" | "tickets.configurar" | "tickets.convivencia.ver" | "tickets.urgencias.recibir" | "conversaciones.atender" | "preguntas_frecuentes.editar" | "inventario.ver" | "inventario.editar" | "mantenimiento.planificar" | "mantenimiento.ejecutar" | "mantenimiento.verificar" | "asambleas.ver" | "asambleas.convocar" | "asambleas.conducir" | "asambleas.registrar" | "asambleas.votos.registrar" | "asambleas.votos.ver_detalle" | "acceso.registrar" | "acceso.visitantes.autorizar" | "acceso.bitacora.ver" | "acceso.correspondencia.entregar" | "acceso.minuta.registrar" | "acceso.minuta.ver" | "acceso.configurar" | "acceso.credenciales.gestionar" | "acceso.biometria.enrolar" | "comunicados.gestionar" | "contabilidad.ver" | "contabilidad.configurar" | "contabilidad.comprobantes.crear" | "contabilidad.comprobantes.contabilizar" | "contabilidad.comprobantes.revertir" | "contabilidad.periodos.cerrar" | "contabilidad.periodos.reabrir" | "contabilidad.periodos.aprobar_reapertura" | "contabilidad.exportar" | "tesoreria.configurar" | "tesoreria.recibos.registrar" | "tesoreria.egresos.registrar" | "tesoreria.egresos.autorizar" | "tesoreria.facturas_proveedor.gestionar" | "tesoreria.conciliar" | "cartera.ver" | "cartera.configurar" | "cartera.liquidar" | "cartera.ajustar" | "cartera.certificados.emitir" | "presupuesto.gestionar" | "tributario.configurar" | "tributario.perfil.confirmar" | "tributario.preparar" | "terceros.gestionar" | "facturacion.ver" | "facturacion.facturas.gestionar" | "facturacion.items.gestionar" | "facturacion.exportar" | "facturacion.configurar" | "facturacion.certificado.gestionar" | "facturacion.emitir" | "facturacion.recibir" | "directorio.ver" | "directorio.resenar" | "directorio.compartir";
+        Permiso: "plataforma.copropiedades.crear" | "plataforma.copropiedades.ver" | "plataforma.cuentas.ver" | "plataforma.cuentas.bloquear" | "plataforma.cuentas.crear" | "plataforma.roles.gestionar" | "plataforma.roles.asignar" | "plataforma.organizaciones.revisar" | "plataforma.modulos.gestionar" | "plataforma.entidades.crear" | "plataforma.entidades.usuarios" | "plataforma.soporte.ver" | "plataforma.entidad_propia.designar" | "plataforma.plantillas_contables.publicar" | "plataforma.normativa.gestionar" | "plataforma.auditoria.ver" | "plataforma.publicidad.moderar" | "plataforma.publicidad.gestionar" | "plataforma.publicidad.liquidar" | "plataforma.directorio.gestionar" | "plataforma.facturacion.ver" | "plataforma.comercial.gestionar" | "plataforma.cobros.aprobar" | "plataforma.cobros.facturar" | "plataforma.whatsapp.gestionar" | "copropiedad.datos.ver" | "copropiedad.datos.editar" | "roles.ver" | "roles.gestionar" | "roles.asignar" | "auditoria.ver" | "archivos.subir" | "archivos.ver" | "archivos.personales.ver" | "personas.ver" | "personas.editar" | "personas.datos_sensibles.ver" | "proteccion_datos.gestionar" | "suscripcion.ver" | "organizaciones.crear" | "organizaciones.vincular" | "contratos.gestionar" | "bienes_privados.ver" | "bienes_privados.editar" | "bienes_privados.coeficientes.editar" | "bienes_privados.coeficientes.activar" | "agrupaciones.editar" | "titulares.ver" | "titulares.editar" | "censo.ver" | "censo.editar" | "censo.aprobar" | "censo.exportar" | "importaciones.ejecutar" | "bienes_comunes.ver" | "bienes_comunes.editar" | "reservas.crear" | "reservas.aprobar" | "reservas.ver_todas" | "reservas.cancelar_cualquiera" | "reservas.entregas.registrar" | "reservas.restringir" | "parqueaderos.ver" | "parqueaderos.asignar" | "sorteos.gestionar" | "tickets.crear" | "tickets.asignar" | "tickets.atender" | "tickets.ver_todos" | "tickets.configurar" | "tickets.convivencia.ver" | "tickets.urgencias.recibir" | "conversaciones.atender" | "preguntas_frecuentes.editar" | "inventario.ver" | "inventario.editar" | "mantenimiento.planificar" | "mantenimiento.ejecutar" | "mantenimiento.verificar" | "asambleas.ver" | "asambleas.convocar" | "asambleas.conducir" | "asambleas.registrar" | "asambleas.votos.registrar" | "asambleas.votos.ver_detalle" | "acceso.registrar" | "acceso.visitantes.autorizar" | "acceso.bitacora.ver" | "acceso.correspondencia.entregar" | "acceso.minuta.registrar" | "acceso.minuta.ver" | "acceso.configurar" | "acceso.credenciales.gestionar" | "acceso.biometria.enrolar" | "comunicados.gestionar" | "contabilidad.ver" | "contabilidad.configurar" | "contabilidad.comprobantes.crear" | "contabilidad.comprobantes.contabilizar" | "contabilidad.comprobantes.revertir" | "contabilidad.periodos.cerrar" | "contabilidad.periodos.reabrir" | "contabilidad.periodos.aprobar_reapertura" | "contabilidad.exportar" | "tesoreria.configurar" | "tesoreria.recibos.registrar" | "tesoreria.egresos.registrar" | "tesoreria.egresos.autorizar" | "tesoreria.facturas_proveedor.gestionar" | "tesoreria.conciliar" | "cartera.ver" | "cartera.configurar" | "cartera.liquidar" | "cartera.ajustar" | "cartera.certificados.emitir" | "presupuesto.gestionar" | "tributario.configurar" | "tributario.perfil.confirmar" | "tributario.preparar" | "terceros.gestionar" | "facturacion.ver" | "facturacion.facturas.gestionar" | "facturacion.items.gestionar" | "facturacion.exportar" | "facturacion.configurar" | "facturacion.certificado.gestionar" | "facturacion.emitir" | "facturacion.recibir" | "nomina.ver" | "nomina.salarios.ver" | "nomina.empleados.gestionar" | "nomina.configurar" | "nomina.novedades.registrar" | "nomina.liquidar" | "nomina.aprobar" | "directorio.ver" | "directorio.resenar" | "directorio.compartir";
         /** @description Permiso del catálogo. */
         PermisoRespuesta: {
             /** @example roles.asignar */
@@ -52575,6 +56552,16 @@ export interface components {
         /** @description Permisos nuevos de un rol (reemplazan a los anteriores). */
         PermisosPeticion: {
             permisos: components["schemas"]["Permiso"][];
+        };
+        /** @description Persona nueva del empleado (si el documento ya está en la entidad, se usa esa persona). */
+        PersonaEmpleadoPeticion: {
+            /** @example Ana Pérez */
+            nombre: string;
+            tipo_documento: components["schemas"]["TipoDocumento"];
+            /** @example 52123456 */
+            documento: string;
+            correo?: string | null;
+            telefono?: string | null;
         };
         /** @description Persona que puede recoger. */
         PersonaEntregaRespuesta: {
@@ -53163,6 +57150,14 @@ export interface components {
             tipo: components["schemas"]["TipoCambioCenso"];
             datos: Record<string, never>;
         };
+        /** @description Prórroga de un contrato a término fijo. */
+        ProrrogaContratoPeticion: {
+            /**
+             * Format: date
+             * @description Posterior a la fecha final actual.
+             */
+            fecha_fin: string;
+        };
         /** @description Motivo de la prórroga. */
         ProrrogaPeticion: {
             /** @example Se verifica la información con la portería */
@@ -53366,6 +57361,13 @@ export interface components {
             tipo: components["schemas"]["TipoSolicitudTitular"];
             /** @example Mi número de celular cambió */
             detalle?: string | null;
+        };
+        /** @description Rango de periodos por contabilizar. */
+        RangoContabilizacionNominaPeticion: {
+            /** Format: date */
+            desde: string;
+            /** Format: date */
+            hasta: string;
         };
         /** @description Resolución de numeración registrada desde la DIAN (sin la clave técnica). */
         RangoSincronizadoRespuesta: {
@@ -54038,6 +58040,18 @@ export interface components {
             configuracion: boolean;
             previsualizacion: boolean;
         };
+        /** @description Aportes del mes. */
+        ResumenAportesRespuesta: {
+            /** Format: date */
+            desde: string;
+            /** Format: date */
+            hasta: string;
+            empleados: components["schemas"]["AportesEmpleadoRespuesta"][];
+            /** @description Totales por EPS, fondo de pensiones (con el de solidaridad), ARL y caja. */
+            administradoras: components["schemas"]["TotalAdministradoraRespuesta"][];
+            icbf: string;
+            sena: string;
+        };
         /** @description Campaña con sus contadores. */
         ResumenCampanaRespuesta: {
             campana: components["schemas"]["CampanaCensoRespuesta"];
@@ -54107,6 +58121,16 @@ export interface components {
              * @description Importación de usuarios: cuántos no tenían cuenta (solo se conoce al aplicar).
              */
             cuentas_nuevas: number;
+            /**
+             * Format: int32
+             * @description Importación de empleados: empleados de la planilla, cada uno con su contrato.
+             */
+            empleados: number;
+            /**
+             * Format: int32
+             * @description Importación de novedades de nómina: novedades de la planilla.
+             */
+            novedades: number;
         };
         /** @description Retenciones de un impuesto, concepto y tarifa. */
         ResumenRetencionRespuesta: {
@@ -54350,6 +58374,15 @@ export interface components {
             saldo: string;
             vencido: string;
         };
+        /** @description Saldo de vacaciones. */
+        SaldoVacacionesRespuesta: {
+            /** Format: int32 */
+            dias_trabajados: number;
+            causados: string;
+            /** @description Días hábiles disfrutados. */
+            disfrutados: string;
+            pendientes: string;
+        };
         /** @description Saldos iniciales. */
         SaldosInicialesPeticion: {
             /** Format: date */
@@ -54466,6 +58499,19 @@ export interface components {
              * @example 1
              */
             notas_debito?: number;
+        };
+        /** @description Terminación que se quiere simular. */
+        SimulacionTerminacionPeticion: {
+            /** Format: date */
+            fecha: string;
+            motivo: components["schemas"]["MotivoTerminacion"];
+        };
+        /** @description Lo que costaría terminar el contrato. */
+        SimulacionTerminacionRespuesta: {
+            /** @description Prestaciones, vacaciones pendientes e indemnización. */
+            lineas: components["schemas"]["LineaLiquidacionNominaRespuesta"][];
+            /** @description Suma de las líneas (sin el salario del periodo ni las deducciones). */
+            total: string;
         };
         /** @description Resultado de sincronizar las restricciones por mora. */
         SincronizacionMoraRespuesta: {
@@ -54678,6 +58724,19 @@ export interface components {
             /** Format: date */
             terminada_en?: string | null;
         };
+        /**
+         * @description Tabla laboral por tramos del catálogo de la plataforma.
+         * @enum {string}
+         */
+        TablaLaboral: "retencion_salarios" | "fondo_solidaridad";
+        /** @description Versión de una tabla por tramos. */
+        TablaLaboralRespuesta: {
+            tabla: components["schemas"]["TablaLaboral"];
+            /** Format: date */
+            vigente_desde: string;
+            fuente: string;
+            tramos: components["schemas"]["TramoDto"][];
+        };
         /** @description Indicadores del tablero de mantenimiento. */
         TableroMantenimientoRespuesta: {
             /**
@@ -54841,6 +58900,20 @@ export interface components {
             documento?: string | null;
             fiscal: components["schemas"]["DatosFiscalesDto"];
         };
+        /** @description Terminación de un contrato. */
+        TerminacionContratoPeticion: {
+            /**
+             * Format: date
+             * @description Dentro del contrato y no antes de su última versión.
+             */
+            fecha: string;
+            motivo: components["schemas"]["MotivoTerminacion"];
+        };
+        /** @description Último día de la deducción. */
+        TerminacionDeduccionPeticion: {
+            /** Format: date */
+            hasta: string;
+        };
         /** @description Fecha en que termina una vigencia. */
         TerminarPeticion: {
             /** Format: date */
@@ -54919,6 +58992,11 @@ export interface components {
             actualizado_en: string;
         };
         /**
+         * @description Tipo de administradora de la seguridad social (EPS, pensiones, cesantías, caja o ARL).
+         * @enum {string}
+         */
+        TipoAdministradora: "eps" | "afp" | "cesantias" | "ccf" | "arl";
+        /**
          * @description Clase de agrupación. La PH elige la etiqueta que muestra ("Torre", "Bloque") en el nombre.
          * @enum {string}
          */
@@ -54988,6 +59066,11 @@ export interface components {
          */
         TipoConceptoCobro: "ordinaria" | "fondo_imprevistos" | "extraordinaria" | "uso_bien_comun" | "multa" | "interes_mora" | "dano" | "otro";
         /**
+         * @description Tipo de contrato laboral.
+         * @enum {string}
+         */
+        TipoContratoLaboral: "termino_fijo" | "termino_indefinido" | "obra_labor" | "aprendizaje";
+        /**
          * @description Destinación de la propiedad horizontal (Ley 675, art. 3).
          * @enum {string}
          */
@@ -55012,6 +59095,11 @@ export interface components {
          * @enum {string}
          */
         TipoCuentaTesoreria: "banco" | "caja_general" | "caja_menor" | "fondo";
+        /**
+         * @description Deducción o renta exenta de la retención que declara el empleado.
+         * @enum {string}
+         */
+        TipoDeduccion: "dependientes" | "intereses_vivienda" | "medicina_prepagada" | "aportes_voluntarios";
         /**
          * @description Tipo de dispositivo conectado a un puente.
          * @enum {string}
@@ -55052,6 +59140,11 @@ export interface components {
          * @enum {string}
          */
         TipoMovimiento: "entrada" | "salida" | "traslado" | "prestamo" | "devolucion" | "baja";
+        /**
+         * @description Tipo de novedad de nómina (horas, días o valores).
+         * @enum {string}
+         */
+        TipoNovedad: "hora_extra_diurna" | "hora_extra_nocturna" | "hora_extra_dominical_diurna" | "hora_extra_dominical_nocturna" | "recargo_nocturno" | "recargo_dominical" | "recargo_nocturno_dominical" | "incapacidad_comun" | "incapacidad_laboral" | "licencia_maternidad" | "licencia_paternidad" | "licencia_remunerada" | "vacaciones" | "licencia_no_remunerada" | "ausencia" | "suspension" | "bonificacion_salarial" | "bonificacion_no_salarial" | "comision" | "auxilio_no_salarial" | "prestamo" | "libranza" | "embargo" | "otra_deduccion";
         /**
          * @description Tipo de novedad de la minuta de portería.
          * @enum {string}
@@ -55107,6 +59200,11 @@ export interface components {
          * @enum {string}
          */
         TipoReunion: "ordinaria" | "extraordinaria";
+        /**
+         * @description Tipo de salario (el apoyo de sostenimiento es del contrato de aprendizaje).
+         * @enum {string}
+         */
+        TipoSalario: "ordinario" | "integral" | "apoyo_sostenimiento";
         /**
          * @description Solicitud del titular sobre sus datos.
          * @enum {string}
@@ -55224,6 +59322,12 @@ export interface components {
              */
             expira_maximo_en: string;
         };
+        /** @description Total del mes a una administradora. */
+        TotalAdministradoraRespuesta: {
+            /** Format: uuid */
+            administradora_id: string;
+            valor: string;
+        };
         /** @description Total de un concepto. */
         TotalConceptoRespuesta: {
             /** Format: uuid */
@@ -55231,6 +59335,34 @@ export interface components {
             codigo: string;
             nombre: string;
             total: string;
+        };
+        /** @description Total de un grupo del certificado. */
+        TotalGrupoCertificadoRespuesta: {
+            grupo: components["schemas"]["GrupoCertificado"];
+            valor: string;
+        };
+        /** @description Tramo `(desde, hasta]` de una tabla (el primero incluye su `desde`). */
+        TramoDto: {
+            /**
+             * @description En UVT (retención) o en salarios mínimos (fondo de solidaridad).
+             * @example 95
+             */
+            desde: string;
+            /**
+             * @description `null` en el último tramo.
+             * @example 150
+             */
+            hasta?: string | null;
+            /**
+             * @description Porcentaje.
+             * @example 19
+             */
+            tarifa: string;
+            /**
+             * @description UVT que se suman (retención); cero en el fondo de solidaridad.
+             * @example 0
+             */
+            adicional?: string;
         };
         /**
          * @description Tramo de edad de una cuenta por cobrar.
@@ -55279,6 +59411,11 @@ export interface components {
             /** @example 300000 */
             umbral: string;
         };
+        /**
+         * @description Unidad del valor de un parámetro laboral.
+         * @enum {string}
+         */
+        UnidadParametroLaboral: "pesos" | "porcentaje" | "salarios_minimos" | "horas_semana" | "hora_del_dia" | "dias" | "uvt_anuales";
         /**
          * @description Unidad de un plazo.
          * @enum {string}
@@ -55444,6 +59581,41 @@ export interface components {
             /** Format: uuid */
             punto_acceso_id: string;
         };
+        /** @description Condiciones de un contrato desde una fecha. */
+        VersionContratoRespuesta: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            contrato_id: string;
+            /** Format: date */
+            vigente_desde: string;
+            cargo: string;
+            /** @description `null` sin `nomina.salarios.ver`. */
+            salario?: string | null;
+            tipo_salario: components["schemas"]["TipoSalario"];
+            etapa_aprendizaje?: components["schemas"]["EtapaAprendizaje"] | null;
+            jornada: components["schemas"]["Jornada"];
+            horas_semanales?: string | null;
+            periodicidad: components["schemas"]["PeriodicidadPago"];
+            /** Format: uuid */
+            eps_id: string;
+            /** Format: uuid */
+            afp_id?: string | null;
+            /** Format: uuid */
+            cesantias_id?: string | null;
+            /** Format: uuid */
+            ccf_id?: string | null;
+            /** Format: uuid */
+            arl_id?: string | null;
+            clase_riesgo?: components["schemas"]["ClaseRiesgo"] | null;
+            pensionado: boolean;
+            /** Format: uuid */
+            centro_costo_id?: string | null;
+            medio_pago: components["schemas"]["MedioPago"];
+            cuenta?: components["schemas"]["CuentaNominaDto"] | null;
+            /** Format: date-time */
+            creada_en: string;
+        };
         /** @description Factura de proveedor registrada que corresponde a la recibida (mismo CUFE). */
         VincularPeticion: {
             /** Format: uuid */
@@ -55536,10 +59708,20 @@ export interface components {
             /** @description Advertencias que no impiden liquidar. */
             avisos: string[];
         };
+        /** @description Importación de empleados con su vista previa. */
+        VistaPreviaEmpleadosRespuesta: {
+            importacion: components["schemas"]["ImportacionRespuesta"];
+            filas: components["schemas"]["FilaEmpleadoPreviaRespuesta"][];
+        };
         /** @description Vista previa del extracto. */
         VistaPreviaExtractoRespuesta: {
             movimientos: components["schemas"]["MovimientoLeidoRespuesta"][];
             errores: components["schemas"]["ErrorLecturaRespuesta"][];
+        };
+        /** @description Importación de novedades con su vista previa. */
+        VistaPreviaNovedadesRespuesta: {
+            importacion: components["schemas"]["ImportacionRespuesta"];
+            filas: components["schemas"]["FilaNovedadPreviaRespuesta"][];
         };
         /** @description Importación con su vista previa. */
         VistaPreviaRespuesta: {

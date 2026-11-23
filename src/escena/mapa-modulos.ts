@@ -23,6 +23,8 @@ export interface Accion {
    * `residente`), no por permisos de administración. Con vínculo, `permisos` se ignora.
    */
   vinculo?: Vinculo[]
+  /** Aún no existe en el backend: se lista, pero abre «Próximamente». */
+  proximamente?: boolean
 }
 
 /** Roles derivados del vínculo con un bien privado. */
@@ -54,7 +56,7 @@ const a = (
   etiqueta: string,
   descripcion: string,
   permisos: Permiso[],
-  extra: Pick<Accion, 'modulos' | 'soloPH' | 'vinculo'> = {},
+  extra: Pick<Accion, 'modulos' | 'soloPH' | 'vinculo' | 'proximamente'> = {},
 ): Accion => ({ id, etiqueta, descripcion, permisos, ...extra })
 
 /** Acción personal de propietarios y residentes (por vínculo, no por permisos). */
@@ -64,6 +66,7 @@ const mia = (id: string, etiqueta: string, descripcion: string, modulos?: Modulo
 const SOLO_FE = { modulos: ['facturacion_electronica'] } satisfies Pick<Accion, 'modulos'>
 const SOLO_CONTABILIDAD = { modulos: ['contabilidad'] } satisfies Pick<Accion, 'modulos'>
 const SOLO_PH = { soloPH: true }
+const PROXIMAMENTE = { proximamente: true }
 
 export const SECCIONES: Record<string, Seccion> = {
   mi: {
@@ -331,11 +334,23 @@ export const SECCIONES: Record<string, Seccion> = {
   },
   nomina: {
     slug: 'nomina',
-    nombre: 'Nómina electrónica',
-    resumen: 'Empleados, liquidación y nómina ante la DIAN.',
-    modulos: [],
-    proximamente: true,
-    acciones: [],
+    nombre: 'Nómina',
+    resumen: 'Empleados, contratos, novedades, liquidación, desprendibles y prestaciones.',
+    modulos: ['nomina'],
+    acciones: [
+      a('inicio', 'Inicio', 'Periodo en curso, contratos por vencer y cesantías.', ['nomina.ver']),
+      a('empleados', 'Empleados y contratos', 'Alta, contratos, prórrogas, terminación y certificados.', ['nomina.ver']),
+      a('novedades', 'Novedades', 'Horas extra, incapacidades, vacaciones, bonificaciones y deducciones.', ['nomina.novedades.registrar']),
+      a('periodos', 'Periodos y liquidación', 'Liquidar, aprobar, pagar y enviar desprendibles.', ['nomina.ver']),
+      a('reportes', 'Reportes', 'Aportes del mes, ingresos y retenciones y cesantías.', ['nomina.salarios.ver']),
+      a('importar', 'Importar planillas', 'Carga masiva de empleados y de novedades.', ['importaciones.ejecutar']),
+      a('configuracion', 'Configuración', 'Exoneración de aportes y contabilización de lo aprobado.', [
+        'nomina.configurar',
+        'contabilidad.comprobantes.contabilizar',
+      ]),
+      a('pila', 'Archivo plano de la PILA', 'Próximamente: el archivo para el operador de la PILA.', ['nomina.salarios.ver'], PROXIMAMENTE),
+      a('nomina-electronica', 'Nómina electrónica', 'Próximamente: el documento soporte ante la DIAN.', ['nomina.liquidar'], PROXIMAMENTE),
+    ],
   },
 }
 
@@ -393,12 +408,15 @@ export function faltaSegundoFactor(s: Seccion, c: Consulta): boolean {
 
 /**
  * Estado de una acción concreta de la sección (la ruta `/:seccion/:accion`): el de la sección
- * y, si está activa pero la acción no es visible para el rol, `sin_acceso`.
+ * y, si está activa pero la acción no es visible para el rol, `sin_acceso` (o `proximamente` si
+ * la acción aún no existe en el backend).
  */
 export function estadoAccion(s: Seccion, accionId: string, c: Consulta): EstadoSeccion {
   const estado = estadoSeccion(s, c)
   if (estado !== 'activa' || !accionId) return estado
-  return accionesVisibles(s, c).some((a) => a.id === accionId) ? 'activa' : 'sin_acceso'
+  const accion = accionesVisibles(s, c).find((a) => a.id === accionId)
+  if (!accion) return 'sin_acceso'
+  return accion.proximamente ? 'proximamente' : 'activa'
 }
 
 /** Estado de una zona: activa si al menos una de sus secciones lo está. */

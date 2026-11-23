@@ -40,6 +40,7 @@ export const ZONAS: Record<IdPlantilla, ZonaInfo[]> = {
         'tesoreria',
         'tributario',
         'facturacion',
+        'nomina',
         'entidad',
         'archivo',
       ],

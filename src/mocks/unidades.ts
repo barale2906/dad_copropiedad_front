@@ -209,7 +209,7 @@ function validarPlanilla(texto: string): Response {
   const importacion: Importacion = {
     id: id(++consecutivo), archivo_id: id(++consecutivo), estado: errores.length ? 'con_errores' : 'validada', total_filas: lineas.length,
     filas_validas: vistas.length, errores,
-    resumen: { bienes_privados: vistas.length, agrupaciones_nuevas: new Set(vistas.filter((v) => v.agrupacion_nueva).map((v) => v.agrupacion)).size, titulares: vistas.reduce((s, v) => s + v.titulares, 0), personas_nuevas: vistas.reduce((s, v) => s + v.titulares, 0), coeficientes: vistas.filter((v) => v.coeficiente).length, usuarios: 0, cuentas_nuevas: 0 },
+    resumen: { bienes_privados: vistas.length, agrupaciones_nuevas: new Set(vistas.filter((v) => v.agrupacion_nueva).map((v) => v.agrupacion)).size, titulares: vistas.reduce((s, v) => s + v.titulares, 0), personas_nuevas: vistas.reduce((s, v) => s + v.titulares, 0), coeficientes: vistas.filter((v) => v.coeficiente).length, usuarios: 0, cuentas_nuevas: 0, empleados: 0, novedades: 0 },
     creada_en: ahora(),
   }
   importaciones.set(importacion.id, { importacion, filas })
