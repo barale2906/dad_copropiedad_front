@@ -12,6 +12,7 @@ import {
   leerContenido,
   leerPuc,
   modulosDe,
+  textoCobro,
   vigencia,
 } from '@/modulos/plataforma/reglas'
 
@@ -117,5 +118,13 @@ describe('cobros', () => {
     expect(exigeMetrica('por_consumo')).toBe(true)
     expect(exigeMetrica('plana')).toBe(false)
     expect(exigeMetrica('unica')).toBe(false)
+  })
+})
+
+describe('cobro al habilitar un módulo', () => {
+  it('dice si se agregó la línea a la suscripción o si queda sin cobro', () => {
+    expect(textoCobro({ linea_suscripcion_id: 'x' })).toBe('Se agregó a la suscripción.')
+    expect(textoCobro({ linea_suscripcion_id: null })).toMatch(/^Sin cobro/)
+    expect(textoCobro(null)).toMatch(/^Sin cobro/)
   })
 })

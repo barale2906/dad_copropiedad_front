@@ -83,7 +83,8 @@ describe('clientes', () => {
   })
 
   it('habilita y apaga un módulo; el store refleja los clientes', async () => {
-    await clientes.habilitarModulo(id(4), 'contabilidad')
+    expect((await clientes.habilitarModulo(id(4), 'contabilidad')).linea_suscripcion_id).toBeNull()
+    expect((await clientes.habilitarModulo(id(1), 'facturacion_electronica')).linea_suscripcion_id).toBeTruthy()
     const s = useClientes()
     await s.asegurar()
     expect(s.porId(id(4))?.modulos).toContain('contabilidad')

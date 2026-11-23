@@ -59,7 +59,7 @@ export async function cambiarEstado(entidadId: string, estado: EstadoEntidad): P
   return r.estado
 }
 
-/** Habilita un módulo desde ahora (venta por módulo). */
+/** Habilita un módulo desde ahora (venta por módulo); trae la línea de cobro si se agregó a la suscripción. */
 export function habilitarModulo(entidadId: string, modulo: Modulo) {
   return exigir(
     api().POST('/api/v1/plataforma/copropiedades/{copropiedad_id}/modulos', { params: { path: { copropiedad_id: entidadId } }, body: { modulo } }),

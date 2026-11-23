@@ -6,7 +6,7 @@ import { useAccion } from '@/composables/useAccion'
 import HudBoton from '@/hud/componentes/HudBoton.vue'
 import HudInsignia from '@/hud/componentes/HudInsignia.vue'
 import { habilitarModulo, terminarModulo } from '../api-clientes'
-import { modulosDe, NOMBRE_MODULO } from '../reglas'
+import { modulosDe, NOMBRE_MODULO, textoCobro } from '../reglas'
 
 const props = defineProps<{ cliente: EntidadPlataforma; puedeGestionar: boolean }>()
 const emit = defineEmits<{ cambio: [modulos: Modulo[]] }>()
@@ -16,10 +16,13 @@ const resultado = ref<string | null>(null)
 const modulos = computed(() => modulosDe(props.cliente.tipo))
 const activo = (m: Modulo) => props.cliente.modulos.includes(m)
 
+/** Al habilitar devuelve el periodo (con la línea de cobro si se agregó); al apagar, `null`. */
 const cambiar = useAccion(async (_clave, m: Modulo) => {
-  if (activo(m)) await terminarModulo(props.cliente.id, m)
-  else await habilitarModulo(props.cliente.id, m)
-  return m
+  if (activo(m)) {
+    await terminarModulo(props.cliente.id, m)
+    return null
+  }
+  return habilitarModulo(props.cliente.id, m)
 })
 
 async function alternar(m: Modulo) {
@@ -30,7 +33,9 @@ async function alternar(m: Modulo) {
   if (!r.ok) return
   const encendido = !activo(m)
   emit('cambio', encendido ? [...props.cliente.modulos, m] : props.cliente.modulos.filter((x) => x !== m))
-  resultado.value = `${NOMBRE_MODULO[m]} ${encendido ? 'quedó habilitado desde ahora' : 'quedó apagado desde ahora; su historial se conserva'}.`
+  resultado.value = encendido
+    ? `${NOMBRE_MODULO[m]} quedó habilitado desde ahora. ${textoCobro(r.valor)}`
+    : `${NOMBRE_MODULO[m]} quedó apagado desde ahora; su historial se conserva.`
 }
 </script>
 

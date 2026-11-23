@@ -22,6 +22,7 @@ import type {
   NuevaCopropiedad,
   NuevaEntidad,
   ObjetivoCampana,
+  PeriodoModulo,
   TipoCobertura,
   TipoEntidad,
   TratamientoIva,
@@ -54,6 +55,14 @@ export const NOMBRE_MODULO: Record<Modulo, string> = {
 export function modulosDe(tipo: TipoEntidad): Modulo[] {
   const todos = Object.keys(NOMBRE_MODULO) as Modulo[]
   return tipo === 'propiedad_horizontal' ? todos : ['contabilidad', 'facturacion_electronica', 'nomina']
+}
+
+/**
+ * Qué pasó con el cobro al habilitar un módulo: si la entidad tiene suscripción y hay un
+ * producto con tarifa para el módulo, el backend agrega su línea de cobro.
+ */
+export function textoCobro(p: Pick<PeriodoModulo, 'linea_suscripcion_id'> | null): string {
+  return p?.linea_suscripcion_id ? 'Se agregó a la suscripción.' : 'Sin cobro: no hay producto con tarifa para el módulo o la entidad no tiene suscripción.'
 }
 
 export const TONO_ESTADO_ENTIDAD: Record<EstadoEntidad, Tono> = {

@@ -302,7 +302,15 @@ async function atenderClientes(req: Request, ruta: string, url: URL): Promise<Re
     if (m === 'POST') {
       const { modulo: mod } = await cuerpo<{ modulo: Modulo }>(req)
       if (!c.modulos.includes(mod)) c.modulos = [...c.modulos, mod]
-      return json({ modulo: mod, desde: new Date().toISOString(), hasta: null }, 201)
+      // Con suscripción y un producto con tarifa para el módulo, agrega su línea de cobro.
+      const sus = suscripciones.find((x) => x.entidad_id === c.id)
+      const producto = productos.find((x) => x.modulo === mod && x.activo)
+      let lineaId: string | null = null
+      if (sus && producto && !lineasSus.some((l) => l.suscripcion_id === sus.id && l.producto_id === producto.id && !l.hasta)) {
+        lineaId = id(15790 + lineasSus.length)
+        lineasSus.push({ id: lineaId, suscripcion_id: sus.id, producto_id: producto.id, producto: producto.codigo, nombre: producto.nombre, desde: fechaDemo() })
+      }
+      return json({ modulo: mod, desde: new Date().toISOString(), hasta: null, linea_suscripcion_id: lineaId }, 201)
     }
     if (m === 'DELETE') {
       const antes = c.modulos.length
