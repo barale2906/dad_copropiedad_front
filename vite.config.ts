@@ -57,6 +57,7 @@ export default defineConfig({
         'src/modulos/mi/reglas.ts',
         'src/modulos/directorio/{reglas,store,useEventosPiezas}.ts',
         'src/modulos/plataforma/*.ts',
+        'src/modulos/nomina/{reglas,store}.ts',
         'src/pantallas/navegacion.ts',
       ],
       exclude: ['src/api/esquema.d.ts', 'src/api/tipos.ts'],
