@@ -78,6 +78,7 @@ onMounted(cargar)
   <HudPanel
     v-if="estado === 'error' || lista.length"
     id="mi-nomina"
+    aria-label="Mi nómina"
     etiqueta="Mi nómina"
   >
     <HudEstado

@@ -757,3 +757,50 @@ test('páginas públicas: papeleta, directorio, pantalla, comercio y verificaci�
     await revisar(page)
   }
 })
+
+test('nómina: ficha, liquidaciones, inicio, empleados, alta y novedades', async ({ page }) => {
+  await entrar(page, 'uno')
+  await expect(page).toHaveURL(/\/e\/[^/]+$/)
+  const base = `${new URL(page.url()).pathname}/nomina`
+  await page.goto(`${base}/empleados`)
+  await page.getByRole('table', { name: 'Empleados' }).getByRole('link', { name: 'Andrés Administrador' }).click()
+  await expect(page.getByRole('heading', { name: 'Andrés Administrador', level: 1 })).toBeVisible()
+  await expect(page.getByText('Deducciones de la retención')).toBeVisible()
+  await revisar(page)
+  await page.goto(`${base}/periodos`)
+  await page.getByRole('table', { name: 'Periodos de nómina' }).getByRole('link').nth(2).click()
+  await expect(page.getByRole('heading', { name: 'Nómina mensual', level: 1 })).toBeVisible()
+  await expect(page.getByRole('button', { name: /^Ver el desprendible/ }).first()).toBeVisible()
+  await revisar(page)
+  const pantallas: [string, string][] = [
+    ['inicio', 'Nómina'],
+    ['empleados', 'Empleados'],
+    ['empleados/nuevo', 'Nuevo empleado'],
+    ['novedades', 'Novedades'],
+  ]
+  for (const [ruta, titulo] of pantallas) {
+    await page.goto(`${base}/${ruta}`)
+    await expect(page.getByRole('heading', { name: titulo, level: 1 })).toBeVisible()
+    await expect(page.getByText('Cargando')).toHaveCount(0)
+    await revisar(page)
+  }
+})
+
+test('nómina: periodos, reportes, importar y configuración', async ({ page }) => {
+  await entrar(page, 'uno')
+  await expect(page).toHaveURL(/\/e\/[^/]+$/)
+  const base = `${new URL(page.url()).pathname}/nomina`
+  const pantallas: [string, string][] = [
+    ['periodos', 'Periodos de nómina'],
+    ['reportes', 'Reportes de la nómina'],
+    ['reportes?vista=cesantias', 'Reportes de la nómina'],
+    ['importar', 'Importar planillas'],
+    ['configuracion', 'Configuración de la nómina'],
+  ]
+  for (const [ruta, titulo] of pantallas) {
+    await page.goto(`${base}/${ruta}`)
+    await expect(page.getByRole('heading', { name: titulo, level: 1 })).toBeVisible()
+    await expect(page.getByText('Cargando')).toHaveCount(0)
+    await revisar(page)
+  }
+})
