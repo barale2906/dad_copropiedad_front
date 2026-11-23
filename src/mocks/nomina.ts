@@ -168,6 +168,8 @@ interface Datos {
   exonerada: boolean
   actualizada: string
   importaciones: Map<string, { importacion: Importacion; aplicar: () => void }>
+  /** Periodos liquidados en los que se anuló una novedad después (piden liquidar de nuevo). */
+  anuladasDespues: Map<string, boolean>
 }
 
 let datos = new Map<string, Datos>()
@@ -287,6 +289,7 @@ function sembrar(): Datos {
     exonerada: false,
     actualizada: '2026-01-02T12:00:00Z',
     importaciones: new Map(),
+    anuladasDespues: new Map(),
   }
   const [andres, marta] = empleados
   d.novedades.push(
@@ -423,6 +426,7 @@ function liquidarContrato(d: Datos, e: Empleado, c: ContratoConVersiones, p: Per
 function liquidarEn(d: Datos, p: PeriodoNomina, cuenta: string): LiquidacionNomina[] {
   const lista = d.empleados.flatMap((e) => e.contratos.flatMap((c) => liquidarContrato(d, e, c, p) ?? []))
   d.liquidaciones.set(p.id, lista)
+  d.anuladasDespues.delete(p.id)
   Object.assign(p, { estado: 'liquidado', liquidado_por: cuenta, liquidado_en: ahora() })
   return lista
 }
@@ -767,6 +771,7 @@ export const nomina: Manejador = async (req, ruta) => {
     if (n.anulada) return error(409, 'conflicto_estado', 'La novedad ya estaba anulada.')
     if (enPeriodoCerrado(d, n.desde)) return error(409, 'conflicto_estado', 'La novedad es de un periodo aprobado: ya no se anula.')
     Object.assign(n, { anulada: true, motivo_anulacion: (await cuerpo<{ motivo: string }>(req)).motivo })
+    for (const p of d.periodos) if (p.estado === 'liquidado' && p.desde <= n.hasta && p.hasta >= n.desde) d.anuladasDespues.set(p.id, true)
     return sinContenido()
   }
 
@@ -798,8 +803,8 @@ export const nomina: Manejador = async (req, ruta) => {
     if (accion === '/aprobacion') {
       if (p.estado !== 'liquidado') return error(409, 'conflicto_estado', 'Solo se aprueba un periodo liquidado.')
       if (p.liquidado_por === cuentaActual) return error(409, 'conflicto', 'La liquidación la aprueba una cuenta distinta de la que la liquidó.')
-      if (d.novedades.some((n) => n.creado_en > (p.liquidado_en ?? '') && n.desde <= p.hasta && n.hasta >= p.desde)) {
-        return error(409, 'conflicto_estado', 'Hubo novedades después de liquidar: liquide el periodo de nuevo antes de aprobarlo.')
+      if (d.novedades.some((n) => n.creado_en > (p.liquidado_en ?? '') && n.desde <= p.hasta && n.hasta >= p.desde) || (d.anuladasDespues.get(p.id) ?? false)) {
+        return error(409, 'conflicto', 'Hay novedades registradas o anuladas después de liquidar: liquide de nuevo.')
       }
       Object.assign(p, { estado: 'aprobado', aprobado_por: cuentaActual, aprobado_en: ahora() })
       return json(p)
