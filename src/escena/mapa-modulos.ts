@@ -315,7 +315,7 @@ export const SECCIONES: Record<string, Seccion> = {
         'plataforma.roles.gestionar', 'plataforma.roles.asignar',
       ]),
       a('organizaciones', 'Organizaciones', 'Reclamaciones de fichas y sus miembros.', ['plataforma.organizaciones.revisar']),
-      a('normativa', 'Normativa', 'PUC, retenciones, UVT, IVA, ICA, exógena, tasas y plantillas.', [
+      a('normativa', 'Normativa', 'PUC, retenciones, UVT, IVA, ICA, exógena, tasas, plantillas y catálogo laboral.', [
         'plataforma.normativa.gestionar', 'plataforma.plantillas_contables.publicar',
       ]),
       a('whatsapp', 'WhatsApp', 'Líneas de la plataforma y tarifas.', ['plataforma.whatsapp.gestionar']),

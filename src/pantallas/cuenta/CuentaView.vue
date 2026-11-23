@@ -1,7 +1,7 @@
 <script setup lang="ts">
 /**
  * Mi cuenta (fuera de cualquier entidad): perfil y correo, contraseña, segundo factor,
- * sesiones y dispositivos. «Mis PQRS» llega con el plan 07.
+ * sesiones y dispositivos, y «Mi nómina» si la persona es empleada en alguna entidad.
  */
 import { computed, nextTick, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
@@ -13,6 +13,7 @@ import { useEntidad } from '@/stores/entidad'
 import IVolver from '~icons/tabler/arrow-left'
 import MarcaDad from '../componentes/MarcaDad.vue'
 import SeccionContrasena from './SeccionContrasena.vue'
+import SeccionMiNomina from './SeccionMiNomina.vue'
 import SeccionPerfil from './SeccionPerfil.vue'
 import SeccionSegundoFactor from './SeccionSegundoFactor.vue'
 import SeccionSesiones from './SeccionSesiones.vue'
@@ -87,6 +88,7 @@ onMounted(cargar)
         class="rejilla"
       >
         <SeccionPerfil :perfil="cuenta.perfil" />
+        <SeccionMiNomina />
         <SeccionSegundoFactor :activo="cuenta.segundoFactorActivo" />
         <SeccionContrasena />
         <SeccionSesiones />

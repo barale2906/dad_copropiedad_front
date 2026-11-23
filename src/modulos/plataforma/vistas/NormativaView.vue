@@ -1,12 +1,13 @@
 <script setup lang="ts">
 /**
  * Normativa de la plataforma: PUC, retenciones y UVT, IVA e ICA, exógena, tasas de referencia y
- * plantillas contables. Cada catálogo es versionado: una versión nueva rige desde su fecha.
+ * plantillas contables, y el catálogo laboral de la nómina. Cada catálogo es versionado: una versión nueva rige desde su fecha.
  */
 import { computed } from 'vue'
 import { usePestana } from '@/composables/usePestana'
 import HudPestanas from '@/hud/componentes/HudPestanas.vue'
 import NormativaExogena from '../componentes/NormativaExogena.vue'
+import NormativaLaboral from '../componentes/NormativaLaboral.vue'
 import NormativaPlantillas from '../componentes/NormativaPlantillas.vue'
 import NormativaPuc from '../componentes/NormativaPuc.vue'
 import NormativaRetenciones from '../componentes/NormativaRetenciones.vue'
@@ -22,6 +23,7 @@ const TODAS = [
   { id: 'tasas', texto: 'Tasas de referencia' },
   { id: 'puc', texto: 'PUC' },
   { id: 'plantillas', texto: 'Plantillas contables' },
+  { id: 'laboral', texto: 'Catálogo laboral' },
 ] as const
 const PESTANAS = computed(() =>
   TODAS.filter((p) => (p.id === 'plantillas' ? puede('plataforma.plantillas_contables.publicar') : puede('plataforma.normativa.gestionar'))),
@@ -52,6 +54,7 @@ const pestana = computed(() => (PESTANAS.value.some((p) => p.id === actual.value
     <NormativaTasas v-else-if="pestana === 'tasas'" />
     <NormativaPuc v-else-if="pestana === 'puc'" />
     <NormativaPlantillas v-else-if="pestana === 'plantillas'" />
+    <NormativaLaboral v-else-if="pestana === 'laboral'" />
   </section>
 </template>
 
