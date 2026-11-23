@@ -40,7 +40,7 @@ import type {
   VersionContrato,
 } from '@/api/tipos'
 import { comparar, multiplicar, restar, sumar } from '@/formato/decimales'
-import { esDominical, medidaDe } from '@/formato/nomina'
+import { esDomingo, esDominical, medidaDe } from '@/formato/nomina'
 import { cuentaDemoId } from './cuenta'
 import { cuerpo, error, fechaDemo, json, type Manejador, sinContenido } from './http'
 import { personasDemo } from './unidades'
@@ -721,7 +721,7 @@ export const nomina: Manejador = async (req, ruta) => {
       if (medida === 'dias' && (!p.hasta || p.hasta < p.desde || p.cantidad)) return error(422, 'validacion', `La novedad ${p.tipo} lleva el último día (no antes del primero) y no lleva cantidad.`)
       if (medida !== 'dias' && (p.hasta || !p.cantidad || comparar(p.cantidad, '0') <= 0)) return error(422, 'validacion', `La novedad ${p.tipo} lleva una sola fecha y su cantidad.`)
       if (medida === 'horas' && comparar(p.cantidad ?? '0', '24') > 0) return error(422, 'validacion', 'Las horas van de 0 a 24 en un día.')
-      if (esDominical(p.tipo) && new Date(`${p.desde}T12:00:00Z`).getUTCDay() !== 0) return error(422, 'validacion', `La novedad ${p.tipo} es de un domingo o festivo.`)
+      if (esDominical(p.tipo) && !esDomingo(p.desde)) return error(422, 'validacion', `La novedad ${p.tipo} es de un domingo o festivo.`)
       const n = novedad(k.id, p.tipo, p.desde, p.hasta ?? null, p.cantidad ?? null, p.descripcion ?? null)
       n.soporte_archivo_id = p.soporte_archivo_id ?? null
       d.novedades.push(n)

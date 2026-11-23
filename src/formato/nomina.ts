@@ -137,6 +137,9 @@ export const esDominical = (tipo: TipoNovedad) => tipo.includes('dominical')
 export const esSensible = (tipo: TipoNovedad) =>
   tipo.startsWith('incapacidad') || tipo === 'licencia_maternidad' || tipo === 'licencia_paternidad'
 
+/** ¿La fecha `YYYY-MM-DD` es domingo? (los festivos los conoce el backend). */
+export const esDomingo = (fecha: string) => new Date(`${fecha}T12:00:00Z`).getUTCDay() === 0
+
 export const MEDIDA_NOVEDAD: Record<MedidaNovedad, string> = { horas: 'Horas', dias: 'Días', valor: 'Valor' }
 
 export const CONCEPTO_NOMINA: Record<ConceptoNomina, string> = {
