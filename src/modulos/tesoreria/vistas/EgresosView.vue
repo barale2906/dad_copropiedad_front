@@ -25,7 +25,7 @@ import { usePlanCuentas } from '@/stores/plan-cuentas'
 import { useTercerosConocidos } from '@/stores/terceros'
 import IVolver from '~icons/tabler/arrow-left'
 import IMas from '~icons/tabler/plus'
-import { anularEgreso, autorizarEgreso, crearEgreso, cuentasTesoreria, egreso as pedirEgreso, egresos as pedirEgresos, pagarEgreso } from '../api'
+import { anularEgreso, autorizarEgreso, crearEgreso, cuentasTesoreria, egreso as pedirEgreso, egresoPdf, egresos as pedirEgresos, pagarEgreso } from '../api'
 import FormularioEgreso from '../componentes/FormularioEgreso.vue'
 import { accionesEgreso, ESTADO_EGRESO, MEDIO_EGRESO, registradoPorMi } from '../reglas'
 
@@ -71,6 +71,7 @@ const crear = useAccion((clave, datos: NuevoEgreso) => crearEgreso(id.value, dat
 const autorizar = useAccion(() => autorizarEgreso(id.value, egresoId.value), { alConflicto: () => cargar() })
 const pagar = useAccion(() => pagarEgreso(id.value, egresoId.value), { alConflicto: () => cargar() })
 const anular = useAccion((_c, motivo: string) => anularEgreso(id.value, egresoId.value, motivo), { alConflicto: () => cargar() })
+const pdf = useAccion(() => egresoPdf(id.value, egresoId.value))
 const errores = computed(() => [autorizar.error.value, pagar.error.value].filter(Boolean))
 
 async function alCrear(datos: NuevoEgreso) {
@@ -255,10 +256,14 @@ onMounted(cargar)
             </li>
           </ul>
         </HudPanel>
-        <div
-          v-if="acciones.length"
-          class="botones"
-        >
+        <div class="botones">
+          <HudBoton
+            variante="secundario"
+            :cargando="pdf.cargando.value"
+            @click="pdf.ejecutar()"
+          >
+            Descargar el PDF
+          </HudBoton>
           <HudBoton
             v-if="acciones.includes('autorizar')"
             :cargando="autorizar.cargando.value"
@@ -280,6 +285,13 @@ onMounted(cargar)
             Anular el egreso
           </HudBoton>
         </div>
+        <p
+          v-if="pdf.error.value"
+          class="error"
+          role="alert"
+        >
+          {{ pdf.error.value }}
+        </p>
         <HudDialogo
           v-model:abierto="pagando"
           titulo="Pagar el egreso"

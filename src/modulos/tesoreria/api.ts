@@ -180,10 +180,33 @@ export function enviarCertificado(id: string, personaId: string, r: Rango): Prom
   return exigir(api().POST('/api/v1/entidades/{entidad_id}/contabilidad/cuentas-por-pagar/certificados/{persona_id}/envio', { params: { ...per(id, personaId), query: r } }))
 }
 
-// Cartera de clientes ------------------------------------------------------------------------
+// Cartera por edades (clientes y proveedores) ------------------------------------------------
 
 export function carteraPorEdades(id: string, corte: string): Promise<FilaCarteraClientes[]> {
   return exigir(api().GET('/api/v1/entidades/{entidad_id}/contabilidad/cuentas-por-cobrar/edades', { params: { ...e(id), query: { corte } } }))
+}
+
+/** Lo que se debe a cada proveedor por edades (mismo formato que la cartera de clientes). */
+export function porPagarPorEdades(id: string, corte: string): Promise<FilaCarteraClientes[]> {
+  return exigir(api().GET('/api/v1/entidades/{entidad_id}/contabilidad/cuentas-por-pagar/edades', { params: { ...e(id), query: { corte } } }))
+}
+
+// Soportes en PDF -----------------------------------------------------------------------------
+
+/** Recibo de caja en PDF (para entregar a quien pagó). */
+export function reciboPdf(id: string, reciboId: string) {
+  return descargar(
+    api().GET('/api/v1/entidades/{entidad_id}/contabilidad/tesoreria/recibos/{recibo_id}/pdf', { params: { path: { entidad_id: id, recibo_id: reciboId } }, parseAs: 'blob' }),
+    'recibo-caja.pdf',
+  )
+}
+
+/** Comprobante de egreso en PDF (para la firma del beneficiario). */
+export function egresoPdf(id: string, egresoId: string) {
+  return descargar(
+    api().GET('/api/v1/entidades/{entidad_id}/contabilidad/tesoreria/egresos/{egreso_id}/pdf', { params: { path: { entidad_id: id, egreso_id: egresoId } }, parseAs: 'blob' }),
+    'egreso.pdf',
+  )
 }
 
 // Extractos y conciliación -------------------------------------------------------------------

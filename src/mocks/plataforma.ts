@@ -542,6 +542,11 @@ async function atenderPublicidad(req: Request, ruta: string, url: URL): Promise<
     if (!a) return error(404, 'no_encontrado', 'El comercio no existe.')
     const resto = anun[2] ?? ''
     if (m === 'GET' && !resto) return json(a)
+    if (m === 'PUT' && resto === '/logo') {
+      const p = await cuerpo<{ archivo_id: string | null }>(req)
+      a.logo_archivo_id = p.archivo_id
+      return json({ anunciante_id: a.id, logo_archivo_id: a.logo_archivo_id })
+    }
     if (m === 'PUT' && !resto) {
       Object.assign(a, await cuerpo<Partial<Anunciante>>(req), { actualizado_en: new Date().toISOString() })
       return json(a)
@@ -632,6 +637,13 @@ async function atenderPublicidad(req: Request, ruta: string, url: URL): Promise<
         return json({ alcance: c.estado === 'activa' ? 12 : 0, impresiones: dias.reduce((s, d) => s + d.impresiones, 0), clics: dias.reduce((s, d) => s + d.clics, 0), redenciones: 7, consumido: c.consumido, dias })
       }
     }
+  }
+  if (m === 'POST' && base === '/imagenes') {
+    const p = await cuerpo<{ nombre_archivo: string; archivo_base64: string }>(req)
+    if (!p.archivo_base64) return error(422, 'validacion', 'Elija una imagen.')
+    // Vista previa: un PNG transparente de 1×1 (el modo demo no guarda archivos).
+    const url = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='
+    return json({ id: nuevoId(), tipo: 'image/png', tamano_bytes: Math.floor((p.archivo_base64.length * 3) / 4), url }, 201)
   }
   if (m === 'GET' && base === '/exclusiones') return json(exclusiones)
   if (m === 'POST' && base === '/exclusiones') {

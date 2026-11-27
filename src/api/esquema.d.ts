@@ -3436,6 +3436,143 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/plataforma/publicidad/imagenes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Sube una imagen de la publicidad (creativo o logo de un comercio). */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["ImagenPeticion"];
+                };
+            };
+            responses: {
+                /** @description Imagen subida */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ImagenRespuesta"];
+                    };
+                };
+                /** @description Sin sesión o token vencido (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Sin `plataforma.publicidad.gestionar` ni `plataforma.directorio.gestionar` (`sin_permiso`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description No es JPEG, PNG o WebP, o pasa de 2 MB */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/plataforma/publicidad/anunciantes/{anunciante_id}/logo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Pone o quita el logo de un comercio. */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Comercio */
+                    anunciante_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["LogoPeticion"];
+                };
+            };
+            responses: {
+                /** @description Logo guardado */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["LogoRespuesta"];
+                    };
+                };
+                /** @description Sin sesión o token vencido (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Sin `plataforma.directorio.gestionar` (`sin_permiso`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description No existe el comercio o la imagen */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/plataforma/publicidad/anunciantes/{anunciante_id}/campanas/{campana_id}/creativos/{creativo_id}": {
         parameters: {
             query?: never;
@@ -39591,6 +39728,68 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/entidades/{entidad_id}/contabilidad/tesoreria/recibos/{recibo_id}/pdf": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * El recibo de caja en PDF (para entregar a quien pagó): pagador, valor, medio, a qué se aplicó y
+         *     el número de su comprobante; si está anulado, lo dice.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Entidad */
+                    entidad_id: string;
+                    /** @description Recibo */
+                    recibo_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description PDF del recibo */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/pdf": number[];
+                    };
+                };
+                /** @description Sin sesión o token vencido (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Sin `contabilidad.ver` o sin el módulo */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/entidades/{entidad_id}/contabilidad/tesoreria/recibos/{recibo_id}/aplicaciones": {
         parameters: {
             query?: never;
@@ -39910,6 +40109,68 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["EgresoRespuesta"];
+                    };
+                };
+                /** @description Sin sesión o token vencido (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Sin `contabilidad.ver` o sin el módulo */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/contabilidad/tesoreria/egresos/{egreso_id}/pdf": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * El comprobante de egreso en PDF (para la firma del beneficiario): a quién se pagó, cuánto, qué
+         *     facturas y gastos cubre, su estado y el número de su comprobante.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description Entidad */
+                    entidad_id: string;
+                    /** @description Egreso */
+                    egreso_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description PDF del egreso */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/pdf": number[];
                     };
                 };
                 /** @description Sin sesión o token vencido (`no_autenticado`) */
@@ -40812,6 +41073,68 @@ export interface paths {
                 };
             };
         };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entidades/{entidad_id}/contabilidad/cuentas-por-pagar/edades": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Cuentas por pagar por edades a la fecha de corte: saldo de cada factura de proveedor (neto a
+         *     pagar − pagado) en el tramo de sus días vencidos, por proveedor.
+         */
+        get: {
+            parameters: {
+                query: {
+                    corte: string;
+                };
+                header?: never;
+                path: {
+                    /** @description Entidad */
+                    entidad_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Cuentas por pagar por proveedor */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["FilaCarteraRespuesta"][];
+                    };
+                };
+                /** @description Sin sesión o token vencido (`no_autenticado`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+                /** @description Sin `contabilidad.ver` o sin el módulo */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorRespuesta"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -44698,7 +45021,12 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** ZIP con el XML y el PDF de cada documento electrónico transmitido en el periodo. */
+        /**
+         * ZIP para conservar los documentos electrónicos del periodo: en `emitidos/` el XML firmado, el
+         *     `AttachedDocument` y el PDF de cada documento transmitido; en `recibidos/` el XML de cada
+         *     factura recibida; en `eventos/` los eventos RADIAN firmados; e `indice.csv` con el documento,
+         *     el CUFE, el estado, la fecha y el SHA-256 de cada archivo.
+         */
         get: {
             parameters: {
                 query: {
@@ -48553,6 +48881,11 @@ export interface components {
             creado_en: string;
             /** Format: date-time */
             actualizado_en: string;
+            /**
+             * Format: uuid
+             * @description Logo (archivo de la plataforma); se cambia con `PUT …/publicidad/anunciantes/{id}/logo`.
+             */
+            logo_archivo_id?: string | null;
             ficha?: components["schemas"]["FichaAnuncianteRespuesta"] | null;
         };
         /** @description Visitante que anuncia la portería. */
@@ -50694,6 +51027,12 @@ export interface components {
             cupon_limite?: number | null;
             /** @description Solo en `mensaje_whatsapp`: plantilla de marketing aprobada en Meta. */
             plantilla_whatsapp?: string | null;
+            /**
+             * Format: uuid
+             * @description Imagen subida antes con `POST /plataforma/publicidad/imagenes`. Cambiarla devuelve el
+             *     creativo a moderación.
+             */
+            imagen_archivo_id?: string | null;
         };
         /** @description Creativo reportado por residentes. */
         CreativoReportadoRespuesta: {
@@ -50730,6 +51069,8 @@ export interface components {
             /** Format: int32 */
             cupon_usos: number;
             plantilla_whatsapp?: string | null;
+            /** Format: uuid */
+            imagen_archivo_id?: string | null;
             /** @description `pendiente`, `aprobado` o `rechazado`. */
             estado: components["schemas"]["EstadoCreativo"];
             motivo_estado?: string | null;
@@ -52830,7 +53171,7 @@ export interface components {
             /** Format: date */
             vencimiento: string;
         };
-        /** @description Cartera de un cliente por edades. */
+        /** @description Saldo de un tercero (cliente o proveedor) por edades. */
         FilaCarteraRespuesta: {
             /** Format: uuid */
             persona_id: string;
@@ -53140,6 +53481,27 @@ export interface components {
         HorarioDto: {
             franjas?: components["schemas"]["FranjaDto"][];
             excepciones?: components["schemas"]["ExcepcionDto"][];
+        };
+        /** @description Imagen a subir (en Base64 dentro del JSON, como los demás archivos de la API). */
+        ImagenPeticion: {
+            /** @example promo-diciembre.png */
+            nombre_archivo: string;
+            /** @description JPEG, PNG o WebP de hasta 2 MB. */
+            archivo_base64: string;
+        };
+        /** @description Imagen subida. */
+        ImagenRespuesta: {
+            /**
+             * Format: uuid
+             * @description Va en `imagen_archivo_id` del creativo o en el logo del comercio.
+             */
+            id: string;
+            /** @example image/png */
+            tipo: string;
+            /** Format: int64 */
+            tamano_bytes: number;
+            /** @description Enlace firmado para verla (vale una hora). */
+            url: string;
         };
         /** @description Importación. */
         ImportacionRespuesta: {
@@ -53648,6 +54010,21 @@ export interface components {
              * @description Persona que atendió la llamada (si contestó).
              */
             persona_id?: string | null;
+        };
+        /** @description Logo de un comercio (`null` lo quita). */
+        LogoPeticion: {
+            /**
+             * Format: uuid
+             * @description Imagen subida con `POST /plataforma/publicidad/imagenes`.
+             */
+            archivo_id?: string | null;
+        };
+        /** @description Logo vigente del comercio. */
+        LogoRespuesta: {
+            /** Format: uuid */
+            anunciante_id: string;
+            /** Format: uuid */
+            logo_archivo_id?: string | null;
         };
         /** @description Cómo leer la planilla de un banco. */
         MapeoColumnasDto: {
@@ -55378,6 +55755,11 @@ export interface components {
                 creado_en: string;
                 /** Format: date-time */
                 actualizado_en: string;
+                /**
+                 * Format: uuid
+                 * @description Logo (archivo de la plataforma); se cambia con `PUT …/publicidad/anunciantes/{id}/logo`.
+                 */
+                logo_archivo_id?: string | null;
                 ficha?: components["schemas"]["FichaAnuncianteRespuesta"] | null;
             }[];
             /**
@@ -55687,6 +56069,8 @@ export interface components {
                 /** Format: int32 */
                 cupon_usos: number;
                 plantilla_whatsapp?: string | null;
+                /** Format: uuid */
+                imagen_archivo_id?: string | null;
                 /** @description `pendiente`, `aprobado` o `rechazado`. */
                 estado: components["schemas"]["EstadoCreativo"];
                 motivo_estado?: string | null;
@@ -56661,6 +57045,8 @@ export interface components {
             tiene_cupon: boolean;
             /** Format: date-time */
             vence_en: string;
+            /** @description Enlace firmado de la imagen (vale una hora; no lleva sesión). `null` si no tiene. */
+            imagen_url?: string | null;
         };
         /** @description Datos de un plan preventivo. */
         PlanPeticion: {

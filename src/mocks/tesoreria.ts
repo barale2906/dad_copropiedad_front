@@ -507,6 +507,16 @@ export const tesoreria: Manejador = async (req, ruta) => {
       filas, total_base: n2(filas.reduce((s, x) => s + Number(x.base), 0)), total_retenido: n2(filas.reduce((s, x) => s + Number(x.valor), 0)),
     })
   }
+  if (m === 'GET' && r === '/cuentas-por-pagar/edades') {
+    return json([
+      { persona_id: VIGILANCIA, nombre: 'Vigilancia Andina S.A.S.', total: '4830000.00', tramos: [{ tramo: 'corriente', saldo: '4830000.00' }] },
+    ])
+  }
+  const soporte = r.match(/^\/tesoreria\/(recibos|egresos)\/([^/]+)\/pdf$/)
+  if (m === 'GET' && soporte) {
+    const nombre = soporte[1] === 'recibos' ? 'recibo-caja.pdf' : 'egreso.pdf'
+    return new Response('%PDF-1.4 soporte demo', { headers: { 'Content-Type': 'application/pdf', 'Content-Disposition': `attachment; filename="${nombre}"` } })
+  }
   if (m === 'GET' && r === '/cuentas-por-cobrar/edades') {
     return json([
       { persona_id: PEDRO, nombre: 'Pedro Pérez', total: '400000.00', tramos: [{ tramo: 'corriente', saldo: '100000.00' }, { tramo: 'de_1_a_30', saldo: '300000.00' }] },

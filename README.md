@@ -1,7 +1,7 @@
 # dad_copropiedad_front
 
 Frontend web de **DAD Copropiedad** (DAD AI & SYSTEMS). Consume el backend
-[`dad_copropiedad_back`](../../Back/dad_copropiedad_back) (Rust).
+[`dad_copropiedad_back`](../../back/dad_copropiedad_back) (Rust).
 
 La navegación es una **maqueta 3D genérica** con estética de menú de videojuego futurista: un
 conjunto residencial para las propiedades horizontales y una oficina para las demás empresas.
@@ -27,7 +27,7 @@ make tipos-api  # regenera src/api/esquema.d.ts (y su huella) desde el openapi.j
 make sh         # shell en el contenedor (p. ej. npm install <paquete> --save-exact)
 ```
 
-`BACK_DIR` apunta al repositorio del backend (por defecto `../../Back/dad_copropiedad_back`).
+`BACK_DIR` apunta al repositorio del backend (por defecto `../../back/dad_copropiedad_back`).
 
 ## Modo demo
 

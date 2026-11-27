@@ -17,6 +17,7 @@ import type {
   EstadoVerificacion,
   ExclusionPublicidad,
   FichaAnunciante,
+  ImagenPublicidad,
   Lead,
   LiquidacionPublicidad,
   MetricasCampana,
@@ -234,4 +235,16 @@ export async function tokenPantalla(copropiedadId: string): Promise<string | nul
 /** Genera el token de la pantalla del lobby (el anterior deja de funcionar). */
 export async function generarPantalla(copropiedadId: string, clave: string): Promise<string> {
   return (await exigir(api().POST(`${P}/pantallas/{copropiedad_id}`, { params: { path: { copropiedad_id: copropiedadId } }, headers: idempotencia(clave) }))).token
+}
+
+// Imágenes ---------------------------------------------------------------------------------
+
+/** Sube una imagen (JPEG, PNG o WebP de hasta 2 MB) para una pieza o el logo de un comercio. */
+export function subirImagen(nombreArchivo: string, archivoBase64: string): Promise<ImagenPublicidad> {
+  return exigir(api().POST(`${P}/imagenes`, { body: { nombre_archivo: nombreArchivo, archivo_base64: archivoBase64 } }))
+}
+
+/** Pone (o quita, con `null`) el logo del comercio. */
+export function ponerLogo(id: string, archivoId: string | null): Promise<{ anunciante_id: string; logo_archivo_id?: string | null }> {
+  return exigir(api().PUT(`${P}/anunciantes/{anunciante_id}/logo`, { params: anun(id), body: { archivo_id: archivoId } }))
 }

@@ -225,6 +225,7 @@ export const SECCIONES: Record<string, Seccion> = {
       a('cuentas-por-pagar', 'Cuentas por pagar', 'Facturas de proveedores y certificados de retención.', ['tesoreria.facturas_proveedor.gestionar', 'contabilidad.ver']),
       a('conciliacion', 'Conciliación', 'Extractos bancarios y conciliación.', ['tesoreria.conciliar']),
       a('cartera-clientes', 'Cartera de clientes', 'Cuentas por cobrar por edades.', ['contabilidad.ver']),
+      a('por-pagar-edades', 'Proveedores por edades', 'Lo que se debe a cada proveedor por edades.', ['contabilidad.ver']),
     ],
   },
   tributario: {

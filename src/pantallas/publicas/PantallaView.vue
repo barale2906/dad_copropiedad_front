@@ -106,6 +106,12 @@ onBeforeUnmount(() => clearInterval(reloj))
         class="pieza"
         aria-live="polite"
       >
+        <img
+          v-if="actual.imagen_url"
+          :src="actual.imagen_url"
+          alt=""
+          class="imagen"
+        >
         <div class="texto">
           <p class="comercio">
             {{ actual.nombre_comercial }}
@@ -144,6 +150,11 @@ onBeforeUnmount(() => clearInterval(reloj))
 </template>
 
 <style scoped>
+.imagen {
+  max-inline-size: 40%;
+  max-block-size: 60vh;
+  object-fit: contain;
+}
 .pantalla {
   display: grid;
   grid-template-rows: auto 1fr auto;
