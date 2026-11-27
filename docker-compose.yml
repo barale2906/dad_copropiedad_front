@@ -18,7 +18,7 @@ services:
       - node_modules:/app/node_modules
       - npm_cache:/home/node/.npm
       # Contrato del backend, solo lectura, para `make tipos-api`.
-      - ${BACK_DIR:-../../Back/dad_copropiedad_back}/apps/api:/contrato:ro
+      - ${BACK_DIR:-../../back/dad_copropiedad_back}/apps/api:/contrato:ro
 
   # Build de producción servido por Nginx: `make preview` / base de `make e2e`.
   preview:

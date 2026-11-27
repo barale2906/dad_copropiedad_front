@@ -3,7 +3,7 @@ SHELL := /bin/bash
 .DEFAULT_GOAL := ayuda
 
 VERSION  ?= $(shell node -p "require('./package.json').version" 2>/dev/null || grep -m1 '"version"' package.json | cut -d'"' -f4)
-BACK_DIR ?= ../../Back/dad_copropiedad_back
+BACK_DIR ?= ../../back/dad_copropiedad_back
 export BACK_DIR
 
 RUN := docker compose run --rm --no-deps dev
