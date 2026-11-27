@@ -63,6 +63,7 @@ export const VISTAS_MODULOS: VistasModulo = {
   'tesoreria/cuentas-por-pagar': () => import('@/modulos/tesoreria/vistas/CuentasPorPagarView.vue'),
   'tesoreria/conciliacion': () => import('@/modulos/tesoreria/vistas/ConciliacionView.vue'),
   'tesoreria/cartera-clientes': () => import('@/modulos/tesoreria/vistas/CarteraClientesView.vue'),
+  'tesoreria/por-pagar-edades': () => import('@/modulos/tesoreria/vistas/PorPagarEdadesView.vue'),
   'cartera/inicio': () => import('@/modulos/cartera/vistas/InicioView.vue'),
   'cartera/saldos': () => import('@/modulos/cartera/vistas/SaldosView.vue'),
   'cartera/liquidacion': () => import('@/modulos/cartera/vistas/LiquidacionView.vue'),

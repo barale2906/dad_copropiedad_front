@@ -119,6 +119,19 @@ describe('tesorería contra el demo', { timeout: 25_000 }, () => {
     await expect(a.anularRecibo(PH, r.id, 'otra vez')).rejects.toMatchObject({ estado: 409 })
   })
 
+  it('recibos y egresos se descargan en PDF', async () => {
+    const [recibo] = await a.recibos(PH)
+    const [egreso] = await a.egresos(PH)
+    expect((await a.reciboPdf(PH, recibo!.id)).nombre).toBe('recibo-caja.pdf')
+    expect((await a.egresoPdf(PH, egreso!.id)).nombre).toBe('egreso.pdf')
+  })
+
+  it('cuentas por pagar por edades: lo que se debe a cada proveedor', async () => {
+    const [fila] = await a.porPagarPorEdades(PH, fechaDemo())
+    expect(fila).toMatchObject({ persona_id: vid(5501), total: '4830000.00' })
+    expect(fila!.tramos.map((t) => t.tramo)).toEqual(['corriente'])
+  })
+
   it('egresos: cuatro ojos, pago y anulación', async () => {
     const lista = await a.egresos(PH)
     const mio = lista.find((x) => x.registrado_por === YO)!

@@ -1,8 +1,9 @@
 <script setup lang="ts">
 /**
- * Para el contador externo: libro de ventas y libro de compras (CSV) y el paquete con el XML y el
- * PDF de cada documento del periodo (ZIP). Cada descarga queda en la auditoría con su huella
- * SHA-256, que se muestra para verificar el archivo.
+ * Para el contador externo y para conservar los documentos: libro de ventas y libro de compras
+ * (CSV) y el paquete del periodo (ZIP con lo emitido, lo recibido, los eventos RADIAN y su índice
+ * de huellas). Cada descarga queda en la auditoría con su huella SHA-256, que se muestra para
+ * verificar el archivo.
  */
 import { computed, ref } from 'vue'
 import type { Descarga } from '@/api/archivos'
@@ -27,7 +28,11 @@ const errorPeriodo = computed(() => (periodo.value.hasta < periodo.value.desde ?
 const ARCHIVOS: { tipo: Tipo; texto: string; ayuda: string }[] = [
   { tipo: 'ventas', texto: 'Libro de ventas (CSV)', ayuda: 'Número interno, número y CUFE de la DIAN, cliente y valores.' },
   { tipo: 'compras', texto: 'Libro de compras (CSV)', ayuda: 'Facturas electrónicas recibidas.' },
-  { tipo: 'paquete', texto: 'Paquete del periodo (ZIP)', ayuda: 'El XML y el PDF de cada documento transmitido.' },
+  {
+    tipo: 'paquete',
+    texto: 'Mis documentos del periodo (ZIP)',
+    ayuda: 'Copia para conservar: lo emitido (XML firmado, AttachedDocument y PDF), las facturas recibidas, los eventos RADIAN y un índice con la huella de cada archivo.',
+  },
 ]
 const PEDIR: Record<Tipo, (id: string, p: Periodo) => Promise<Descarga>> = { ventas: libroVentas, compras: libroCompras, paquete: paquetePeriodo }
 

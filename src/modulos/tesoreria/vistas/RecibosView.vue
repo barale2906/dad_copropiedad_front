@@ -24,7 +24,7 @@ import { useEntidad } from '@/stores/entidad'
 import { useTercerosConocidos } from '@/stores/terceros'
 import IVolver from '~icons/tabler/arrow-left'
 import IMas from '~icons/tabler/plus'
-import { anularRecibo, aplicarRecibo, crearRecibo, cuentasTesoreria, facturasVenta, recibo as pedirRecibo, recibos as pedirRecibos } from '../api'
+import { anularRecibo, aplicarRecibo, crearRecibo, cuentasTesoreria, facturasVenta, recibo as pedirRecibo, reciboPdf, recibos as pedirRecibos } from '../api'
 import FormularioRecibo from '../componentes/FormularioRecibo.vue'
 import { ESTADO_RECIBO, MEDIO_RECIBO } from '../reglas'
 
@@ -66,6 +66,7 @@ const facturaElegida = ref('')
 const valorAplicar = ref('')
 const crear = useAccion((clave, datos: NuevoRecibo) => crearRecibo(id.value, datos, clave))
 const anular = useAccion((_c, motivo: string) => anularRecibo(id.value, reciboId.value, motivo))
+const pdf = useAccion(() => reciboPdf(id.value, reciboId.value))
 const aplicar = useAccion(() => aplicarRecibo(id.value, reciboId.value, facturaElegida.value, valorAplicar.value))
 const pendientes = computed(() => facturas.value.filter((f) => comparar(restar(f.total, f.pagado), '0') > 0))
 /** Número de la factura a la que se aplicó el recibo (si se conoce). */
@@ -261,17 +262,29 @@ onMounted(cargar)
             {{ aplicar.error.value }}
           </p>
         </HudPanel>
-        <div
-          v-if="actual.estado === 'registrado' && registra"
-          class="botones"
-        >
+        <div class="botones">
           <HudBoton
+            variante="secundario"
+            :cargando="pdf.cargando.value"
+            @click="pdf.ejecutar()"
+          >
+            Descargar el PDF
+          </HudBoton>
+          <HudBoton
+            v-if="actual.estado === 'registrado' && registra"
             variante="fantasma"
             @click="anulando = true"
           >
             Anular el recibo
           </HudBoton>
         </div>
+        <p
+          v-if="pdf.error.value"
+          class="error"
+          role="alert"
+        >
+          {{ pdf.error.value }}
+        </p>
         <ConfirmarConMotivo
           v-model:abierto="anulando"
           titulo="Anular el recibo"

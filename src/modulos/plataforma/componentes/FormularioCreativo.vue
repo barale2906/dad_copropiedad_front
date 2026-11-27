@@ -2,7 +2,7 @@
 /**
  * Crear o editar una pieza: formato, título, texto, botón y enlace (`https`), condiciones
  * (obligatorias en promociones y cupones, Ley 1480), cupón (código y límite) o plantilla de
- * WhatsApp aprobada en Meta. Si cambia, vuelve a moderación.
+ * WhatsApp aprobada en Meta, e imagen (JPEG, PNG o WebP). Si cambia, vuelve a moderación.
  */
 import { computed, ref, watch } from 'vue'
 import type { Creativo, FormatoCreativo, NuevoCreativo } from '@/api/tipos'
@@ -11,6 +11,7 @@ import HudBoton from '@/hud/componentes/HudBoton.vue'
 import HudCampo from '@/hud/componentes/HudCampo.vue'
 import HudDialogo from '@/hud/componentes/HudDialogo.vue'
 import HudSelector from '@/hud/componentes/HudSelector.vue'
+import SelectorImagenPublicidad from './SelectorImagenPublicidad.vue'
 
 const props = withDefaults(defineProps<{ creativo?: Creativo | null; cargando?: boolean; error?: string | null }>(), {
   creativo: null,
@@ -20,7 +21,7 @@ const props = withDefaults(defineProps<{ creativo?: Creativo | null; cargando?: 
 const abierto = defineModel<boolean>('abierto', { required: true })
 const emit = defineEmits<{ enviar: [datos: NuevoCreativo] }>()
 
-const vacio = () => ({ formato: 'banner' as FormatoCreativo, titulo: '', texto: '', boton: '', enlace: '', condiciones: '', promocion: false, cupon: '', limite: '', plantilla: '' })
+const vacio = () => ({ formato: 'banner' as FormatoCreativo, titulo: '', texto: '', boton: '', enlace: '', condiciones: '', promocion: false, cupon: '', limite: '', plantilla: '', imagen: null as string | null })
 const f = ref(vacio())
 const intentado = ref(false)
 const FORMATOS = (Object.keys(FORMATO_PIEZA) as FormatoCreativo[]).map((x) => ({ valor: x, etiqueta: FORMATO_PIEZA[x] }))
@@ -47,6 +48,7 @@ watch(abierto, (si) => {
     ? {
         formato: c.formato, titulo: c.titulo, texto: c.texto, boton: c.boton ?? '', enlace: c.enlace ?? '', condiciones: c.condiciones ?? '',
         promocion: c.es_promocion, cupon: c.cupon_codigo ?? '', limite: c.cupon_limite ? String(c.cupon_limite) : '', plantilla: c.plantilla_whatsapp ?? '',
+        imagen: c.imagen_archivo_id ?? null,
       }
     : vacio()
 })
@@ -60,6 +62,7 @@ function enviar() {
     condiciones: v.condiciones.trim() || null, es_promocion: v.promocion || esCupon.value,
     cupon_codigo: esCupon.value ? v.cupon.toUpperCase() : null, cupon_limite: esCupon.value && /^\d+$/.test(v.limite) ? Number(v.limite) : null,
     plantilla_whatsapp: esWhatsapp.value ? v.plantilla.trim() : null,
+    imagen_archivo_id: v.imagen,
   })
 }
 </script>
@@ -147,6 +150,10 @@ function enviar() {
       >
         {{ error }}
       </p>
+      <SelectorImagenPublicidad
+        v-model="f.imagen"
+        etiqueta="Imagen de la pieza"
+      />
     </form>
     <template #acciones>
       <HudBoton

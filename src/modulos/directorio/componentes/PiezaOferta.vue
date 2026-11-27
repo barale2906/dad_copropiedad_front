@@ -30,6 +30,13 @@ const vence = computed(() => fecha(props.pieza.vence_en, props.zona))
         {{ pieza.es_promocion ? 'Promoción' : FORMATO_PIEZA[pieza.formato] }}
       </HudInsignia>
     </header>
+    <img
+      v-if="pieza.imagen_url"
+      :src="pieza.imagen_url"
+      alt=""
+      class="imagen"
+      loading="lazy"
+    >
     <h2>{{ pieza.titulo }}</h2>
     <p class="texto">
       {{ pieza.texto }}
@@ -79,6 +86,12 @@ const vence = computed(() => fecha(props.pieza.vence_en, props.zona))
 </template>
 
 <style scoped>
+.imagen {
+  inline-size: 100%;
+  max-block-size: 12rem;
+  object-fit: cover;
+  border-radius: var(--radio-1, 4px);
+}
 .pieza {
   display: grid;
   align-content: start;

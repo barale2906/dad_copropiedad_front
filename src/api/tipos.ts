@@ -561,6 +561,8 @@ export type ModeloCobro = S['ModeloCobro']
 export type Segmentacion = S['SegmentacionDto']
 export type Creativo = S['CreativoRespuesta']
 export type NuevoCreativo = S['CreativoPeticion']
+/** Imagen de la publicidad subida a la plataforma (creativo o logo de un comercio). */
+export type ImagenPublicidad = S['ImagenRespuesta']
 export type EstadoCreativo = S['EstadoCreativo']
 export type MetricasCampana = S['MetricasRespuesta']
 export type Lead = S['LeadRespuesta']

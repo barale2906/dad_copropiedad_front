@@ -221,6 +221,16 @@ describe('organizaciones, normativa y WhatsApp', () => {
 describe('directorio y publicidad', () => {
   const ROSA = id(14001)
 
+  it('imágenes: se suben, van al logo del comercio y se quitan', async () => {
+    const imagen = await publicidad.subirImagen('logo.png', 'iVBORw0KGgo=')
+    expect(imagen).toMatchObject({ tipo: 'image/png' })
+    expect(imagen.url).toMatch(/^data:image\/png/)
+    expect((await publicidad.ponerLogo(ROSA, imagen.id)).logo_archivo_id).toBe(imagen.id)
+    expect((await publicidad.anunciante(ROSA)).logo_archivo_id).toBe(imagen.id)
+    expect((await publicidad.ponerLogo(ROSA, null)).logo_archivo_id).toBeNull()
+    await expect(publicidad.subirImagen('vacia.png', '')).rejects.toMatchObject({ estado: 422 })
+  })
+
   it('comercios: alta, ficha (sin categorías restringidas), estado con motivo', async () => {
     const a = await publicidad.crearAnunciante({ nombre_comercial: 'Panadería Nueva', organizacion: { nit: '900222333', razon_social: 'Pan S.A.S.', naturaleza: 'juridica', tipos: ['anunciante'] } }, 'k')
     expect(a.estado).toBe('pendiente')

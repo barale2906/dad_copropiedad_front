@@ -519,6 +519,7 @@ test('tesorería: bancos, recibos, egresos, cuentas por pagar, conciliación y c
     ['cuentas-por-pagar/nueva', 'Nueva factura de proveedor'],
     ['conciliacion/01930000-0000-7000-8000-000000030001', 'Conciliación: Cuenta corriente principal'],
     ['cartera-clientes', 'Cartera de clientes'],
+    ['por-pagar-edades', 'Cuentas por pagar'],
   ]
   for (const [ruta, titulo] of pantallas) {
     await page.goto(`${base}/${ruta}`)

@@ -18,7 +18,7 @@ import HudEstado from '@/hud/componentes/HudEstado.vue'
 import HudInsignia from '@/hud/componentes/HudInsignia.vue'
 import HudPanel from '@/hud/componentes/HudPanel.vue'
 import { useEntidad } from '@/stores/entidad'
-import { anunciante, campanas, cambiarEstadoAnunciante, crearCampana, editarAnunciante, leads } from '../api-publicidad'
+import { anunciante, campanas, cambiarEstadoAnunciante, crearCampana, editarAnunciante, leads, ponerLogo } from '../api-publicidad'
 import { cambiosAnunciante, COBERTURA, ESTADO_ANUNCIANTE, ESTADO_CAMPANA } from '../reglas'
 import { usePermisosPlataforma } from '../store'
 import DetalleCampana from './DetalleCampana.vue'
@@ -26,6 +26,7 @@ import EnlaceCupones from './EnlaceCupones.vue'
 import FichaDirectorioComercio from './FichaDirectorioComercio.vue'
 import FormularioCampana from './FormularioCampana.vue'
 import FormularioComercio from './FormularioComercio.vue'
+import SelectorImagenPublicidad from './SelectorImagenPublicidad.vue'
 
 const props = defineProps<{ comercioId: string; categorias: CategoriaDirectorio[] }>()
 
@@ -44,6 +45,15 @@ const pidiendoMotivo = ref<EstadoVerificacion | null>(null)
 const resultado = ref<string | null>(null)
 
 const puedeCampanas = computed(() => puede('plataforma.publicidad.gestionar'))
+const guardarLogo = useAccion(async (_clave, archivo: string | null) => {
+  const r = await ponerLogo(props.comercioId, archivo)
+  if (comercio.value) comercio.value = { ...comercio.value, logo_archivo_id: r.logo_archivo_id ?? null }
+  return r
+})
+const logo = computed({
+  get: () => comercio.value?.logo_archivo_id ?? null,
+  set: (archivo: string | null) => void guardarLogo.ejecutar(archivo),
+})
 const campanaId = computed(() => (typeof route.query.campana === 'string' ? route.query.campana : ''))
 const lista = useListado((d) => campanas(props.comercioId, d), { inmediato: false })
 const contactos = useListado((d) => leads(props.comercioId, d), { inmediato: false })
@@ -204,6 +214,17 @@ watch(() => props.comercioId, cargar, { immediate: true })
           Editar datos del comercio
         </HudBoton>
       </div>
+      <SelectorImagenPublicidad
+        v-model="logo"
+        etiqueta="Logo del comercio"
+      />
+      <p
+        v-if="guardarLogo.error.value"
+        class="error"
+        role="alert"
+      >
+        {{ guardarLogo.error.value }}
+      </p>
       <FichaDirectorioComercio
         :comercio-id="comercio.id"
         :ficha="comercio.ficha ?? null"
